@@ -1,6 +1,6 @@
 /* Implementation of circularly-linked lists */
 
-#include <ipcfg/cll.h>
+#include <ipcfg/ll.h>
 #include <stdlib.h>
 
 CLList* cl_list_prepend(CLList* list, void* data) {

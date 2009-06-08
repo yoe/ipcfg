@@ -1,4 +1,5 @@
 #include <ipcfg/event.h>
+#include <ipcfg/hashtable.h>
 
 /* Implementation of events. */
 
@@ -15,3 +16,27 @@
  * An event handler will always have all those properties. However, when
  * registering an event handler, specifying all three is not necessary.
  */
+
+static struct hashtable* context_index;
+static struct hashtable* event_index;
+static struct hashtable* action_index;
+
+typedef struct {
+	unsigned int index;
+	event_handler_t handler;
+	void* data;
+} event_result_t;
+
+static unsigned int curindex = 0;
+
+DEFINE_HASHTABLE_INSERT(insert_context, char, DLList*);
+DEFINE_HASHTABLE_SEARCH(search_context, char, DLList*);
+DEFINE_HASHTABLE_REMOVE(remove_context, char, DLList*);
+
+DEFINE_HASHTABLE_INSERT(insert_event, char, DLList*);
+DEFINE_HASHTABLE_SEARCH(search_event, char, DLList*);
+DEFINE_HASHTABLE_REMOVE(remove_event, char, DLList*);
+
+DEFINE_HASHTABLE_INSERT(insert_action, char, DLList*);
+DEFINE_HASHTABLE_SEARCH(search_action, char, DLList*);
+DEFINE_HASHTABLE_REMOVE(remove_action, char, DLList*);

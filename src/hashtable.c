@@ -1,7 +1,7 @@
 /* Copyright (C) 2004 Christopher Clark <firstname.lastname@cl.cam.ac.uk> */
 
-#include "hashtable.h"
-#include "hashtable_private.h"
+#include <ipcfg/hashtable.h>
+#include <hashtable_private.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

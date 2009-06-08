@@ -17,7 +17,7 @@
  * registering an event handler, specifying all three is not necessary.
  */
 
-typedef (int)(*event_handler_t)(char* context, char* event, ipcfg_action act, void* data);
+typedef int(*event_handler_t)(char* context, char* event, ipcfg_action act, void* data);
 
 int register_event_handler(event_handler_t handler, char* context, char* event, ipcfg_action act, void* data);
 int signal_event(char* context, char* event, ipcfg_action act);

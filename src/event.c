@@ -1,5 +1,6 @@
 #include <ipcfg/event.h>
 #include <ipcfg/hashtable.h>
+#include <ipcfg/ll.h>
 
 /* Implementation of events. */
 
@@ -29,14 +30,14 @@ typedef struct {
 
 static unsigned int curindex = 0;
 
-DEFINE_HASHTABLE_INSERT(insert_context, char, DLList*);
-DEFINE_HASHTABLE_SEARCH(search_context, char, DLList*);
-DEFINE_HASHTABLE_REMOVE(remove_context, char, DLList*);
+DEFINE_HASHTABLE_INSERT(insert_context, char, DLList);
+DEFINE_HASHTABLE_SEARCH(search_context, char, DLList);
+DEFINE_HASHTABLE_REMOVE(remove_context, char, DLList);
 
-DEFINE_HASHTABLE_INSERT(insert_event, char, DLList*);
-DEFINE_HASHTABLE_SEARCH(search_event, char, DLList*);
-DEFINE_HASHTABLE_REMOVE(remove_event, char, DLList*);
+DEFINE_HASHTABLE_INSERT(insert_event, char, DLList);
+DEFINE_HASHTABLE_SEARCH(search_event, char, DLList);
+DEFINE_HASHTABLE_REMOVE(remove_event, char, DLList);
 
-DEFINE_HASHTABLE_INSERT(insert_action, char, DLList*);
-DEFINE_HASHTABLE_SEARCH(search_action, char, DLList*);
-DEFINE_HASHTABLE_REMOVE(remove_action, char, DLList*);
+DEFINE_HASHTABLE_INSERT(insert_action, char, DLList);
+DEFINE_HASHTABLE_SEARCH(search_action, char, DLList);
+DEFINE_HASHTABLE_REMOVE(remove_action, char, DLList);

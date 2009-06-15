@@ -16,8 +16,10 @@ typedef struct _llist DLList;
 
 CLList* cl_list_prepend(CLList* list, void* data);
 CLList* cl_list_get_next(CLList* list);
-CLList* cl_list_remove(CLList* list);
+CLList* cl_list_get_prev(CLList* list);
+CLList* cl_list_remove_item(CLList* list);
 CLList* cl_list_get_data(CLList* list);
+void cl_list_clear(CLList* list);
 
 /* doubly-linked lists */
 

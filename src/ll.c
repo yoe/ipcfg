@@ -46,3 +46,32 @@ CLList* cl_list_get_data(CLList* list) {
 	}
 	return list->data;
 }
+
+DLList* dl_list_append(DLList* head, void* data) {
+	DLList* item = calloc(1, sizeof(DLList));
+	DLList* tail;
+	
+	item->data = data;
+
+	if(head) {
+		tail = dl_list_last(head);
+		tail->next = item;
+		item->prev = tail;
+	} else {
+		return item;
+	}
+
+	return head;
+}
+
+DLList* dl_list_last(DLList* head) {
+	DLList* retval = head;
+	while((retval=dl_list_get_next(retval))) {
+		continue;
+	}
+	return retval;
+}
+
+DLList* dl_list_get_next(DLList* item) {
+	return (DLList*)cl_list_get_next((CLList*)item);
+}

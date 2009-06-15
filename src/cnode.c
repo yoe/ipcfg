@@ -28,16 +28,20 @@ ipcfg_cnode* get_anonymous_confignode(void) {
 	return calloc(sizeof(ipcfg_cnode), 1);
 }
 
-int perform_confignode(ipcfg_cnode* node, ipcfg_action act) {
+#define COPY_CONFIG(c, s, n) if(!(c) && (n)) { s=IPCFG_SRC_ASSUME; c=n; }
+
+int perform_confignode(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 	int retval;
 
 	assert(node->fptr);
-	if(!(retval = node->fptr(node, act))) {
+	COPY_CONFIG(ctx->ifname, ctx->ifname_src, node->ifname);
+	COPY_CONFIG(ctx->start, ctx->start_src, node);
+	if(!(retval = node->fptr(node, act, ctx))) {
 		if(node->name) {
 			signal_event(node->name, "node_success", act);
 		}
 		if(node->success) {
-			return perform_confignode(node->success, act);
+			return perform_confignode(node->success, act, ctx);
 		} else {
 			if(node->ifname) {
 				signal_event(node->ifname, "iface_success", act);
@@ -48,7 +52,7 @@ int perform_confignode(ipcfg_cnode* node, ipcfg_action act) {
 			signal_event(node->name, "node_failure", act);
 		}
 		if(node->failure) {
-			return perform_confignode(node->failure, act);
+			return perform_confignode(node->failure, act, ctx);
 		} else {
 			if(node->ifname) {
 				signal_event(node->ifname, "iface_failure", act);
@@ -58,13 +62,15 @@ int perform_confignode(ipcfg_cnode* node, ipcfg_action act) {
 	return retval;
 }
 
-int perform_confignode_no_fail(ipcfg_cnode* node, ipcfg_action act) {
+int perform_confignode_no_fail(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 	int retval;
 
 	assert(node->fptr);
-	if(!(retval = node->fptr(node, act))) {
+	COPY_CONFIG(ctx->ifname, ctx->ifname_src, node->ifname);
+	COPY_CONFIG(ctx->start, ctx->start_src, node);
+	if(!(retval = node->fptr(node, act, ctx))) {
 		if(node->success) {
-			return perform_confignode_no_fail(node->success, act);
+			return perform_confignode_no_fail(node->success, act, ctx);
 		}
 	}
 	return retval;

@@ -12,6 +12,10 @@ DEFINE_HASHTABLE_REMOVE(remove_cnode, char, ipcfg_cnode);
 
 static struct hashtable* cnode_index;
 
+ipcfg_cnode* find_confignode_for(char* name) {
+	return search_cnode(cnode_index, name);
+}
+
 ipcfg_cnode* get_confignode_for(char* name) {
 	ipcfg_cnode* node;
 	if(!(node = search_cnode(cnode_index, name))) {

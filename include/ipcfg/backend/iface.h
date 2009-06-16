@@ -3,6 +3,6 @@
 
 #include <stdbool.h>
 
-bool ipcfg_be_ifname_exists(char* ifname);
+bool be_ifname_exists(char* ifname);
 
 #endif

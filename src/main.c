@@ -1,14 +1,23 @@
 #define _GNU_SOURCE
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <ipcfg/commands.h>
 
 int main(int argc, char**argv) {
 	char* name=basename(argv[0]);
 	if(!strncmp(name, "ifup", 4)) {
+		if(argc<2) {
+			fprintf(stderr, "E: Need a name to bring up\n");
+			exit(EXIT_FAILURE);
+		}
 		return do_ifup(argc, argv);
 	}
 	if(!strncmp(name, "ifdown", 6)) {
+		if(argc<2) {
+			fprintf(stderr, "E: Need a name to bring down\n");
+			exit(EXIT_FAILURE);
+		}
 		return do_ifdown(argc, argv);
 	}
 	if(!strncmp(name, "ifcfgd", 6)) {

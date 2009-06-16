@@ -24,7 +24,12 @@ int ssock;
 
 /* Daemon status functions */
 
-static bool daemonized;
+static bool daemonized = false;
+static bool allowed = true;
+
+bool daemon_allowed() {
+	return allowed;
+}
 
 bool am_daemon() {
 	return daemonized;
@@ -32,7 +37,11 @@ bool am_daemon() {
 
 bool daemon_is_running() {
 	char* reply;
+	if(am_daemon()) {
+		return true;
+	}
 	if((reply=daemon_send_command("PING"))>=0) {
+		free(reply);
 		return true;
 	}
 	return false;
@@ -43,11 +52,6 @@ int go_daemon() {
 	int pidfile;
 	char buf[6];
 
-	if(am_daemon()) {
-		/* We're already daemon. No point in trying to become a daemon
-		 * again */
-		return 0;
-	}
 	if(daemon_is_running()) {
 		/* Another process is already running in daemon mode. We can't
 		 * become a daemon in that case */
@@ -65,6 +69,7 @@ int go_daemon() {
 	 * - PID file
 	 * - UNIX domain socket to communicate with non-daemonized processes
 	 */
+    retry:
 	if(!(pidfile = open(PIDFILEDIR "/ipcfgd", O_CREAT | O_EXCL | O_RDWR))) {
 		snprintf(buf, 6, "%d", getpid());
 		write(pidfile, buf, strlen(buf));
@@ -73,11 +78,9 @@ int go_daemon() {
 	} else {
 		/* PID file already exists. Verify whether the daemon is in
 		 * fact still running */
-		if(!(pidfile=open(PIDFILEDIR "/ipcfgd", O_RDONLY))) {
-			pid_t pid;
-			read(pidfile, buf, 5);
-			pid=strtol(buf, NULL, 10);
-			backend_check_pid_binary(pid, BINARY_SELF);
+		if(!be_pidfile_isrunning(PIDFILEDIR "/ipcfgd")) {
+			unlink(PIDFILEDIR "/ipcfgd");
+			goto retry;
 		}
 	}
 	retval = daemon(0, 0);

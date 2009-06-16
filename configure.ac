@@ -10,6 +10,7 @@ AC_CONFIG_HEADERS([include/ipcfg/private/config.h])
 
 # Checks for programs.
 AC_PROG_CC_C99
+AC_PROG_RANLIB
 
 # Checks for libraries.
 
@@ -25,5 +26,6 @@ AC_CONFIG_FILES([Makefile
                  include/ipcfg/Makefile
 		 include/ipcfg/private/Makefile
 		 include/ipcfg/backend/Makefile
-		 src/Makefile])
+		 src/Makefile
+		 src/backend-test/Makefile])
 AC_OUTPUT

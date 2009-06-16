@@ -6,6 +6,6 @@
 
 #define BINARY_SELF EXECPREFIX "/ipcfgd"
 
-bool backend_check_pid_binary(pid_t pid, char* fname);
+bool be_check_pidfile(char* fname);
 
 #endif

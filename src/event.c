@@ -4,6 +4,7 @@
 #include <ipcfg/event.h>
 #include <ipcfg/hashtable.h>
 #include <ipcfg/ll.h>
+#include <ipcfg/macros.h>
 
 /* Implementation of events. */
 
@@ -72,7 +73,7 @@ int register_event_handler(event_handler_t handler, char* context, char* event, 
 		append_to_htable_list(event_index, event, res);
 	}
 	if(act) {
-		if(__builtin_expect(action_index == NULL, 0)) {
+		if(IPCFG_EXPECT_FALSE(action_index == NULL)) {
 			action_index=calloc(sizeof(DLList*), 2);
 		}
 		dl_list_append(action_index[act], res);
@@ -80,7 +81,7 @@ int register_event_handler(event_handler_t handler, char* context, char* event, 
 	if(!context && !event && !act) {
 		dl_list_append(wildcart_index, res);
 	}
-	if(__builtin_expect(resindex_size < curindex, 1)) {
+	if(IPCFG_EXPECT_TRUE(resindex_size < curindex)) {
 		resindex_size=(int)((curindex*3)/2);
 		resource_index=realloc(resource_index, resindex_size);
 	}

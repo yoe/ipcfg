@@ -1,5 +1,6 @@
 #include <ipcfg/commands.h>
 #include <ipcfg/daemon.h>
+#include <ipcfg/macros.h>
 
 #include <ipcfg/backend/pid.h>
 
@@ -94,13 +95,14 @@ int go_daemon() {
 
 char* daemon_send_command(char* command) {
 	char buf[256];
-	char* p;
+	char* p=NULL;
 	size_t size=256;
 	ssize_t read_bytes;
 	bool cont=true;
-	if(__builtin_expect(!csock && !ssock, 0)) {
+
+	if(IPCFG_EXPECT_FALSE(!csock && !ssock)) {
 		int sock_flags;
-		if(__builtin_expect(csock == 0, 0)) {
+		if(IPCFG_EXPECT_FALSE(csock == 0)) {
 			/* Can't be client and server at the same time */
 			return NULL;
 		}
@@ -132,8 +134,10 @@ char* daemon_send_command(char* command) {
 			}
 		}
 		if(cont) {
+			p=realloc(p, size+read_bytes);
+			memcpy(p+size, buf, read_bytes);
 			size+=read_bytes;
-			
 		}
 	}
+	return p;
 }

@@ -6,6 +6,6 @@
 
 #define BINARY_SELF EXECPREFIX "/ipcfgd"
 
-bool be_check_pidfile(char* fname);
+bool be_pidfile_isrunning(const char* fname);
 
 #endif

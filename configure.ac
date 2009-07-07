@@ -11,6 +11,9 @@ AC_CONFIG_HEADERS([include/ipcfg/private/config.h])
 # Checks for programs.
 AC_PROG_CC_C99
 AC_PROG_RANLIB
+AC_PROG_LEX
+AC_PROG_YACC
+AC_PROG_LN_S
 
 # Checks for libraries.
 

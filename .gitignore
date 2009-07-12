@@ -16,3 +16,9 @@ missing
 stamp-h1
 .deps
 *.o
+ylwrap
+ipcfg
+ipcfg-lexer.c
+ipcfg-parser.h
+ipcfg-parser.c
+lex.yy.c

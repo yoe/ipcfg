@@ -4,9 +4,8 @@
 #include <stdint.h>
 /** What are we trying to do? */
 typedef enum {
-	IPCFG_ACT_UNDEF=0,	/**< We don't know. Whoa. This is probably
-				 * programmer error if it occurs in the
-				 * wild. */
+	IPCFG_ACT_UNDEF=0,	/**< We don't know, or (in case of an event) we
+				 * don't care*/
 	IPCFG_ACT_UP,		/**< Bring an interface up */
 	IPCFG_ACT_DOWN,		/**< Bring an interface down */
 } ipcfg_action;

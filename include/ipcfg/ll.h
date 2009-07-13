@@ -1,6 +1,8 @@
 #ifndef IPCFG_CLL_H
 #define IPCFG_CLL_H
 
+#include <stdbool.h>
+
 /* Data structure */
 
 struct _llist {
@@ -19,6 +21,7 @@ CLList* cl_list_get_next(CLList* list);
 CLList* cl_list_get_prev(CLList* list);
 CLList* cl_list_remove_item(CLList* list);
 CLList* cl_list_get_data(CLList* list);
+CLList* cl_list_from_dllist(DLList* list, bool copy);
 void cl_list_clear(CLList* list);
 
 /* doubly-linked lists */

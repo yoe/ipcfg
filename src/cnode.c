@@ -38,6 +38,9 @@ int perform_confignode(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) 
 	int retval;
 
 	assert(node->fptr);
+	if(!ctx) {
+		ctx = calloc(sizeof(ipcfg_context), 1);
+	}
 	COPY_CONFIG(ctx->ifname, ctx->ifname_src, node->ifname);
 	COPY_CONFIG(ctx->start, ctx->start_src, node);
 	if(!(retval = node->fptr(node, act, ctx))) {

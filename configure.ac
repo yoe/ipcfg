@@ -24,6 +24,7 @@ AC_PROG_LN_S
 # Checks for library functions.
 
 AC_CONFIG_FILES([Makefile
+		 doc/Makefile
                  examples/Makefile
                  include/Makefile
                  include/ipcfg/Makefile

@@ -1,1 +1,1 @@
-SUBDIRS = examples include src
+SUBDIRS = examples include src doc

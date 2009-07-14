@@ -1,0 +1,198 @@
+*******************************************
+*IPCFG: A modern network management system*
+*******************************************
+
+1. Overview.
+============
+
+Ipcfg is a highly flexible replacement for the traditional "ifupdown"
+suite of programs. Based on an internal state machine, and with a plugin
+interface, it provides users with a flexible configuration system,
+suitable for laptops and servers alike, while having a carefully
+designed and extendable API, allowing programmers to easily extend its
+functionality.
+
+The internal system is a state machine based on function pointers. There
+are three important concepts: "confignodes", "events", and the "context"
+structure.
+
+The first of these concepts, the 'confignode', is the state machine.
+When a user runs 'ifup home', what happens internally is that ipcfg will
+look in a hash table for a confignode with the 'home' name (which may or
+may not refer to the 'home' physical interface), and execute the
+function pointer that is part of this confignode. If the return value of
+this function indicates success (that is, it is zero), and the 'success'
+pointer is non-NULL, then the same procedure is repeated for the
+confignode behind this success pointer. If the return value is nonzero,
+and the 'failure' pointer non-NULL, then this confignode is executed
+instead. This procedure is repeated until the system encounters a NULL
+pointer for either the 'success' or 'failure' pointers, in which case
+the result of the final function is returned all the way up the stack.
+
+The second concept provides a generic event-based system. Any plugin may
+define any events; any plugin may register callback handlers for any
+events, either those defined by itself, or those defined by other
+plugins or even the core system. When the event triggers, the system
+will call the function pointer. The result value of the 'signal_event'
+function (which executes the callback handlers) is the sum of all the
+return values of the that have been registered and executed.
+
+The third of these concepts, the "context", allows a plugin developer to
+track the actions of the state machine. For instance, when the user
+performs an 'ifup auto' (which will bring up any network that was must
+be configured at boot time), the context will not be the same as when
+the user asks for 'ifup eth0', even if both actions produce the same
+result. Likewise, when a confignode wants to perform a number of tests
+on a network without specifying which network interface we're using, the
+system will record what interface we're working on in the context.
+
+This "context" concept is currently implemented in a fairly rudimentary
+way, and will likely be revisited (with an API change) in the future.
+Sorry, but I wanted to focus on the other two concepts first.
+
+2. API Details
+==============
+
+2.1. Confignodes
+----------------
+
+From the source:
+
+struct _cnode {
+	char* name;		/**< The name of this confignode, which is
+				 * the logical name of this
+				 * configuration. May or may not contain
+				 * the same value as ifname. */
+	char* ifname;		/**< The name of the interface we're
+				 * trying to modify */
+	void* data;		/**< Data for the function pointer. */
+	int(*fptr)(struct _cnode*, ipcfg_action, ipcfg_context*);
+				/* Function that will try to do
+				 * something. */
+	struct _cnode* success; /* If fptr() returns zero and this
+				 * pointer is non-NULL, this confignode
+				 * is performed. If it is NULL,
+				 * perform_confignode returns and the
+				 * configuration which we've found is
+				 * activated */
+	struct _cnode* failure; /* If fptr() returns nonzero and this
+				 * pointer is non-NULL, this confignode
+				 * is performed. If this pointer is NULL
+				 * and fptr() failed, then the ifup or
+				 * ifdown action is assumed to fail. */
+};
+
+typedef struct _cnode ipcfg_cnode;
+
+Fairly basic. Also see the above.
+
+The "fptr" function will receive a pointer to _this_ confignode. This
+allows it not only to find the "data" pointer (which the confignode
+framework does not care about), but also to investigate the state
+machine.
+
+The difference between the "name" and "ifname" strings is that the first
+is a _symbolic_ name; when the user asks to bring up "eth0", the system
+will look for a confignode with "eth0" in the "name" string. This
+logically means that there can only be one confignode in the system with
+a given name. On the other hand, the "ifname" contains the name of the
+interface that this confignode is supposed to work on; there can be many
+confignodes with the same ifname. The "name" and "ifname" strings need
+not be the same; this allows to create one configuration "home", and one
+"work", which both use the "wlan0" interface. Or the "work"
+confignode might not contain an interface name at all, with the actual
+interface defined through the context. This is left up to the developer.
+
+To create a new confignode, use the "get_confignode_for()" or
+"get_anonymous_confignode()" calls, depending on whether you need a
+named or anonymous confignode. While it is possible to fill in the name
+of an anonymous confignode, this will *not* result in the same effect as
+what would be received when creating a non-anonymous confignode in the
+first place. It also is not possible to turn an anonymous confignode
+into a named one. This is on purpose. If you want to change the system
+at runtime rather than at configuration time, use the event system.
+
+To run a confignode, use the "perform_confignode" function. There is
+also a "perform_confignode_no_fail" function, which would ignore the
+"failure" pointer of the topmost confignode (but not those of any
+confignodes below the topmost one).
+
+2.2. Events
+-----------
+
+Events are known from other frameworks (e.g., the 'signals' in GNOME's
+GObject system). What's specific about events in the ipcfg system is
+that rather than just a name, they have three properties: a "name", an
+"event", and an "action". The name refers to the "name" of the object
+(confignode, interface, ...) that generated the event. The "event" is
+the name of the event; this is a free-form string. The "action" explains
+whether we were trying to bring an interface up or down.
+
+This system allows for the creating of "wildcard" event handlers. For
+instance, it is possible to register an event handler for "failure to
+bring up _any_ interface", or "anything related to eth0". It is also
+possible to register a fully-wildcard event handler, which could be
+useful for debugging and/or logging.
+
+To register an event handler, use the "register_event_handler" function.
+To trigger an event, use the "signal_event" function. Note that this
+function takes a context as an argument; it is not an error to provide a
+NULL pointer if no useful context exists.
+
+The core system currently provides the following events:
+- node_success: a named confignode was performed successfully.
+- node_failure: a named confignode was not performed successfully.
+- iface_success: a confignode (named or anonymous) with a value in the
+  "iface" pointer was performed successfully.
+- iface_failure: a confignode (named or anonymous) with a value in the
+  "iface" pointer was not performed successfully.
+
+2.3. Contexts
+-------------
+
+A "context" provides a plugin programmer with a means of detecting what
+the user is trying to accomplish. For instance, the user might have
+asked "give me a network -- /any/ network", or instead the user might
+have asked "bring up interface eth0". A confignode might act differently
+-- for example, in error handling -- depending on which of the two cases
+is true.
+
+As said before, the current context system is fairly rudimentary and
+will probably need to be revisited. If so, this will surely happen
+before an eventual 1.0 release.
+
+3. Plugins.
+===========
+
+This still needs to be implemented.
+
+Plugins will have the following abilities:
+- Extend what a user can specify in the configuration file
+- Create or replace confignodes
+- Adding actions that confignodes can perform.
+- Creating events
+- Depend on, or conflict with, other plugins
+- Provide an API in a scripting language (perl, lua, python, ...) to
+  allow the user to create configuration files or plugins in that
+  language
+- ... anything else, I guess.
+
+4. Backends.
+============
+
+The system has a strict separation of backend and frontend. The frontend
+contains all the confignode and event handler logic; the backend will
+perform actions on network interfaces.
+
+This should make the system fairly portable between Linux, kFreeBSD, and
+The Hurd (note that the author at this point has no interest in writing
+backends for either FreeBSD or The Hurd, but patches are welcome).
+Additionally, a "test" backend is created, which communicates with the
+user over a named pipe; this is useful for debugging and/or development.
+
+For the time being, the used backend is selected at compile time. In the
+future, the system may be extended so that backends can be selected at
+run time.
+
+Plugins should not implement backends, nor should the muck with things
+that are supposed to be handled by the backend.

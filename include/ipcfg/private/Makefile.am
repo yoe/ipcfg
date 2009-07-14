@@ -1,1 +1,1 @@
-noinst_HEADERS = config.h
+noinst_HEADERS = config.h hashtable.h configparse.h

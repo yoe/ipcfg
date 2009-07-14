@@ -1,8 +1,11 @@
 ipcfgincludedir=$(includedir)/ipcfg
-ipcfginclude_HEADERS = ll.h \
-	cnode.h \
+ipcfginclude_HEADERS = cnode.h \
+	commands.h \
+	config-actions.h \
+	daemon.h \
 	event.h \
 	hashtable.h \
 	hashtable_itr.h \
-	config-actions.h
+	macros.h \
+	ll.h
 SUBDIRS = private backend

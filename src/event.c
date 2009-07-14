@@ -10,7 +10,7 @@
 
 /* Concept:
  * Every event has three properties:
- * - The context. This refers to the interface or symbolic name, or whatnot, of
+ * - The name. This refers to the interface or symbolic name, or whatnot, of
  *   the particular thing we're dealing with.
  * - The action. This refers to what we were trying to do; e.g., 'bring the
  *   interface up', or 'bring the interface down', or whatever.
@@ -26,12 +26,12 @@ typedef struct {
 	unsigned int index;
 	event_handler_t handler;
 	void* data;
-	char* context;
+	char* name;
 	char* event;
 	ipcfg_action act;
 } event_resource_t;
 
-static struct hashtable* context_index;
+static struct hashtable* name_index;
 static struct hashtable* event_index;
 static DLList** action_index;
 static DLList* wildcart_index;
@@ -40,9 +40,9 @@ static event_resource_t* resource_index;
 static unsigned int curindex = 0;
 static size_t resindex_size = 0;
 
-DEFINE_HASHTABLE_INSERT(insert_context, char, DLList);
-DEFINE_HASHTABLE_SEARCH(search_context, char, DLList);
-DEFINE_HASHTABLE_REMOVE(remove_context, char, DLList);
+DEFINE_HASHTABLE_INSERT(insert_name, char, DLList);
+DEFINE_HASHTABLE_SEARCH(search_name, char, DLList);
+DEFINE_HASHTABLE_REMOVE(remove_name, char, DLList);
 
 DEFINE_HASHTABLE_INSERT(insert_event, char, DLList);
 DEFINE_HASHTABLE_SEARCH(search_event, char, DLList);
@@ -52,22 +52,22 @@ static void append_to_htable_list(struct hashtable* h, char* key, event_resource
 	DLList* list = hashtable_search(h, key);
 	DLList* l = dl_list_append(list, (void*)res);
 	if(list) {
-		remove_context(h, key);
+		remove_name(h, key);
 	}
 	hashtable_insert(h, key, l);
 }
 
-int register_event_handler(event_handler_t handler, char* context, char* event, ipcfg_action act, void* data) {
+int register_event_handler(event_handler_t handler, char* name, char* event, ipcfg_action act, void* data) {
 	event_resource_t* res=malloc(sizeof(event_resource_t));
 
 	res->index=curindex++;
 	res->handler=handler;
 	res->data=data;
-	res->context=context;
+	res->name=name;
 	res->event=event;
 	res->act=act;
-	if(context) {
-		append_to_htable_list(context_index, context, res);
+	if(name) {
+		append_to_htable_list(name_index, name, res);
 	}
 	if(event) {
 		append_to_htable_list(event_index, event, res);
@@ -78,7 +78,7 @@ int register_event_handler(event_handler_t handler, char* context, char* event, 
 		}
 		dl_list_append(action_index[act], res);
 	}
-	if(!context && !event && !act) {
+	if(!name && !event && !act) {
 		dl_list_append(wildcart_index, res);
 	}
 	if(IPCFG_EXPECT_TRUE(resindex_size < curindex)) {
@@ -89,11 +89,11 @@ int register_event_handler(event_handler_t handler, char* context, char* event, 
 	return res->index;
 }
 
-int signal_event(char* context, char* event, ipcfg_action act) {
+int signal_event(char* name, char* event, ipcfg_action act, ipcfg_context* ctx) {
 	DLList* list;
 	int retval=0;
 
-	list = search_context(context_index, context);
+	list = search_name(name_index, name);
 	while((list=dl_list_get_next(list))) {
 		event_resource_t* res = (event_resource_t*)list->data;
 		if(res->event && strncmp(res->event, event, strlen(event))) {
@@ -102,37 +102,37 @@ int signal_event(char* context, char* event, ipcfg_action act) {
 		if(res->act != act) {
 			continue;
 		}
-		if(res->handler(context, event, act, res->data)) {
+		if(res->handler(name, event, act, res->data, ctx)) {
 			retval++;
 		}
 	}
 	list = search_event(event_index, event);
 	while((list=dl_list_get_next(list))) {
 		event_resource_t* res = (event_resource_t*)list->data;
-		if(res->context) {
+		if(res->name) {
 			continue;
 		}
 		if(res->act != act) {
 			continue;
 		}
-		if(res->handler(context, event, act, res->data)) {
+		if(res->handler(name, event, act, res->data, ctx)) {
 			retval++;
 		}
 	}
 	list = action_index[act];
 	while((list=dl_list_get_next(list))) {
 		event_resource_t* res = (event_resource_t*)list->data;
-		if(res->context || res->event) {
+		if(res->name || res->event) {
 			continue;
 		}
-		if(res->handler(context, event, act, res->data)) {
+		if(res->handler(name, event, act, res->data, ctx)) {
 			retval++;
 		}
 	}
 	list = wildcart_index;
 	while((list=dl_list_get_next(list))) {
 		event_resource_t* res = (event_resource_t*)list->data;
-		if(res->handler(context, event, act, res->data)) {
+		if(res->handler(name, event, act, res->data, ctx)) {
 			retval++;
 		}
 	}

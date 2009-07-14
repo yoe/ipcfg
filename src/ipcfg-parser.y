@@ -72,7 +72,7 @@ quotedenum: QUOTEDSTRING		{ $$ = dl_list_append(NULL, $1); }
 	| quotedenum ',' QUOTEDSTRING	{ $$ = dl_list_append($1, $3); }
 	;
 
-wantline: WANT ifacenumber minlist
+wantline: WANT ifacenumber minlist	{ create_want_config($2, $3); }
 	;
 
 daemonline: DAEMON

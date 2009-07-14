@@ -45,24 +45,25 @@ int perform_confignode(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) 
 	COPY_CONFIG(ctx->start, ctx->start_src, node);
 	if(!(retval = node->fptr(node, act, ctx))) {
 		if(node->name) {
-			signal_event(node->name, "node_success", act);
+			retval+=signal_event(node->name, "node_success", act, ctx);
 		}
 		if(node->success) {
-			return perform_confignode(node->success, act, ctx);
+			return retval+perform_confignode(node->success, act, ctx);
 		} else {
 			if(node->ifname) {
-				signal_event(node->ifname, "iface_success", act);
+				retval+=signal_event(node->ifname, "iface_success", act, ctx);
 			}
 		}
 	} else {
+		int tmpval=retval;
 		if(node->name) {
-			signal_event(node->name, "node_failure", act);
+			retval+=signal_event(node->name, "node_failure", act, ctx);
 		}
 		if(node->failure) {
-			return perform_confignode(node->failure, act, ctx);
+			return retval-tmpval+perform_confignode(node->failure, act, ctx);
 		} else {
 			if(node->ifname) {
-				signal_event(node->ifname, "iface_failure", act);
+				retval+=signal_event(node->ifname, "iface_failure", act, ctx);
 			}
 		}
 	}

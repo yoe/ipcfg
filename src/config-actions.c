@@ -5,6 +5,7 @@
 #include <ipcfg/cnode.h>
 #include <ipcfg/config-actions.h>
 #include <ipcfg/event.h>
+#include <ipcfg/commands.h>
 
 #include <ipcfg/private/configparse.h>
 
@@ -95,13 +96,14 @@ void create_want_config(int which, void* names) {
 			newnode->fptr = perform_want_all;
 			break;
 		case NUMBER_TRIP:
+			go_daemon();
 			create_trip_points((DLList*)names);
 		case NUMBER_ONE:
 			newnode->fptr = perform_want_one;
 			break;
 		default:
 			/* Programmer error! */
-			fprintf(stderr, "BUG: unknown ifacenumber in create_must_config\n");
+			fprintf(stderr, "BUG: unknown ifacenumber in create_want_config\n");
 			exit(EXIT_FAILURE);
 	}
 	newnode->data = names;
@@ -125,6 +127,7 @@ void create_must_config(int which, void* names) {
 			newnode->fptr = perform_must_all;
 			break;
 		case NUMBER_TRIP:
+			go_daemon();
 			create_trip_points((DLList*)names);
 		case NUMBER_ONE:
 			newnode->fptr = perform_must_one;

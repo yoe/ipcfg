@@ -3,8 +3,9 @@
 #include <ipcfg/private/configparse.h>
 #include <ipcfg/config-actions.h>
 #include <ipcfg/ll.h>
-//#define YYPARSE_PARAM	scanner
-//#define YYLEX_PARAM	scanner
+#include <ipcfg/plugins.h>
+#include <ipcfg/commands.h>
+#include <ipcfg/daemon.h>
 int yylex(void);
 int yyerror(char*);
 
@@ -25,6 +26,7 @@ int yyerror(char*);
 %token		IFACE
 %token		MUST
 %token		NAMESPACE
+%token		NO
 %token		ONE
 %token		PLUGINS
 %token		REQUIRE
@@ -60,9 +62,9 @@ startupconfig: mustline
 mustline: MUST ifacenumber minlist	{ create_must_config($2, $3); }
 	;
 
-ifacenumber: ALL	{ $$ = NUMBER_ALL; }
-	| ONE		{ $$ = NUMBER_ONE; }
-	| TRIP		{ $$ = NUMBER_TRIP; }
+ifacenumber: ALL			{ $$ = NUMBER_ALL; }
+	| ONE				{ $$ = NUMBER_ONE; }
+	| TRIP				{ $$ = NUMBER_TRIP; }
 	;
 
 quotedlist: '(' quotedenum ')'		{ $$ = $2; }
@@ -75,14 +77,11 @@ quotedenum: QUOTEDSTRING		{ $$ = dl_list_append(NULL, $1); }
 wantline: WANT ifacenumber minlist	{ create_want_config($2, $3); }
 	;
 
-daemonline: DAEMON
+daemonline: DAEMON			{ go_daemon(); }
+	| NO DAEMON			{ forbid_daemon(); }
 	;
 
-pluginline: PLUGINS pluginlist
-	;
-
-pluginlist: QUOTEDSTRING
-	| pluginlist ' ' QUOTEDSTRING
+pluginline: PLUGINS minlist		{ load_plugins($2); }
 	;
 
 ifaceblock: IFACE QUOTEDSTRING '{' ifaceconfig '}'

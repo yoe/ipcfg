@@ -16,6 +16,7 @@ AC_PROG_YACC
 AC_PROG_LN_S
 
 # Checks for libraries.
+AC_SEARCH_LIBS(dlopen, dl, , AC_ERROR([Could not find libdl]))
 
 # Checks for header files.
 

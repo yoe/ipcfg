@@ -22,6 +22,7 @@ if		return IF;
 iface		return IFACE;
 must		return MUST;
 namespace	return NAMESPACE;
+no		return NO;
 one		return ONE;
 plugins		return PLUGINS;
 require		return REQUIRE;

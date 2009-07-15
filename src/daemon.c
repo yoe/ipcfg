@@ -89,6 +89,15 @@ int go_daemon() {
 	return retval;
 }
 
+int forbid_daemon(void) {
+	if(daemon_is_running()) {
+		/* XXX die a screaming and hollering death */
+		exit(EXIT_FAILURE);
+	}
+	allowed = false;
+	return 0;
+}
+
 /* Daemon server bits */
 
 /* Daemon client bits */

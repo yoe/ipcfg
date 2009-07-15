@@ -9,8 +9,9 @@ ipcfg_SOURCES = cnode.c \
 	daemon.c \
 	ipcfg-parser.y \
 	ipcfg-lexer.l \
-	config-actions.c
-ipcfg_CPPFLAGS = -DEXECPREFIX='"$(exec_prefix)"' -DLOCALSTATEDIR='"$(localstatedir)"' -DPIDFILEDIR='"$(localstatedir)/run"' -DSYSCONFDIR='"$(sysconfdir)"'
+	config-actions.c \
+	plugins.c
+ipcfg_CPPFLAGS = -DEXECPREFIX='"$(exec_prefix)"' -DLOCALSTATEDIR='"$(localstatedir)"' -DPIDFILEDIR='"$(localstatedir)/run"' -DSYSCONFDIR='"$(sysconfdir)"' -DPLUGINDIR='"$(libdir)/ipcfg"'
 ipcfg_LDADD = backend-test/libbackend-test.a
 AM_CFLAGS = -I$(srcdir)/../include
 AM_YFLAGS = -d

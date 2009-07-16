@@ -105,3 +105,28 @@ DLList* dl_list_last(DLList* head) {
 DLList* dl_list_get_next(DLList* item) {
 	return (DLList*)cl_list_get_next((CLList*)item);
 }
+
+DLList* dl_list_insert(DLList* ptr, void* data) {
+	DLList* retval = calloc(sizeof(DLList), 1);
+	retval->next = ptr;
+	retval->data = data;
+	if(ptr->prev) {
+		retval->prev = ptr->prev;
+		retval->prev->next = retval;
+	}
+	ptr->prev = retval;
+	return retval;
+}
+
+DLList* dl_list_push(DLList* head, void* data) {
+	DLList* list = dl_list_first(head);
+	return dl_list_insert(list, data);
+}
+
+DLList* dl_list_pop(DLList* head, void** data) {
+	DLList* retval;
+	*data = head->data;
+	retval = head->next;
+	free(head);
+	return retval;
+}

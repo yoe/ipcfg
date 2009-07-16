@@ -1,5 +1,6 @@
 %{
 #include <ipcfg/private/configparse.h>
+#include <ipcfg/cnode.h>
 #include "ipcfg-parser.h"
 
 int yyerror(char* s) {

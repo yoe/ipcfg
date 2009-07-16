@@ -42,6 +42,8 @@ typedef struct {
 	ipcfg_source ip6_src;
 } ipcfg_context;
 
+typedef int(*cnode_fptr_t)(ipcfg_cnode*, ipcfg_action, ipcfg_context*);
+
 /* A confignode, the most central concept of ipcfg */
 struct _cnode {
 	char* name;		/**< The name of this confignode, which is
@@ -51,16 +53,15 @@ struct _cnode {
 	char* ifname;		/**< The name of the interface we're
 				 * trying to modify */
 	void* data;		/**< Data for the function pointer. */
-	int(*fptr)(struct _cnode*, ipcfg_action, ipcfg_context*);
-				/* Function that will try to do
+	cnode_fptr_t fptr;	/**< Function that will try to do
 				 * something. */
-	struct _cnode* success; /* If fptr() returns zero and this
+	struct _cnode* success; /**< If fptr() returns zero and this
 				 * pointer is non-NULL, this confignode
 				 * is performed. If it is NULL,
 				 * perform_confignode returns and the
 				 * configuration which we've found is
 				 * activated */
-	struct _cnode* failure; /* If fptr() returns nonzero and this
+	struct _cnode* failure; /**< If fptr() returns nonzero and this
 				 * pointer is non-NULL, this confignode
 				 * is performed. If this pointer is NULL
 				 * and fptr() failed, then the ifup or
@@ -80,5 +81,8 @@ int perform_confignode(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx);
 /* Perform a confignode, following up on success, but do not follow up
  * on failure, at any level deep in the hierarchy */
 int perform_confignode_no_fail(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx);
+/* Move all features of the leaf node to the 'top' node, but not overwriting
+ * anything. */
+int move_top_to(ipcfg_cnode* top, ipcfg_cnode* leaf);
 
 #endif // IPCFG_CNODE_H

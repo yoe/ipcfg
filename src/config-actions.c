@@ -9,7 +9,6 @@
 
 #include <ipcfg/private/configparse.h>
 
-/* XXX this doesn't work as advertised yet */
 static int perform_must_all(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 	DLList* items = node->data;
 

@@ -8,5 +8,6 @@ ipcfginclude_HEADERS = cnode.h \
 	hashtable_itr.h \
 	ll.h \
 	macros.h \
-	plugins.h
+	plugins.h \
+	test.h
 SUBDIRS = private backend

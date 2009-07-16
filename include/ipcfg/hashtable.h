@@ -98,6 +98,11 @@ create_hashtable(unsigned int minsize,
 int 
 hashtable_insert(struct hashtable *h, void *k, void *v);
 
+#define DEFINE_HASHTABLE_INSERT_NPTR(fnname, keytype, valuetype) \
+int fnname (struct hashtable *h, keytype *k, valuetype v) \
+{ \
+    return hashtable_insert(h,k,v); \
+}
 #define DEFINE_HASHTABLE_INSERT(fnname, keytype, valuetype) \
 int fnname (struct hashtable *h, keytype *k, valuetype *v) \
 { \
@@ -116,6 +121,11 @@ int fnname (struct hashtable *h, keytype *k, valuetype *v) \
 void *
 hashtable_search(struct hashtable *h, void *k);
 
+#define DEFINE_HASHTABLE_SEARCH_NPTR(fnname, keytype, valuetype) \
+valuetype fnname (struct hashtable *h, keytype *k) \
+{ \
+    return (valuetype) (hashtable_search(h,k)); \
+}
 #define DEFINE_HASHTABLE_SEARCH(fnname, keytype, valuetype) \
 valuetype * fnname (struct hashtable *h, keytype *k) \
 { \
@@ -134,6 +144,11 @@ valuetype * fnname (struct hashtable *h, keytype *k) \
 void * /* returns value */
 hashtable_remove(struct hashtable *h, void *k);
 
+#define DEFINE_HASHTABLE_REMOVE_NPTR(fnname, keytype, valuetype) \
+valuetype fnname (struct hashtable *h, keytype *k) \
+{ \
+    return (valuetype) (hashtable_remove(h,k)); \
+}
 #define DEFINE_HASHTABLE_REMOVE(fnname, keytype, valuetype) \
 valuetype * fnname (struct hashtable *h, keytype *k) \
 { \

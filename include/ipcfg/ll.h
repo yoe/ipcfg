@@ -33,5 +33,7 @@ DLList* dl_list_insert(DLList* ptr, void* data);
 DLList* dl_list_get_next(DLList* item);
 DLList* dl_list_get_previous(DLList* item);
 DLList* dl_list_get_data(DLList* list);
+DLList* dl_list_push(DLList* head, void* data);
+DLList* dl_list_pop(DLList* head, void** data);
 
 #endif // IPCFG_CLL_H

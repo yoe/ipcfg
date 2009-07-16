@@ -83,3 +83,17 @@ int perform_confignode_no_fail(ipcfg_cnode* node, ipcfg_action act, ipcfg_contex
 	}
 	return retval;
 }
+
+#define COPY_IF_EMPTY(t, s)	{ if(!t) t=s; }
+int move_top_to(ipcfg_cnode* top, ipcfg_cnode* leaf) {
+	if(leaf->name) {
+		return 1;
+	}
+	COPY_IF_EMPTY(top->ifname, leaf->ifname);
+	COPY_IF_EMPTY(top->data, leaf->data);
+	COPY_IF_EMPTY(top->fptr, leaf->fptr);
+	COPY_IF_EMPTY(top->success, leaf->success);
+	COPY_IF_EMPTY(top->failure, leaf->failure);
+	free(leaf);
+	return 0;
+}

@@ -161,6 +161,11 @@ minlist: QUOTEDSTRING
 	;
 
 ifacefailtest: FAIL TEST QUOTEDSTRING optlist
+		{
+			$$ = ipcfg_get_anonymous_confignode();
+			$$->data = ipcfg_find_test(namespace_stack->data, $3);
+			$$->fptr = ipcfg_fail_test;
+		}
 	;
 
 ifaceconditional: IF ifacetest blockstart ifaceconfig blockstop

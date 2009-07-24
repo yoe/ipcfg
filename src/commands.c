@@ -36,7 +36,8 @@ int ipcfg_do_ifup(int argc, char** argv) {
 		strcpy(s, argv[1]);
 	}
 	if(!(node = ipcfg_find_confignode_for(s))) {
-		printf("E: Unknown configuration %s", s);
+		fprintf(stderr, "E: Unknown configuration %s\n", s);
+		exit(EXIT_FAILURE);
 	}
 	if(be_ifname_exists(s)) {
 		ctx->ifname = s;

@@ -37,6 +37,9 @@ want		return WANT;
 %%
 
 int p_ipcfg_read_config(void) {
-	yyin = fopen(SYSCONFDIR "/ipcfg/config", "r");
+	if(!(yyin = fopen(SYSCONFDIR "/ipcfg/config", "r"))) {
+		perror("Could not open config file");
+		exit(EXIT_FAILURE);
+	}
 	return p_ipcfg_parse();
 }

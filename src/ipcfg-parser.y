@@ -14,6 +14,8 @@ int yyerror(char*);
 DLList* namespace_stack;
 %}
 
+%error-verbose
+
 %union {
 	char* string;
 	void* ptr;
@@ -128,11 +130,11 @@ blockstop: '}'
 
 ifaceconfig: /* empty */
 	| ifaceconfig ifacetest
-		{ $$ = $1; }
+		{ $1->success = $2; }
 	| ifaceconfig ifaceconditional
-		{ $$ = $1; }
+		{ $1->success = $2; }
 	| ifaceconfig ifaceconfigline
-		{ $$ = $1; }
+		{ $1->success = $2; }
 	; 
 
 ifacetest: ifacerequiretest

@@ -5,6 +5,7 @@
 #include <ipcfg/cnode.h>
 #include <ipcfg/event.h>
 #include <ipcfg/hashtable.h>
+#include <ipcfg/macros.h>
 
 DEFINE_HASHTABLE_INSERT(insert_cnode, char, ipcfg_cnode);
 DEFINE_HASHTABLE_SEARCH(search_cnode, char, ipcfg_cnode);
@@ -13,7 +14,11 @@ DEFINE_HASHTABLE_REMOVE(remove_cnode, char, ipcfg_cnode);
 static struct hashtable* cnode_index;
 
 ipcfg_cnode* ipcfg_find_confignode_for(char* name) {
-	return search_cnode(cnode_index, name);
+	if(IPCFG_EXPECT_TRUE(cnode_index)) {
+		return search_cnode(cnode_index, name);
+	} else {
+		return NULL;
+	}
 }
 
 ipcfg_cnode* ipcfg_get_confignode_for(char* name) {

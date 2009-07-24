@@ -28,37 +28,37 @@ int ssock;
 static bool daemonized = false;
 static bool allowed = true;
 
-bool daemon_allowed() {
+bool ipcfg_daemon_allowed() {
 	return allowed;
 }
 
-bool am_daemon() {
+bool ipcfg_am_daemon() {
 	return daemonized;
 }
 
-bool daemon_is_running() {
+bool ipcfg_daemon_is_running() {
 	char* reply;
-	if(am_daemon()) {
+	if(ipcfg_am_daemon()) {
 		return true;
 	}
-	if((reply=daemon_send_command("PING"))>=0) {
+	if((reply=ipcfg_daemon_send_command("PING"))>=0) {
 		free(reply);
 		return true;
 	}
 	return false;
 }
 
-int go_daemon() {
+int ipcfg_go_daemon() {
 	int retval;
 	int pidfile;
 	char buf[6];
 
-	if(daemon_is_running()) {
+	if(ipcfg_daemon_is_running()) {
 		/* Another process is already running in daemon mode. We can't
 		 * become a daemon in that case */
 		return 1;
 	}
-	if(!daemon_allowed()) {
+	if(!ipcfg_daemon_allowed()) {
 		/* daemon mode was disabled in the config file */
 		return 2;
 	}
@@ -89,8 +89,8 @@ int go_daemon() {
 	return retval;
 }
 
-int forbid_daemon(void) {
-	if(daemon_is_running()) {
+int ipcfg_forbid_daemon(void) {
+	if(ipcfg_daemon_is_running()) {
 		/* XXX die a screaming and hollering death */
 		exit(EXIT_FAILURE);
 	}
@@ -102,7 +102,7 @@ int forbid_daemon(void) {
 
 /* Daemon client bits */
 
-char* daemon_send_command(char* command) {
+char* ipcfg_daemon_send_command(char* command) {
 	char buf[256];
 	char* p=NULL;
 	size_t size=256;

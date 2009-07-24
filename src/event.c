@@ -24,7 +24,7 @@
 
 typedef struct {
 	unsigned int index;
-	event_handler_t handler;
+	ipcfg_event_handler_t handler;
 	void* data;
 	char* name;
 	char* event;
@@ -57,7 +57,7 @@ static void append_to_htable_list(struct hashtable* h, char* key, event_resource
 	hashtable_insert(h, key, l);
 }
 
-int register_event_handler(event_handler_t handler, char* name, char* event, ipcfg_action act, void* data) {
+int ipcfg_register_event_handler(ipcfg_event_handler_t handler, char* name, char* event, ipcfg_action act, void* data) {
 	event_resource_t* res=malloc(sizeof(event_resource_t));
 
 	res->index=curindex++;
@@ -89,7 +89,7 @@ int register_event_handler(event_handler_t handler, char* name, char* event, ipc
 	return res->index;
 }
 
-int signal_event(char* name, char* event, ipcfg_action act, ipcfg_context* ctx) {
+int ipcfg_signal_event(char* name, char* event, ipcfg_action act, ipcfg_context* ctx) {
 	DLList* list;
 	int retval=0;
 

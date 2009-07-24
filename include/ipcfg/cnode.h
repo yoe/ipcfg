@@ -42,7 +42,7 @@ typedef struct {
 	ipcfg_source ip6_src;
 } ipcfg_context;
 
-typedef int(*cnode_fptr_t)(ipcfg_cnode*, ipcfg_action, ipcfg_context*);
+typedef int(*ipcfg_cnode_fptr_t)(ipcfg_cnode*, ipcfg_action, ipcfg_context*);
 
 /* A confignode, the most central concept of ipcfg */
 struct _cnode {
@@ -53,7 +53,7 @@ struct _cnode {
 	char* ifname;		/**< The name of the interface we're
 				 * trying to modify */
 	void* data;		/**< Data for the function pointer. */
-	cnode_fptr_t fptr;	/**< Function that will try to do
+	ipcfg_cnode_fptr_t fptr;/**< Function that will try to do
 				 * something. */
 	struct _cnode* success; /**< If fptr() returns zero and this
 				 * pointer is non-NULL, this confignode
@@ -70,19 +70,19 @@ struct _cnode {
 
 /* Find the confignode with the given name in the 'name' member, or
  * create it if it does not yet exist. */
-ipcfg_cnode* get_confignode_for(char* name);
+ipcfg_cnode* ipcfg_get_confignode_for(char* name);
 /* Find the confignode with the given name in the 'name' member, but do not
  * create it if it does not yet exist */
-ipcfg_cnode* find_confignode_for(char* name);
+ipcfg_cnode* ipcfg_find_confignode_for(char* name);
 /* Create a new, anonymous (i.e., not indexed) confignode */
-ipcfg_cnode* get_anonymous_confignode();
+ipcfg_cnode* ipcfg_get_anonymous_confignode();
 /* Perform a confignode in the 'normal' way. */
-int perform_confignode(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx);
+int ipcfg_perform_confignode(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx);
 /* Perform a confignode, following up on success, but do not follow up
  * on failure, at any level deep in the hierarchy */
-int perform_confignode_no_fail(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx);
+int ipcfg_perform_confignode_no_fail(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx);
 /* Move all features of the leaf node to the 'top' node, but not overwriting
  * anything. */
-int move_top_to(ipcfg_cnode* top, ipcfg_cnode* leaf);
+int ipcfg_move_top_to(ipcfg_cnode* top, ipcfg_cnode* leaf);
 
 #endif // IPCFG_CNODE_H

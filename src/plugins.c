@@ -10,12 +10,12 @@
 #define PATH_MAX 256
 #endif
 
-int load_plugins(DLList* pluginlist) {
+int ipcfg_load_plugins(DLList* pluginlist) {
 	void* handle;
 
 	while(pluginlist) {
 		char name[PATH_MAX];
-		init_fn func;
+		ipcfg_init_fn func;
 
 		snprintf(name, PATH_MAX, PLUGINDIR "/%s", (char*)pluginlist->data);
 		handle = dlopen(name, RTLD_NOW | RTLD_GLOBAL | RTLD_DEEPBIND);

@@ -14,8 +14,8 @@ static int perform_must_all(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* 
 
 	if(act == IPCFG_ACT_UP) {
 		while(items && items->data) {
-			ipcfg_cnode* othernode = find_confignode_for(items->data);
-			if(perform_confignode(othernode, act, ctx)) {
+			ipcfg_cnode* othernode = ipcfg_find_confignode_for(items->data);
+			if(ipcfg_perform_confignode(othernode, act, ctx)) {
 				return 1;
 			}
 			items = dl_list_get_next(items);
@@ -30,9 +30,9 @@ static int perform_must_one(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* 
 
 	if(act == IPCFG_ACT_UP) {
 		do {
-			othernode = find_confignode_for(items->data);
+			othernode = ipcfg_find_confignode_for(items->data);
 			items = dl_list_get_next(items);
-		} while(perform_confignode(othernode, act, ctx));
+		} while(ipcfg_perform_confignode(othernode, act, ctx));
 	}
 	if(items) {
 		return 0;
@@ -62,8 +62,8 @@ static int trip_iface(char* name, char* event, ipcfg_action act, ipcfg_context* 
 		return 0;
 	}
 	ptr = list->next;
-	node = find_confignode_for(ptr->data);
-	return perform_confignode(node, IPCFG_ACT_UP, NULL);
+	node = ipcfg_find_confignode_for(ptr->data);
+	return ipcfg_perform_confignode(node, IPCFG_ACT_UP, NULL);
 }
 
 static void create_trip_points(DLList* names) {
@@ -71,21 +71,21 @@ static void create_trip_points(DLList* names) {
 	CLList* triplist = cl_list_from_dllist(names, false);
 
 	do {
-		register_event_handler(trip_iface, triplist->data, "node_failure", IPCFG_ACT_UP, triplist);
-		register_event_handler(trip_iface, triplist->data, "node_success", IPCFG_ACT_DOWN, triplist);
+		ipcfg_register_event_handler(trip_iface, triplist->data, "node_failure", IPCFG_ACT_UP, triplist);
+		ipcfg_register_event_handler(trip_iface, triplist->data, "node_success", IPCFG_ACT_DOWN, triplist);
 		triplist = triplist->next;
 	} while(strcmp(triplist->data, firstname));
 }
 
-void create_want_config(int which, void* names) {
-	ipcfg_cnode* autonode = get_confignode_for("auto");
+void ipcfg_create_want_config(int which, void* names) {
+	ipcfg_cnode* autonode = ipcfg_get_confignode_for("auto");
 	ipcfg_cnode* newnode;
 
 	if(autonode->fptr) {
 		while(autonode->success) {
 			autonode = autonode->success;
 		}
-		newnode = get_anonymous_confignode();
+		newnode = ipcfg_get_anonymous_confignode();
 		autonode->success = newnode;
 	} else {
 		newnode = autonode;
@@ -95,7 +95,7 @@ void create_want_config(int which, void* names) {
 			newnode->fptr = perform_want_all;
 			break;
 		case NUMBER_TRIP:
-			go_daemon();
+			ipcfg_go_daemon();
 			create_trip_points((DLList*)names);
 		case NUMBER_ONE:
 			newnode->fptr = perform_want_one;
@@ -108,15 +108,15 @@ void create_want_config(int which, void* names) {
 	newnode->data = names;
 }
 
-void create_must_config(int which, void* names) {
-	ipcfg_cnode* autonode = get_confignode_for("auto");
+void ipcfg_create_must_config(int which, void* names) {
+	ipcfg_cnode* autonode = ipcfg_get_confignode_for("auto");
 	ipcfg_cnode* newnode;
 
 	if(autonode->fptr) {
 		while(autonode->success) {
 			autonode = autonode->success;
 		}
-		newnode = get_anonymous_confignode();
+		newnode = ipcfg_get_anonymous_confignode();
 		autonode->success = newnode;
 	} else {
 		newnode = autonode;
@@ -126,7 +126,7 @@ void create_must_config(int which, void* names) {
 			newnode->fptr = perform_must_all;
 			break;
 		case NUMBER_TRIP:
-			go_daemon();
+			ipcfg_go_daemon();
 			create_trip_points((DLList*)names);
 		case NUMBER_ONE:
 			newnode->fptr = perform_must_one;

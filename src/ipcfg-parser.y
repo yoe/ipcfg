@@ -69,64 +69,98 @@ startupconfig: mustline
 	| pluginline
 	;
 
-mustline: MUST ifacenumber minlist	{ create_must_config($2, $3); }
+mustline: MUST ifacenumber minlist
+		{ ipcfg_create_must_config($2, $3); }
 	;
 
-ifacenumber: ALL			{ $$ = NUMBER_ALL; }
-	| ONE				{ $$ = NUMBER_ONE; }
-	| TRIP				{ $$ = NUMBER_TRIP; }
+ifacenumber: ALL
+		{ $$ = NUMBER_ALL; }
+	| ONE
+		{ $$ = NUMBER_ONE; }
+	| TRIP
+		{ $$ = NUMBER_TRIP; }
 	;
 
-quotedlist: '(' quotedenum ')'		{ $$ = $2; }
+quotedlist: '(' quotedenum ')'
+		{ $$ = $2; }
 	;
 
-quotedenum: QUOTEDSTRING		{ $$ = dl_list_append(NULL, $1); }
-	| quotedenum ',' QUOTEDSTRING	{ $$ = dl_list_append($1, $3); }
+quotedenum: QUOTEDSTRING
+		{ $$ = dl_list_append(NULL, $1); }
+	| quotedenum ',' QUOTEDSTRING
+		{ $$ = dl_list_append($1, $3); }
 	;
 
-wantline: WANT ifacenumber minlist	{ create_want_config($2, $3); }
+wantline: WANT ifacenumber minlist
+		{ ipcfg_create_want_config($2, $3); }
 	;
 
-daemonline: DAEMON			{ go_daemon(); }
-	| NO DAEMON			{ forbid_daemon(); }
+daemonline: DAEMON
+		{ ipcfg_go_daemon(); }
+	| NO DAEMON
+		{ ipcfg_forbid_daemon(); }
 	;
 
-pluginline: PLUGINS minlist		{ load_plugins($2); }
+pluginline: PLUGINS minlist
+		{ ipcfg_load_plugins($2); }
 	;
 
-ifaceblock: IFACE QUOTEDSTRING blockstart ifaceconfig blockstop	{ ipcfg_cnode* node = get_confignode_for($2); move_top_to(node, $4); }
+ifaceblock: IFACE QUOTEDSTRING blockstart ifaceconfig blockstop
+		{ 
+			ipcfg_cnode* node = ipcfg_get_confignode_for($2);
+			ipcfg_move_top_to(node, $4);
+		}
 	;
 
-blockstart: '{'				{ char* space = strdup(namespace_stack->data); namespace_stack = dl_list_push(namespace_stack, space); }
+blockstart: '{'	{
+			char* nspace = strdup(namespace_stack->data);
+			namespace_stack = dl_list_push(namespace_stack, nspace);
+		}
 	;
 
-blockstop: '}'				{ char* space; namespace_stack = dl_list_pop(namespace_stack, (void**)(&space)); free(space); }
+blockstop: '}'
+		{
+			char* nspace;
+			namespace_stack = dl_list_pop(namespace_stack, (void**)(&nspace));
+			free(nspace);
+		}
 	;
 
-//ifaceconfig: /* empty */
-//	| ifaceconfig ifacerequiretest	{ $1->success = $2; }*/
-
-ifaceconfig: ifacetest			{ $$ = $1; }
-	| ifaceconditional		{ $$ = $1; }
-	| ifaceconfigline		{ $$ = $1; }
+ifaceconfig: /* empty */
+	| ifaceconfig ifacetest
+		{ $$ = $1; }
+	| ifaceconfig ifaceconditional
+		{ $$ = $1; }
+	| ifaceconfig ifaceconfigline
+		{ $$ = $1; }
 	; 
 
-ifacetest: ifacerequiretest		{ $$ = $1; }
-	| ifacefailtest			{ $$ = $1; }
+ifacetest: ifacerequiretest
+		{ $$ = $1; }
+	| ifacefailtest
+		{ $$ = $1; }
 	;
 
-ifacerequiretest: REQUIRE TEST QUOTEDSTRING optlist	{ $$ = get_anonymous_confignode(); $$->fptr = find_test(namespace_stack->data, $3); $$->data = $4; }
+ifacerequiretest: REQUIRE TEST QUOTEDSTRING optlist
+		{
+			$$ = ipcfg_get_anonymous_confignode();
+			$$->fptr = ipcfg_find_test(namespace_stack->data, $3);
+			$$->data = $4;
+		}
 	;
 
 optlist: /* empty */
-	minlist				{ $$ = $1; }
+	minlist
+		{ $$ = $1; }
 	;
 
-minlist: QUOTEDSTRING	{ $$ = dl_list_append(NULL, $1); }
-	| quotedlist	{ $$ = $1; }
+minlist: QUOTEDSTRING
+		{ $$ = dl_list_append(NULL, $1); }
+	| quotedlist
+		{ $$ = $1; }
 	;
 
-ifacefailtest: FAIL TEST QUOTEDSTRING optlist		{ $$ = get_anonymous_confignode(); $$->fptr = find_test(namespace_stack->data, $3); $$->data = $4; }
+ifacefailtest: FAIL TEST QUOTEDSTRING optlist
 	;
 
 ifaceconditional: IF ifacetest blockstart ifaceconfig blockstop

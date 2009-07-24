@@ -14,17 +14,17 @@ int main(int argc, char**argv) {
 			fprintf(stderr, "E: Need a name to bring up\n");
 			exit(EXIT_FAILURE);
 		}
-		return do_ifup(argc, argv);
+		return ipcfg_do_ifup(argc, argv);
 	}
 	if(!strncmp(name, "ifdown", 6)) {
 		if(argc<2) {
 			fprintf(stderr, "E: Need a name to bring down\n");
 			exit(EXIT_FAILURE);
 		}
-		return do_ifdown(argc, argv);
+		return ipcfg_do_ifdown(argc, argv);
 	}
 	if(!strncmp(name, "ifcfgd", 6)) {
-		return go_daemon();
+		return ipcfg_go_daemon();
 	} else {
 		fprintf(stdout, "E: Unknown command %s", argv[0]);
 		return -1;

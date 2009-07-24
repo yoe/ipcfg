@@ -21,10 +21,10 @@
  * - A void* pointer for user data related to an event.
  */
 
-typedef int(*event_handler_t)(char* name, char* event, ipcfg_action act, ipcfg_context* ctx, void* data);
+typedef int(*ipcfg_event_handler_t)(char* name, char* event, ipcfg_action act, ipcfg_context* ctx, void* data);
 
-int register_event_handler(event_handler_t handler, char* name, char* event, ipcfg_action act, void* data);
-int signal_event(char* name, char* event, ipcfg_action act, ipcfg_context* ctx);
-int deregister_event_handler(int handler_number);
+int ipcfg_register_event_handler(ipcfg_event_handler_t handler, char* name, char* event, ipcfg_action act, void* data);
+int ipcfg_signal_event(char* name, char* event, ipcfg_action act, ipcfg_context* ctx);
+int ipcfg_deregister_event_handler(int handler_number);
 
 #endif // IPCFG_EVENT_H

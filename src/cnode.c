@@ -12,11 +12,11 @@ DEFINE_HASHTABLE_REMOVE(remove_cnode, char, ipcfg_cnode);
 
 static struct hashtable* cnode_index;
 
-ipcfg_cnode* find_confignode_for(char* name) {
+ipcfg_cnode* ipcfg_find_confignode_for(char* name) {
 	return search_cnode(cnode_index, name);
 }
 
-ipcfg_cnode* get_confignode_for(char* name) {
+ipcfg_cnode* ipcfg_get_confignode_for(char* name) {
 	ipcfg_cnode* node;
 	if(!(node = search_cnode(cnode_index, name))) {
 		char* n = memcpy(n, name, strlen(name));
@@ -28,13 +28,13 @@ ipcfg_cnode* get_confignode_for(char* name) {
 	return node;
 }
 
-ipcfg_cnode* get_anonymous_confignode(void) {
+ipcfg_cnode* ipcfg_get_anonymous_confignode(void) {
 	return calloc(sizeof(ipcfg_cnode), 1);
 }
 
 #define COPY_CONFIG(c, s, n) if(!(c) && (n)) { s=IPCFG_SRC_ASSUME; c=n; }
 
-int perform_confignode(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
+int ipcfg_perform_confignode(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 	int retval;
 
 	assert(node->fptr);
@@ -45,32 +45,32 @@ int perform_confignode(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) 
 	COPY_CONFIG(ctx->start, ctx->start_src, node);
 	if(!(retval = node->fptr(node, act, ctx))) {
 		if(node->name) {
-			retval+=signal_event(node->name, "node_success", act, ctx);
+			retval+=ipcfg_signal_event(node->name, "node_success", act, ctx);
 		}
 		if(node->success) {
-			return retval+perform_confignode(node->success, act, ctx);
+			return retval+ipcfg_perform_confignode(node->success, act, ctx);
 		} else {
 			if(node->ifname) {
-				retval+=signal_event(node->ifname, "iface_success", act, ctx);
+				retval+=ipcfg_signal_event(node->ifname, "iface_success", act, ctx);
 			}
 		}
 	} else {
 		int tmpval=retval;
 		if(node->name) {
-			retval+=signal_event(node->name, "node_failure", act, ctx);
+			retval+=ipcfg_signal_event(node->name, "node_failure", act, ctx);
 		}
 		if(node->failure) {
-			return retval-tmpval+perform_confignode(node->failure, act, ctx);
+			return retval-tmpval+ipcfg_perform_confignode(node->failure, act, ctx);
 		} else {
 			if(node->ifname) {
-				retval+=signal_event(node->ifname, "iface_failure", act, ctx);
+				retval+=ipcfg_signal_event(node->ifname, "iface_failure", act, ctx);
 			}
 		}
 	}
 	return retval;
 }
 
-int perform_confignode_no_fail(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
+int ipcfg_perform_confignode_no_fail(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 	int retval;
 
 	assert(node->fptr);
@@ -78,14 +78,14 @@ int perform_confignode_no_fail(ipcfg_cnode* node, ipcfg_action act, ipcfg_contex
 	COPY_CONFIG(ctx->start, ctx->start_src, node);
 	if(!(retval = node->fptr(node, act, ctx))) {
 		if(node->success) {
-			return perform_confignode_no_fail(node->success, act, ctx);
+			return ipcfg_perform_confignode_no_fail(node->success, act, ctx);
 		}
 	}
 	return retval;
 }
 
 #define COPY_IF_EMPTY(t, s)	{ if(!t) t=s; }
-int move_top_to(ipcfg_cnode* top, ipcfg_cnode* leaf) {
+int ipcfg_move_top_to(ipcfg_cnode* top, ipcfg_cnode* leaf) {
 	if(leaf->name) {
 		return 1;
 	}

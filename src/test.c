@@ -5,15 +5,15 @@
 #include <ipcfg/test.h>
 #include <ipcfg/hashtable.h>
 
-DEFINE_HASHTABLE_INSERT_NPTR(insert_test, char, cnode_fptr_t);
-DEFINE_HASHTABLE_SEARCH_NPTR(search_test, char, cnode_fptr_t);
-DEFINE_HASHTABLE_REMOVE_NPTR(remove_test, char, cnode_fptr_t);
+DEFINE_HASHTABLE_INSERT_NPTR(insert_test, char, ipcfg_cnode_fptr_t);
+DEFINE_HASHTABLE_SEARCH_NPTR(search_test, char, ipcfg_cnode_fptr_t);
+DEFINE_HASHTABLE_REMOVE_NPTR(remove_test, char, ipcfg_cnode_fptr_t);
 
 static struct hashtable* test_index;
 
-cnode_fptr_t find_test(char* nspace, char* testname) {
+ipcfg_cnode_fptr_t ipcfg_find_test(char* nspace, char* testname) {
 	char* key;
-	cnode_fptr_t retval;
+	ipcfg_cnode_fptr_t retval;
 	if(!strchr(testname, ':')) {
 		size_t length;
 		if(!nspace) {
@@ -30,7 +30,7 @@ cnode_fptr_t find_test(char* nspace, char* testname) {
 	return retval;
 }
 
-int register_test(char* nspace, char* testname, cnode_fptr_t fptr) {
+int ipcfg_register_test(char* nspace, char* testname, ipcfg_cnode_fptr_t fptr) {
 	char* key;
 	if(!strchr(testname, ':')) {
 		size_t length;

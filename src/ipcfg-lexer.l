@@ -31,8 +31,9 @@ test		return TEST;
 tested		return TESTED;
 trip		return TRIP;
 want		return WANT;
-"[^\"]*"	return QUOTEDSTRING;
+\"[^\"]*\"	return QUOTEDSTRING;
 [[:space:]]	/* ignore whitespace */
+#.*$		/* ignore comments */
 .		return (int)yytext[0];
 %%
 

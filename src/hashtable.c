@@ -272,3 +272,19 @@ hashtable_destroy(struct hashtable *h, int free_values)
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
+/* The below was taken from http://www.cse.yorku.ca/~oz/hash.html */
+unsigned int str_hash_djb2(void* str) {
+	unsigned long hash = 5381;
+	int c;
+	char* s=str;
+
+	while ((c = *s++))
+		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+	return (unsigned int)hash;
+}
+
+int str_eq(void* str1, void* str2) {
+	return !strcmp(str1, str2);
+}

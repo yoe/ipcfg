@@ -4,6 +4,6 @@
 
 /* Assume everything that's thrown at us exists */
 bool be_ifname_exists(char* name) {
-	printf("ifname_exists %s", name);
+	printf("be_test: ifname_exists %s\n", name);
 	return true;
 }

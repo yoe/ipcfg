@@ -23,8 +23,9 @@ ipcfg_cnode* ipcfg_find_confignode_for(char* name) {
 
 ipcfg_cnode* ipcfg_get_confignode_for(char* name) {
 	ipcfg_cnode* node;
+
 	if(!(node = search_cnode(cnode_index, name))) {
-		char* n = memcpy(n, name, strlen(name));
+		char* n = strdup(name);
 
 		node=calloc(sizeof(ipcfg_cnode), 1);
 		node->name=n;
@@ -101,4 +102,10 @@ int ipcfg_move_top_to(ipcfg_cnode* top, ipcfg_cnode* leaf) {
 	COPY_IF_EMPTY(top->failure, leaf->failure);
 	free(leaf);
 	return 0;
+}
+
+void p_ipcfg_cnode_init(void) {
+	if(IPCFG_EXPECT_FALSE(!cnode_index)) {
+		cnode_index=create_hashtable(10, str_hash_djb2, str_eq);
+	}
 }

@@ -138,3 +138,15 @@ int ipcfg_signal_event(char* name, char* event, ipcfg_action act, ipcfg_context*
 	}
 	return retval;
 }
+
+void p_ipcfg_event_init(void) {
+	if(IPCFG_EXPECT_TRUE(!name_index)) {
+		name_index = create_hashtable(10, str_hash_djb2, str_eq);
+	}
+	if(IPCFG_EXPECT_TRUE(!event_index)) {
+		event_index = create_hashtable(10, str_hash_djb2, str_eq);
+	}
+	if(IPCFG_EXPECT_TRUE(!action_index)) {
+		action_index = calloc(sizeof(DLList*), 2);
+	}
+}

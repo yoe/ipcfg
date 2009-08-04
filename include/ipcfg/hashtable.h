@@ -1,5 +1,4 @@
-/* Copyright (C) 2002 Christopher Clark <firstname.lastname@cl.cam.ac.uk> */
-
+/* Copyright (C) 2002 Christopher Clark <firstname.lastname@cl.cam.ac. */
 #ifndef __HASHTABLE_CWC22_H__
 #define __HASHTABLE_CWC22_H__
 
@@ -212,3 +211,5 @@ hashtable_destroy(struct hashtable *h, int free_values);
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+unsigned int str_hash_djb2(void *str);
+int str_eq(void* str1, void* str2);

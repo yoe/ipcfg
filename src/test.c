@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include <ipcfg/test.h>
+#include <ipcfg/macros.h>
 #include <ipcfg/hashtable.h>
 
 DEFINE_HASHTABLE_INSERT_NPTR(insert_test, char, ipcfg_cnode_fptr_t);
@@ -45,4 +46,10 @@ int ipcfg_register_test(char* nspace, char* testname, ipcfg_cnode_fptr_t fptr) {
 	}
 	insert_test(test_index, key, fptr);
 	return 0;
+}
+
+void p_ipcfg_test_init(void) {
+	if(IPCFG_EXPECT_FALSE(!test_index)) {
+		test_index = create_hashtable(10, str_hash_djb2, str_eq);
+	}
 }

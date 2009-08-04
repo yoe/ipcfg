@@ -71,7 +71,7 @@ startupconfig: mustline
 	| pluginline
 	;
 
-mustline: MUST ifacenumber minlist
+mustline: MUST ifacenumber quotedlist
 		{ ipcfg_create_must_config($2, $3); }
 	;
 
@@ -129,6 +129,7 @@ blockstop: '}'
 	;
 
 ifaceconfig: /* empty */
+		{ $$ = NULL; }
 	| ifaceconfig ifacetest
 		{ $1->success = $2; }
 	| ifaceconfig ifaceconditional

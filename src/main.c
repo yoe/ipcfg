@@ -4,11 +4,21 @@
 #include <stdlib.h>
 #include <ipcfg/commands.h>
 #include <ipcfg/private/configparse.h>
+#include <ipcfg/private/init.h>
 
 int main(int argc, char**argv) {
 	char* name=basename(argv[0]);
 
+	p_ipcfg_event_init();
+	p_ipcfg_cnode_init();
+	p_ipcfg_test_init();
+
 	p_ipcfg_read_config();
+
+	if(!strcmp(name, "ipcfg")) {
+		name=*(++argv);
+		argc--;
+	}
 	if(!strncmp(name, "ifup", 4)) {
 		if(argc<2) {
 			fprintf(stderr, "E: Need a name to bring up\n");

@@ -12,6 +12,7 @@
 int yylex(void);
 int yyerror(char*);
 DLList* namespace_stack;
+#define YYDEBUG 1
 %}
 
 %error-verbose
@@ -153,7 +154,7 @@ ifacerequiretest: REQUIRE TEST QUOTEDSTRING optlist
 	;
 
 optlist: /* empty */
-	minlist
+	| minlist
 		{ $$ = $1; }
 	;
 
@@ -208,5 +209,7 @@ actionstmt: ACTION QUOTEDSTRING quotedlist
 %%
 
 int p_ipcfg_parse(void) {
+	yydebug=1;
+	namespace_stack = dl_list_append(NULL, "core");
 	return yyparse();
 }

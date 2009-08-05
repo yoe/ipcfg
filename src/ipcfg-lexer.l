@@ -9,7 +9,7 @@ int yyerror(char* s) {
 
 %}
 
-%option noyywrap nounput batch bison-bridge
+%option noyywrap nounput batch 
 
 %%
 
@@ -31,7 +31,11 @@ test		return TEST;
 tested		return TESTED;
 trip		return TRIP;
 want		return WANT;
-\"[^\"]*\"	return QUOTEDSTRING;
+\"[^\"]*\"	{
+			yylval.string = strdup(yytext+1);
+			yylval.string[strlen(yylval.string)-1]='\0' ;
+			return QUOTEDSTRING;
+		}
 [[:space:]]	/* ignore whitespace */
 #.*$		/* ignore comments */
 .		return (int)yytext[0];

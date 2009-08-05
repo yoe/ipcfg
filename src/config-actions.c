@@ -30,9 +30,11 @@ static int perform_must_one(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* 
 
 	if(act == IPCFG_ACT_UP) {
 		do {
-			othernode = ipcfg_find_confignode_for(items->data);
-			items = dl_list_get_next(items);
-		} while(ipcfg_perform_confignode(othernode, act, ctx));
+			do {
+				othernode = ipcfg_find_confignode_for(items->data);
+				items = dl_list_get_next(items);
+			} while(!othernode && items);
+		} while(othernode && ipcfg_perform_confignode(othernode, act, ctx) && items);
 	}
 	if(items) {
 		return 0;

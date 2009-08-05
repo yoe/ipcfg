@@ -15,6 +15,9 @@ static struct hashtable* cnode_index;
 
 ipcfg_cnode* ipcfg_find_confignode_for(char* name) {
 	if(IPCFG_EXPECT_TRUE(cnode_index)) {
+		if(IPCFG_EXPECT_FALSE(!name)) {
+			return NULL;
+		}
 		return search_cnode(cnode_index, name);
 	} else {
 		return NULL;

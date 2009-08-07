@@ -43,8 +43,7 @@ int ipcfg_do_ifup(int argc, char** argv) {
 		ctx->ifname = s;
 		ctx->ifname_src = IPCFG_SRC_CMDLINE;
 	}
-	ipcfg_perform_confignode(node, IPCFG_ACT_UP, ctx);
-	return 0;
+	return ipcfg_perform_confignode(node, IPCFG_ACT_UP, ctx);
 }
 
 int ipcfg_do_ifdown(int argc, char** argv) {

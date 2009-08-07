@@ -12,6 +12,7 @@
 int yylex(void);
 int yyerror(char*);
 DLList* namespace_stack;
+extern int yylineno;
 #define YYDEBUG 1
 %}
 
@@ -49,6 +50,7 @@ DLList* namespace_stack;
 %type  <ptr>	optlist
 %type  <num>	ifacenumber
 %type  <node>	ifaceconfig
+%type  <node>	ifaceconfigstmt
 %type  <node>	ifacetest
 %type  <node>	ifacerequiretest
 %type  <node>	ifacefailtest
@@ -129,14 +131,12 @@ blockstop: '}'
 		}
 	;
 
-ifaceconfig: /* empty */
-		{ $$ = NULL; }
-	| ifaceconfig ifacetest
-		{ $1->success = $2; }
-	| ifaceconfig ifaceconditional
-		{ $1->success = $2; }
-	| ifaceconfig ifaceconfigline
-		{ $1->success = $2; }
+ifaceconfig: ifaceconfigstmt		{ $$ = $1; }
+	| ifaceconfig ifaceconfigstmt	{ $1->success = $2; }
+
+ifaceconfigstmt: ifacetest		{ $$ = $1; }
+		| ifaceconditional	{ $$ = $1; }
+		| ifaceconfigline	{ $$ = $1; }
 	; 
 
 ifacetest: ifacerequiretest
@@ -149,11 +149,17 @@ ifacerequiretest: REQUIRE TEST QUOTEDSTRING optlist
 		{
 			$$ = ipcfg_get_anonymous_confignode();
 			$$->fptr = ipcfg_find_test(namespace_stack->data, $3);
+			if(!($$->fptr)) {
+				char s[80];
+				snprintf(s, 80, "Unknown test: %s", $3);
+				yyerror(s);
+				exit(EXIT_FAILURE);
+			}
 			$$->data = $4;
 		}
 	;
 
-optlist: /* empty */
+optlist: /* empty */	{ $$ = NULL; }
 	| minlist
 		{ $$ = $1; }
 	;

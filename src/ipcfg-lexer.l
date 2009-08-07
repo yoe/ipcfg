@@ -3,13 +3,9 @@
 #include <ipcfg/cnode.h>
 #include "ipcfg-parser.h"
 
-int yyerror(char* s) {
-	return fprintf(stderr, "%s", s);
-}
-
 %}
 
-%option noyywrap nounput batch 
+%option noyywrap nounput batch yylineno
 
 %%
 
@@ -40,6 +36,10 @@ want		return WANT;
 #.*$		/* ignore comments */
 .		return (int)yytext[0];
 %%
+
+int yyerror(char* s) {
+	return fprintf(stderr, SYSCONFDIR "/ipcfg/config: line %d: %s\n", yylineno, s);
+}
 
 int p_ipcfg_read_config(void) {
 	if(!(yyin = fopen(SYSCONFDIR "/ipcfg/config", "r"))) {

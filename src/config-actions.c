@@ -15,6 +15,9 @@ static int perform_must_all(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* 
 	if(act == IPCFG_ACT_UP) {
 		while(items && items->data) {
 			ipcfg_cnode* othernode = ipcfg_find_confignode_for(items->data);
+			if(!othernode) {
+				return 1;
+			}
 			if(ipcfg_perform_confignode(othernode, act, ctx)) {
 				return 1;
 			}

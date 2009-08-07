@@ -11,7 +11,8 @@ ipcfg_SOURCES = cnode.c \
 	ipcfg-lexer.l \
 	config-actions.c \
 	plugins.c \
-	test.c
+	test.c \
+	util.c
 ipcfg_CPPFLAGS = -DEXECPREFIX='"$(exec_prefix)"' -DLOCALSTATEDIR='"$(localstatedir)"' -DPIDFILEDIR='"$(localstatedir)/run"' -DSYSCONFDIR='"$(sysconfdir)"' -DPLUGINDIR='"$(libdir)/ipcfg"'
 ipcfg_LDADD = backend-test/libbackend-test.a
 AM_CFLAGS = -I$(srcdir)/../include
@@ -24,3 +25,7 @@ install-exec-hook:
 		$(LN_S) -f ipcfg ifup && \
 		$(LN_S) -f ipcfg ifdown && \
 		$(LN_S) -f ipcfg ipcfgd
+ipcfg-parser.output: ipcfg-parser.y
+	$(YACC) -v $^
+	rm y.tab.c
+	mv y.output ipcfg-parser.output

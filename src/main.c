@@ -18,7 +18,7 @@ int main(int argc, char**argv) {
 
 	p_ipcfg_read_config();
 
-	if(!strcmp(name, "ipcfg")) {
+	if(argc>=2 && !strcmp(name, "ipcfg")) {
 		name=*(++argv);
 		argc--;
 	}
@@ -39,7 +39,7 @@ int main(int argc, char**argv) {
 	if(!strncmp(name, "ifcfgd", 6)) {
 		return ipcfg_go_daemon();
 	} else {
-		fprintf(stdout, "E: Unknown command %s", argv[0]);
+		fprintf(stdout, "E: Unknown command %s\n", argv[0]);
 		return -1;
 	}
 }

@@ -23,5 +23,15 @@ static int be_test_mii(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) 
 }
 
 void ipcfg_backend_init(void) {
+	ipcfg_cnode* lo_node;
+	char* ip4 = "127.0.0.1/8";
+	char* ip6 = "::1/128";
+
 	ipcfg_register_test("core", "mii", be_test_mii);
+	lo_node = ipcfg_get_confignode_for("lo");
+	lo_node->data = ip4;
+	lo_node->fptr = be_set_static4;
+	lo_node->success = ipcfg_get_anonymous_confignode();
+	lo_node->success->data = ip6;
+	lo_node->fptr = be_set_static6;
 }

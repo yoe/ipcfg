@@ -184,6 +184,12 @@ ifacefailtest: FAIL TEST QUOTEDSTRING optlist
 		{
 			$$ = ipcfg_get_anonymous_confignode();
 			$$->data = ipcfg_find_test(namespace_stack->data, $3);
+			if(!($$->data)) {
+				char s[80];
+				snprintf(s, 80, "Unknown test: %s", $3);
+				yyerror(s);
+				exit(EXIT_FAILURE);
+			}
 			$$->fptr = ipcfg_fail_test;
 		}
 	;

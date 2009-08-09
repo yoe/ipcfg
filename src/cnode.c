@@ -16,6 +16,7 @@
 #include <ipcfg/event.h>
 #include <ipcfg/hashtable.h>
 #include <ipcfg/macros.h>
+#include <ipcfg/backend/iface.h>
 
 DEFINE_HASHTABLE_INSERT(insert_cnode, char, ipcfg_cnode);
 DEFINE_HASHTABLE_SEARCH(search_cnode, char, ipcfg_cnode);
@@ -61,6 +62,9 @@ int ipcfg_perform_confignode(ipcfg_cnode* node, ipcfg_action act, ipcfg_context*
 		ctx = calloc(sizeof(ipcfg_context), 1);
 	}
 	COPY_CONFIG(ctx->ifname, ctx->ifname_src, node->ifname);
+	if(node->name && be_ifname_exists(node->name)) {
+		COPY_CONFIG(ctx->ifname, ctx->ifname_src, node->name);
+	}
 	COPY_CONFIG(ctx->start, ctx->start_src, node);
 	if(!(retval = node->fptr(node, act, ctx))) {
 		if(node->name) {

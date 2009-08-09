@@ -8,12 +8,12 @@
  * ----------------------------------------------------------------------------
  * (with thanks to phk@FreeBSD.org)
  */
-#ifndef IPCFG_PRIVATE_INIT_H
-#define IPCFG_PRIVATE_INIT_H
+#ifndef IPCFG_CONFIG_ACTIONS_H
+#define IPCFG_CONFIG_ACTIOCS_H
 
-void p_ipcfg_event_init(void);
-void p_ipcfg_cnode_init(void);
-void p_ipcfg_test_init(void);
-void p_ipcfg_config_init(void);
+#include <ipcfg/ll.h>
 
-#endif
+void ipcfg_create_must_config(int which, void* names);
+void ipcfg_create_want_config(int which, void* names);
+
+#endif // IPCFG_CONFIG_ACTIONS_H

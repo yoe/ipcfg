@@ -1,6 +1,6 @@
-config.h
-config.h.in
-config.h.in~
+include/ipcfg/private/config.h
+include/ipcfg/private/config.h.in
+include/ipcfg/private/config.h.in~
 config.log
 config.status
 configure

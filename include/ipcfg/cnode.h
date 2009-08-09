@@ -11,6 +11,10 @@
 #ifndef IPCFG_CNODE_H
 #define IPCFG_CNODE_H
 
+typedef struct _cnode ipcfg_cnode;
+
+#include <ipcfg/context.h>
+
 #include <stdint.h>
 /** What are we trying to do? */
 typedef enum {
@@ -19,38 +23,6 @@ typedef enum {
 	IPCFG_ACT_UP,		/**< Bring an interface up */
 	IPCFG_ACT_DOWN,		/**< Bring an interface down */
 } ipcfg_action;
-
-typedef struct _cnode ipcfg_cnode;
-
-/** Where did we find a particular bit of configuration? */
-typedef enum {
-	IPCFG_SRC_UNDEF=0,	/**< We don't know. Probably means the
-				 * associated config item hasn't been
-				 * initialized yet */
-	IPCFG_SRC_ASSUME,	/**< Assumed from a confignode's value */
-	IPCFG_SRC_CONFIG,	/**< In the/a config file */
-	IPCFG_SRC_DISCOVER,	/**< We ran a few tests and found out
-				 * about it that way */
-	IPCFG_SRC_CMDLINE,	/**< It was specified on the command line. */
-} ipcfg_source;
-
-/** The 'context' of a discovery. */
-typedef struct {
-	char* ifname;		/**< The name of the interface we're
-				 * trying to modify */
-	ipcfg_source ifname_src;/**< Where we found out about the
-				 * interface name (see above) */
-	ipcfg_cnode* start;	/**< The first confignode which we want to
-				 * use */
-	ipcfg_source start_src; /**< Where we found out about this first
-				 * config node */
-	uint8_t ip4[4];		/**< The IPv4 address we're going to use.
-				 * Note that in case of DHCP, this may
-				 * or may not be authoritative. */
-	ipcfg_source ip4_src;	/**< ... you got the idea */
-	uint8_t ip6[16];	/**< The IPv6 address we're going to use. */
-	ipcfg_source ip6_src;
-} ipcfg_context;
 
 typedef int(*ipcfg_cnode_fptr_t)(ipcfg_cnode*, ipcfg_action, ipcfg_context*);
 

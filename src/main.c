@@ -23,6 +23,7 @@ int main(int argc, char**argv) {
 	p_ipcfg_event_init();
 	p_ipcfg_cnode_init();
 	p_ipcfg_test_init();
+	p_ipcfg_config_init();
 
 	ipcfg_backend_init();
 

@@ -1,3 +1,4 @@
+/* hashtable.c: hashtable implementation */
 /* Copyright (C) 2004 Christopher Clark <firstname.lastname@cl.cam.ac.uk> */
 
 #include <ipcfg/hashtable.h>

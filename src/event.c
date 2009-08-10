@@ -1,3 +1,4 @@
+/* event.c: implementation of the 'event' subsystem */
 /*
  * ----------------------------------------------------------------------------
  * "THE BEER-WARE LICENSE" (Revision 42):
@@ -15,8 +16,6 @@
 #include <ipcfg/hashtable.h>
 #include <ipcfg/ll.h>
 #include <ipcfg/macros.h>
-
-/* Implementation of events. */
 
 /* Concept:
  * Every event has three properties:

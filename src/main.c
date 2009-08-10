@@ -1,3 +1,4 @@
+/* main.c: main() function */
 /*
  * ----------------------------------------------------------------------------
  * "THE BEER-WARE LICENSE" (Revision 42):
@@ -20,11 +21,13 @@
 int main(int argc, char**argv) {
 	char* name=basename(argv[0]);
 
+	/* Initialize several subsystems */
 	p_ipcfg_event_init();
 	p_ipcfg_cnode_init();
 	p_ipcfg_test_init();
 	p_ipcfg_config_init();
 
+	/* Initialize the backend */
 	ipcfg_backend_init();
 
 	p_ipcfg_read_config();

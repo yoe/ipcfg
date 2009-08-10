@@ -1,3 +1,4 @@
+/* context.c: implementation of the 'context' subsystem */
 /*
  * ----------------------------------------------------------------------------
  * "THE BEER-WARE LICENSE" (Revision 42):

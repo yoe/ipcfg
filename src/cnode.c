@@ -1,3 +1,4 @@
+/* cnode.c: implementation of the confignode subsystem */
 /*
  * ----------------------------------------------------------------------------
  * "THE BEER-WARE LICENSE" (Revision 42):

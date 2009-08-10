@@ -1,3 +1,4 @@
+/* plugins.c: plugin support */
 /*
  * ----------------------------------------------------------------------------
  * "THE BEER-WARE LICENSE" (Revision 42):

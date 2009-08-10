@@ -1,3 +1,5 @@
+/* config-actions.c: various functions used directly by the parser, and meant
+ * for the parser only */
 /*
  * ----------------------------------------------------------------------------
  * "THE BEER-WARE LICENSE" (Revision 42):

@@ -1,3 +1,4 @@
+/* hashtable_itr.c: an iterator for hash tables */
 /* Copyright (C) 2002, 2004 Christopher Clark  <firstname.lastname@cl.cam.ac.uk> */
 #ifndef HASHTABLE_ITERATOR_H
 #define HASHTABLE_ITERATOR_H

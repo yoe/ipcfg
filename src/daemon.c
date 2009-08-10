@@ -1,3 +1,4 @@
+/* daemon.c: various functions and helper things for daemon support */
 /*
  * ----------------------------------------------------------------------------
  * "THE BEER-WARE LICENSE" (Revision 42):

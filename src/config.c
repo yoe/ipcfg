@@ -1,3 +1,4 @@
+/* config.c: implementation of the 'config' subsystem */
 /*
  * ----------------------------------------------------------------------------
  * "THE BEER-WARE LICENSE" (Revision 42):

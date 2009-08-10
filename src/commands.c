@@ -1,3 +1,4 @@
+/* commands.c: "main" functions */
 /*
  * ----------------------------------------------------------------------------
  * "THE BEER-WARE LICENSE" (Revision 42):

@@ -1,3 +1,4 @@
+/* test.c: implementation of the 'test' subsystem */
 /*
  * ----------------------------------------------------------------------------
  * "THE BEER-WARE LICENSE" (Revision 42):

@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ipcfg/commands.h>
+#include <ipcfg/core.h>
 #include <ipcfg/private/configparse.h>
 #include <ipcfg/private/init.h>
 #include <ipcfg/backend/init.h>
@@ -29,6 +30,9 @@ int main(int argc, char**argv) {
 
 	/* Initialize the backend */
 	ipcfg_backend_init();
+
+	/* Initialize the core tests and actions */
+	p_ipcfg_core_init();
 
 	p_ipcfg_read_config();
 

@@ -12,8 +12,15 @@
 #define IPCFG_CONFIG_ACTIOCS_H
 
 #include <ipcfg/ll.h>
+#include <ipcfg/cnode.h>
+
+typedef struct {
+	ipcfg_cnode* test;
+	ipcfg_cnode* block;
+} ipcfg_test_block_data;
 
 void ipcfg_create_must_config(int which, void* names);
 void ipcfg_create_want_config(int which, void* names);
+int ipcfg_test_block(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx);
 
 #endif // IPCFG_CONFIG_ACTIONS_H

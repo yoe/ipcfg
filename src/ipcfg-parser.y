@@ -195,6 +195,14 @@ ifacefailtest: FAIL TEST QUOTEDSTRING optlist
 	;
 
 ifaceconditional: IF ifacetest blockstart ifaceconfig blockstop
+		{ 
+			ipcfg_test_block_data* data = malloc(sizeof(ipcfg_test_block_data));
+			$$ = ipcfg_get_anonymous_confignode();
+			$$->fptr = ipcfg_test_block;
+			$$->data = data;
+			data->test = $2;
+			data->block = $4;
+		}
 	;
 
 ifaceconfigline: CONFIG configargs

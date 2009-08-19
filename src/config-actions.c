@@ -163,3 +163,11 @@ int ipcfg_fail_test(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 		return 1;
 	}
 }
+
+int ipcfg_test_block(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
+	ipcfg_test_block_data* data = node->data;
+	if(ipcfg_perform_confignode(data->test, act, ctx)==0) {
+		return ipcfg_perform_confignode(data->block, act, ctx);
+	}
+	return 0;
+}

@@ -226,10 +226,16 @@ namespacestmt: NAMESPACE QUOTEDSTRING
 	;
 
 configblock: CONFIG QUOTEDSTRING blockstart configconfig blockstop
+		{
+			ipcfg_register_config(namespace_stack->data, $2, $4);
+		}
 	;
 
-configconfig: /* empty */
+configconfig: configitem
+		{ $$ = $1; }
 	| configconfig configitem
+		{ $1->success = $2; }
+	;
 
 configitem: setvar
 	| configstmt

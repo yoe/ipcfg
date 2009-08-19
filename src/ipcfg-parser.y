@@ -220,6 +220,10 @@ ifaceconfigline: CONFIG minlist
 	;
 
 namespacestmt: NAMESPACE QUOTEDSTRING
+		{
+			free(namespace_stack->data);
+			namespace_stack->data = strdup($2);
+		}
 	;
 
 configblock: CONFIG QUOTEDSTRING blockstart configconfig blockstop

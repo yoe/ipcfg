@@ -21,6 +21,7 @@
 #include <ipcfg/test.h>
 #include <ipcfg/util.h>
 #include <ipcfg/config.h>
+#include <ipcfg/action.h>
 int yylex(void);
 int yyerror(char*);
 DLList* namespace_stack;
@@ -60,13 +61,16 @@ extern int yylineno;
 %type  <ptr>	minlist
 %type  <ptr>	optlist
 %type  <num>	ifacenumber
-%type  <node>	ifaceconfig
-%type  <node>	ifaceconfigstmt
-%type  <node>	ifacetest
-%type  <node>	ifacerequiretest
-%type  <node>	ifacefailtest
-%type  <node>	ifaceconditional
-%type  <node>	ifaceconfigline
+%type  <node>	blockconfig
+%type  <node>	blockconfigstmt
+%type  <node>	test
+%type  <node>	requiretest
+%type  <node>	failtest
+%type  <node>	conditional
+%type  <node>	configstmt
+%type  <node>	setvar
+%type  <node>	actionstmt
+%type  <node>	groupstmt
 %%
 
 input: /* empty */
@@ -121,7 +125,7 @@ pluginline: PLUGINS minlist
 		{ ipcfg_load_plugins($2); }
 	;
 
-ifaceblock: IFACE QUOTEDSTRING blockstart ifaceconfig blockstop
+ifaceblock: IFACE QUOTEDSTRING blockstart blockconfig blockstop
 		{ 
 			ipcfg_cnode* node = ipcfg_get_confignode_for($2);
 			ipcfg_move_top_to(node, $4);
@@ -142,21 +146,25 @@ blockstop: '}'
 		}
 	;
 
-ifaceconfig: ifaceconfigstmt		{ $$ = $1; }
-	| ifaceconfig ifaceconfigstmt	{ $1->success = $2; }
+blockconfig: blockconfigstmt		{ $$ = $1; }
+	| blockconfig blockconfigstmt	{ $1->success = $2; }
+	| blockconfig namespacestmt
 
-ifaceconfigstmt: ifacetest		{ $$ = $1; }
-		| ifaceconditional	{ $$ = $1; }
-		| ifaceconfigline	{ $$ = $1; }
-	; 
+blockconfigstmt: test			{ $$ = $1; }
+		| conditional		{ $$ = $1; }
+		| configstmt		{ $$ = $1; }
+ 		| setvar		{ $$ = $1; }
+		| actionstmt		{ $$ = $1; }
+		| groupstmt		{ $$ = $1; }
+		;
 
-ifacetest: ifacerequiretest
+test: requiretest
 		{ $$ = $1; }
-	| ifacefailtest
+	| failtest
 		{ $$ = $1; }
 	;
 
-ifacerequiretest: REQUIRE TEST QUOTEDSTRING optlist
+requiretest: REQUIRE TEST QUOTEDSTRING optlist
 		{
 			$$ = ipcfg_get_anonymous_confignode();
 			$$->fptr = ipcfg_find_test(namespace_stack->data, $3);
@@ -181,7 +189,7 @@ minlist: QUOTEDSTRING
 		{ $$ = $1; }
 	;
 
-ifacefailtest: FAIL TEST QUOTEDSTRING optlist
+failtest: FAIL TEST QUOTEDSTRING optlist
 		{
 			$$ = ipcfg_get_anonymous_confignode();
 			$$->data = ipcfg_find_test(namespace_stack->data, $3);
@@ -195,7 +203,7 @@ ifacefailtest: FAIL TEST QUOTEDSTRING optlist
 		}
 	;
 
-ifaceconditional: IF ifacetest blockstart ifaceconfig blockstop
+conditional: IF test blockstart blockconfig blockstop
 		{ 
 			ipcfg_test_block_data* data = malloc(sizeof(ipcfg_test_block_data));
 			$$ = ipcfg_get_anonymous_confignode();
@@ -206,7 +214,7 @@ ifaceconditional: IF ifacetest blockstart ifaceconfig blockstop
 		}
 	;
 
-ifaceconfigline: CONFIG minlist
+configstmt: CONFIG minlist
 		{
 			DLList* l = $2;
 			$$ = ipcfg_get_anonymous_confignode();
@@ -225,34 +233,48 @@ namespacestmt: NAMESPACE QUOTEDSTRING
 		}
 	;
 
-configblock: CONFIG QUOTEDSTRING blockstart configconfig blockstop
+configblock: CONFIG QUOTEDSTRING blockstart blockconfig blockstop
 		{
 			ipcfg_register_config(namespace_stack->data, $2, $4);
 		}
 	;
 
-configconfig: configitem
-		{ $$ = $1; }
-	| configconfig configitem
-		{ $1->success = $2; }
-	;
-
-configitem: setvar
-	| configstmt
-	| namespacestmt
-	| actionstmt
-	| groupstmt
-	;
-
 setvar: SET QUOTEDSTRING QUOTEDSTRING
+		{
+			ipcfg_context_helper_t* hlp = malloc(sizeof(ipcfg_context_helper_t));
+			hlp->key = normalize_namespace_string(namespace_stack->data, $2);
+			hlp->data = $3;
+			$$ = ipcfg_get_anonymous_confignode();
+			$$->fptr = ipcfg_ctx_set_value;
+			$$->data = hlp;
+		}
 	;
 
-groupstmt: GROUP QUOTEDSTRING quotedlist blockstart configconfig blockstop
+groupstmt: GROUP QUOTEDSTRING QUOTEDSTRING blockstart blockconfig blockstop
+		{
+			ipcfg_cnode* node;
+			ipcfg_context_helper_t* hlp = malloc(sizeof(ipcfg_context_helper_t));
+			hlp->key = normalize_namespace_string(namespace_stack->data, $2);
+			hlp->data = $3;
+			$$ = ipcfg_get_anonymous_confignode();
+			$$->fptr = ipcfg_ctx_set_value;
+			$$->data = hlp;
+			$$->success = $5;
+			node = ipcfg_find_success_tail($$);
+			node->success = ipcfg_get_anonymous_confignode();
+			node = node->success;
+			node->fptr = ipcfg_ctx_unset_value;
+			node->data = hlp;
+		}
 	;
-
-configstmt: CONFIG quotedlist
 
 actionstmt: ACTION QUOTEDSTRING quotedlist
+		{
+			$$ = ipcfg_get_anonymous_confignode();
+			$$->data = $3;
+			$$->fptr = ipcfg_find_action(namespace_stack->data, $3);
+		}
+	;
 %%
 
 int p_ipcfg_parse(void) {

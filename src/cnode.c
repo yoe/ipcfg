@@ -126,6 +126,14 @@ int ipcfg_move_top_to(ipcfg_cnode* top, ipcfg_cnode* leaf) {
 	return 0;
 }
 
+ipcfg_cnode* ipcfg_find_success_tail(ipcfg_cnode* node) {
+	ipcfg_cnode* t = node;
+	while(t->success) {
+		t = t->success;
+	}
+	return t;
+}
+
 void p_ipcfg_cnode_init(void) {
 	if(IPCFG_EXPECT_FALSE(!cnode_index)) {
 		cnode_index=create_hashtable(10, str_hash_djb2, str_eq);

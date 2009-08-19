@@ -12,10 +12,6 @@
 #define IPCFG_CNODE_H
 
 typedef struct _cnode ipcfg_cnode;
-
-#include <ipcfg/context.h>
-
-#include <stdint.h>
 /** What are we trying to do? */
 typedef enum {
 	IPCFG_ACT_UNDEF=0,	/**< We don't know, or (in case of an event) we
@@ -23,6 +19,10 @@ typedef enum {
 	IPCFG_ACT_UP,		/**< Bring an interface up */
 	IPCFG_ACT_DOWN,		/**< Bring an interface down */
 } ipcfg_action;
+
+#include <ipcfg/context.h>
+
+#include <stdint.h>
 
 typedef int(*ipcfg_cnode_fptr_t)(ipcfg_cnode*, ipcfg_action, ipcfg_context*);
 
@@ -69,5 +69,7 @@ int ipcfg_perform_confignode_no_fail(ipcfg_cnode* node, ipcfg_action act, ipcfg_
 /* Move all features of the leaf node to the 'top' node, but not overwriting
  * anything. */
 int ipcfg_move_top_to(ipcfg_cnode* top, ipcfg_cnode* leaf);
+/* find the success tail */
+ipcfg_cnode* ipcfg_find_success_tail(ipcfg_cnode* node);
 
 #endif // IPCFG_CNODE_H

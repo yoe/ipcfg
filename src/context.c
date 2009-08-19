@@ -11,6 +11,7 @@
  */
 #include <ipcfg/context.h>
 #include <ipcfg/hashtable.h>
+#include <ipcfg/util.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -19,25 +20,42 @@ DEFINE_HASHTABLE_INSERT(insert_data, char, ipcfg_context_data);
 DEFINE_HASHTABLE_SEARCH(search_data, char, ipcfg_context_data);
 DEFINE_HASHTABLE_REMOVE(remove_data, char, ipcfg_context_data);
 
+int ipcfg_ctx_set_value(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
+	ipcfg_context_helper_t* hlp = node->data;
+	ipcfg_context_data* data = malloc(sizeof(ipcfg_context_data));
+	if(!ctx->data) {
+		ctx->data = create_hashtable(10, str_hash_djb2, str_eq);
+	} else {
+		if(search_data(ctx->data, hlp->key)) {
+			remove_data(ctx->data, hlp->key);
+		}
+	}
+	data->src = IPCFG_SRC_CONFIG;
+	data->data = hlp->data;
+	insert_data(ctx->data, hlp->key, data);
+	return 0;
+}
+
+int ipcfg_ctx_unset_value(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
+	ipcfg_context_helper_t* hlp = node->data;
+	if(!ctx->data) {
+		return 1;
+	}
+	if(!search_data(ctx->data, hlp->key)) {
+		return 1;
+	}
+	remove_data(ctx->data, hlp->key);
+	return 0;
+}
+
 ipcfg_context_data* ipcfg_ctx_lookup_data(ipcfg_context* ctx, char* nspace, char* name) {
 	ipcfg_context_data* retval;
-	size_t length;
 	char* key;
 
 	if(!ctx->data) {
 		return NULL;
 	}
-	if(!strchr(name, ':')) {
-		if(!nspace) {
-			return NULL;
-		}
-		length = strlen(nspace)+strlen(name)+2;
-		key=malloc(length);
-		snprintf(key, length, "%s:%s", nspace, name);
-	} else {
-		key = strdup(name);
-	}
-
+	key = normalize_namespace_string(nspace, name);
 	retval = search_data(ctx->data, key);
 	free(key);
 	return retval;

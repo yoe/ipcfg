@@ -19,6 +19,8 @@
 #include <ipcfg/daemon.h>
 #include <ipcfg/cnode.h>
 #include <ipcfg/test.h>
+#include <ipcfg/util.h>
+#include <ipcfg/config.h>
 int yylex(void);
 int yyerror(char*);
 DLList* namespace_stack;
@@ -205,10 +207,16 @@ ifaceconditional: IF ifacetest blockstart ifaceconfig blockstop
 		}
 	;
 
-ifaceconfigline: CONFIG configargs
-
-configargs: TESTED
-	| minlist
+ifaceconfigline: CONFIG minlist
+		{
+			DLList* l = $2;
+			$$ = ipcfg_get_anonymous_confignode();
+			do {
+				normalize_namespace_string(namespace_stack->data, l->data);
+			} while((l=dl_list_get_next(l)));
+			$$->data = $2;
+			$$->fptr = ipcfg_perform_configs;
+		}
 	;
 
 namespacestmt: NAMESPACE QUOTEDSTRING

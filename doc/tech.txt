@@ -35,7 +35,7 @@ events, either those defined by itself, or those defined by other
 plugins or even the core system. When the event triggers, the system
 will call the function pointer. The result value of the 'signal_event'
 function (which executes the callback handlers) is the sum of all the
-return values of the that have been registered and executed.
+return values of the functions that have been registered and executed.
 
 The third of these concepts, the "context", allows a plugin developer to
 track the actions of the state machine. For instance, when the user
@@ -46,9 +46,28 @@ result. Likewise, when a confignode wants to perform a number of tests
 on a network without specifying which network interface we're using, the
 system will record what interface we're working on in the context.
 
-This "context" concept is currently implemented in a fairly rudimentary
-way, and will likely be revisited (with an API change) in the future.
-Sorry, but I wanted to focus on the other two concepts first.
+The system has a number of global indexes: the "test" index, the
+"config" index, the "action" index, and the index of named confignodes.
+
+Any plugin may register a "test", which requires a function pointer that
+points to a function suitable for the 'fptr' pointer in the confignode
+system. These test functions may expect arguments; if they exist, they
+will be available as a DLList* in the "data" argument of the confignode.
+Registering a test must be done in the initialization function of that
+plugin, so that it is immediately available.
+
+The implementation of the "action" index is suspiciously similar to the
+implementation of the "test" index. They are separate, because they
+perform different functions in the config file; however, from an API
+point of view, they are the same.
+
+Any plugin may register an anonymous confignode in the "config" index.
+This allows these confignodes to be referred to from live
+configurations. Note that the user may also register any type of
+configuration in the "config" index.
+
+The index of named confignodes is special, in that it does not pay
+attention to namespaces.
 
 2. API Details
 ==============
@@ -196,3 +215,215 @@ run time.
 
 Plugins should not implement backends, nor should the muck with things
 that are supposed to be handled by the backend.
+
+5. Config file keywords
+=======================
+
+The config file has two groups of keywords: 'global settings' keywords,
+and 'configuration' keywords.
+
+The former set a bunch of things related to what needs to be done at
+system boot time etc; the latter allow one to configure in fine detail
+what needs to happen when configuring an interface.
+
+Note that the config file is not an interpreted or computed language;
+rather, what is specified in a config file is transformed by the config
+file parser to confignodes, as specified above.
+
+5.1. General syntaxis.
+----------------------
+
+Everything that can be added by a plugin is namespaced. Arguments and
+plugin-provided tests, actions, or configurations, are specified as
+quoted strings:
+
+namespace "firewall"
+
+In this example, '"firewall"' is an argument to the "namespace" keyword;
+the value of the argument is the string 'firewall', without the quotes.
+
+The system has namespaces for everything except interface names. There
+are two ways to specify a namespace: by using a colon-separated string
+in which the first part is the namespace and all other parts (including
+any colons after the first) are the name; or by specifying the default
+namespace by way of the 'namespace' keyword, and not using any colons in
+the name. This means that it is possible to have a name in a namespace
+that contains colons, but it does mean you have to fully specify the
+name, including its namespace, every time you want to use it.
+
+If no default namespace has been explicitly specified, the 'core'
+namespace is assumed.
+
+As such, the following two are equivalent:
+
+config "firewall:work"
+
+and
+
+namespace "firewall"
+config "work"
+
+except that the latter changes the default namespace for everything that
+comes after it.
+
+Note that names with colons in them are legal, but then you must specify
+the namespace every time:
+
+config "perl:Some::Module"
+
+would refer to the "Some::Module" configuration item in the hypothetical
+"perl" namespace. Because this is confusing and error-prone, using
+colons in names is discouraged.
+
+When an option takes a variable number of arguments, they need to be
+specified as a list. A list looks like this:
+
+("eth0", "eth1")
+
+That is, a list needs to start with an opening bracket, contain one or
+more comma-separated quoted strings, and end with a closing bracket.
+When specifying just one argument, the brackets are optional.
+
+Some keywords take a block as an argument. Blocks are grouped entities
+of other keywords, and are delimited by curly braces ('{' and '}').
+Namespaces are scoped within blocks:
+
+namespace "core"
+iface "eth0" {
+	namespace "silly"
+}
+# the namespace is back to "core" at this point, not "silly".
+
+5.1. Global keywords.
+---------------------
+
+- must/want and all/one/trip: these specify what interfaces to bring up
+  at system boot time, or whenever the user says 'ifup auto'.
+  In this context, 'must' will make 'ifup' exit unsuccessfully when
+  bringing up the interfaces has failed, whereas 'want' will do no such
+  thing. Using 'all' will cause the system to try to bring up all
+  interfaces, whereas 'one' will stop after the first successfully
+  brought up interface; and 'trip' will add event listeners so that if
+  an interface later on goes down unexpectedly, the system will try to
+  bring another interface up. Note that this requires daemon
+  functionality (see below).
+- (no) daemon: explicitly request or forbid the daemon. When using
+  functionality that requires the daemon, the system will attempt to
+  start the daemon; if 'no daemon' has been specified, however, this
+  will fail. By using 'daemon', the system will immediately start the
+  daemon, regardless of whether any functionality in the config file
+  requires it.
+- plugins: specifies the list of plugins the system should load. Note
+  that no functionality that is implemented by a plugin can be used
+  before this keyword has been encountered.
+- namespace: changes the default namespace. Contrary to any of the other
+  keywords, this may be specified inside a block; namespaces are scoped
+  within blocks, as specified above.
+
+5.2. Configuration keywords
+---------------------------
+
+- iface: takes one string as an argument, and a block. The string
+  contains the logical name of the interface we're about to configure;
+  this may be something like 'eth0' or 'wlan1', but could just as well
+  be 'home', 'work', or 'workvpn'. If doing that, however, you must make
+  sure that the system somehow (through a plugin, or through the 'set'
+  command; see below) gets the core:ifacename setting set.
+- config: also takes one string and one block as an argument. The string
+  refers to a configuration in the current namespace that can be
+  included in iface blocks. Such a configuration need not be specified
+  before the iface block in which it is specified; using it in the iface
+  block is done using the 'config' keywords. Consider the following
+  example:
+
+namespace "core"
+config "firewall:work" {
+	action "firewall:flush" "full"
+	group "firewall:table" "filter" {
+		action "firewall:INPUT" ("m:state", "state:NEW,INVALID", "j:REJECT")
+		action "firewall:FORWARD" ("j:REJECT")
+	}
+}
+
+iface "work_wired" {
+	set "ifacename" "eth0"
+	config "firewall:work"
+	config "core:dhcp4"
+}
+
+iface "work_wireless" {
+	set "ifacename" "wlan0"
+	config "firewall:work"
+	# ... whatever is needed to set up the wireless interface goes
+	# here
+	config "dhcp4"
+}
+
+  The "core:dhcp4" configuration is predefined as what's needed to
+  perform a DHCP request off an interface. The "firewall:work"
+  configuration is the one that we specified in the "config" block.
+
+  Plugins may predefine other "config" items. However, "config" does not
+  take arguments; see "action".
+  
+  The argument to "config is a list; i.e., it is possible to specify the
+  "work_wired" example as follows:
+
+iface "work_wired" {
+	set "ifacename" "eth0"
+	config ("firewall:work", "dhcp4")
+}
+
+- set: this will set a variable in the context that the system later can
+  use. It will not have side-effects by itself.
+- group: a blocked, scoped version of set. That is, the group in the
+  "firewall:work" config in the above example could be rewritten like
+  this:
+
+	set "firewall:table" "filter"
+	action "firewall:INPUT" ("m:state", "state:NEW,INVALID", "j:REJECT")
+	action "firewall:FORWARD" ("j:REJECT")
+
+  except that the group will also unset what it had previously set when
+  the block is exited, while the "set" will do no such thing.
+- action: this takes two arguments: a namespaced name, and a list. The
+  name refers to something implemented by either the core system or by
+  a plugin. It typically performs an atomic action, such as adding a
+  rule to an interface, physically bringing up an interface, or
+  something similar. It may receive arguments and have side-effects.
+- require test: takes a string as an argument, and optionally a list.
+  Performs a test, which may be successful or may fail; the list are
+  arguments for the test. If the test fails, the system will abort
+  trying to bring up the interface it was trying to bring up. An example
+  could be:
+
+iface "eth0" {
+	test "mii"
+	config "dhcp4"
+}
+
+  If we are not connected to a network (which is what the 'mii' test
+  tests for), it makes no sense to try to do DHCP, so abort.
+- fail test: same as above, except that the result is inverted; that is,
+  the system will abort trying to bring up the interface if the test
+  succeeds, rather than if it fails.
+- if: same as the previous two, except that it takes a block as an extra
+  argument; if the test fails, the block is executed. This allows for
+  conditional statements. Note that 'else' is not supported at this
+  time. 'if' may be nested.
+  With 'if', many things are possible. For example, we can reimplement
+  'want one':
+
+iface "any_wired" {
+	set "ifacename" "eth0"
+	if fail test "mii" {
+		set "ifacename" "eth1"
+		test "mii"
+	}
+	config "dhcp4"
+}
+
+  Note that "set" is not scoped. If there is no cable connected to eth0,
+  the system checks for eth1; if there is no cable connected there
+  either, we abort. Next, we'll try doing DHCP off the interface we
+  found in this manner.

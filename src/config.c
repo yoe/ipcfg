@@ -10,53 +10,46 @@
  * (with thanks to phk@FreeBSD.org)
  */
 #include <malloc.h>
-#include <stdio.h>
-#include <string.h>
 
 #include <ipcfg/config.h>
 #include <ipcfg/macros.h>
 #include <ipcfg/hashtable.h>
+#include <ipcfg/util.h>
+#include <ipcfg/ll.h>
 
-DEFINE_HASHTABLE_INSERT_NPTR(insert_config, char, ipcfg_cnode_fptr_t);
-DEFINE_HASHTABLE_SEARCH_NPTR(search_config, char, ipcfg_cnode_fptr_t);
-DEFINE_HASHTABLE_REMOVE_NPTR(remove_config, char, ipcfg_cnode_fptr_t);
+DEFINE_HASHTABLE_INSERT(insert_config, char, ipcfg_cnode);
+DEFINE_HASHTABLE_SEARCH(search_config, char, ipcfg_cnode);
+DEFINE_HASHTABLE_REMOVE(remove_config, char, ipcfg_cnode);
 
 static struct hashtable* config_index;
 
-ipcfg_cnode_fptr_t ipcfg_find_config(char* nspace, char* configname) {
+ipcfg_cnode* ipcfg_find_config(char* nspace, char* configname) {
 	char* key;
-	ipcfg_cnode_fptr_t retval;
-	if(!strchr(configname, ':')) {
-		size_t length;
-		if(!nspace) {
-			return NULL;
-		}
-		length = strlen(nspace)+strlen(configname)+2;
-		key = malloc(length);
-		snprintf(key, length, "%s:%s", nspace, configname);
-	} else {
-		key = strdup(configname);
-	}
+	ipcfg_cnode* retval;
+	
+	key = normalize_namespace_string(nspace, configname);
 	retval = search_config(config_index, key);
 	free(key);
 	return retval;
 }
 
-int ipcfg_register_config(char* nspace, char* configname, ipcfg_cnode_fptr_t fptr) {
-	char* key;
-	if(!strchr(configname, ':')) {
-		size_t length;
-		if(!nspace) {
-			return -1;
-		}
-		length = strlen(nspace)+strlen(configname)+2;
-		key = malloc(length);
-		snprintf(key, length, "%s:%s", nspace, configname);
-	} else {
-		key = strdup(configname);
-	}
+int ipcfg_register_config(char* nspace, char* configname, ipcfg_cnode* fptr) {
+	char* key = normalize_namespace_string(nspace, configname);
 	insert_config(config_index, key, fptr);
 	return 0;
+}
+
+int ipcfg_perform_configs(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
+	DLList* l = node->data;
+	ipcfg_cnode* othernode;
+	int retval=0;
+
+	do {
+		othernode = ipcfg_find_config(NULL, l->data);
+		retval+=ipcfg_perform_confignode(othernode, act, ctx);
+	} while((l=dl_list_get_next(l)));
+
+	return retval;
 }
 
 void p_ipcfg_config_init(void) {

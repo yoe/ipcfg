@@ -13,6 +13,7 @@
 #include <ipcfg/cnode.h>
 #include <ipcfg/test.h>
 #include <ipcfg/config.h>
+#include <ipcfg/action.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -77,8 +78,8 @@ void ipcfg_backend_init(void) {
 	char* ip6 = "::1/128";
 
 	ipcfg_register_test("core", "mii", be_test_mii);
-	ipcfg_register_config("core", "static4", be_set_static4);
-	ipcfg_register_config("core", "static6", be_set_static6);
+	ipcfg_register_action("core", "static4", be_set_static4);
+	ipcfg_register_action("core", "static6", be_set_static6);
 	lo_node = ipcfg_get_confignode_for("lo");
 	lo_node->data = ip4;
 	lo_node->fptr = be_set_static4;

@@ -13,7 +13,8 @@
 
 #include <ipcfg/cnode.h>
 
-int ipcfg_register_config(char* nspace, char* testname, ipcfg_cnode_fptr_t fptr);
-ipcfg_cnode_fptr_t ipcfg_find_config(char* nspace, char* testname);
+int ipcfg_register_config(char* nspace, char* testname, ipcfg_cnode* node);
+ipcfg_cnode* ipcfg_find_config(char* nspace, char* testname);
+int ipcfg_perform_configs(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx);
 
 #endif

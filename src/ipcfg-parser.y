@@ -212,7 +212,7 @@ ifaceconfigline: CONFIG minlist
 			DLList* l = $2;
 			$$ = ipcfg_get_anonymous_confignode();
 			do {
-				normalize_namespace_string(namespace_stack->data, l->data);
+				l->data = normalize_namespace_string(namespace_stack->data, l->data);
 			} while((l=dl_list_get_next(l)));
 			$$->data = $2;
 			$$->fptr = ipcfg_perform_configs;

@@ -10,6 +10,7 @@
  * (with thanks to phk@FreeBSD.org)
  */
 #include <malloc.h>
+#include <stdio.h>
 
 #include <ipcfg/config.h>
 #include <ipcfg/macros.h>
@@ -46,6 +47,14 @@ int ipcfg_perform_configs(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ct
 
 	do {
 		othernode = ipcfg_find_config(NULL, l->data);
+		if(!othernode) {
+			/* XXX if we're in daemon mode, we should not
+			 * even try stderr; we should rather write to
+			 * syslog then. For now, however... */
+			fprintf(stderr, "E: Uknown config %s\n", (char*)l->data);
+			retval++;
+			continue;
+		}
 		retval+=ipcfg_perform_confignode(othernode, act, ctx);
 	} while((l=dl_list_get_next(l)));
 

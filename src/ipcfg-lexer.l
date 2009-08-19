@@ -34,7 +34,6 @@ one		return ONE;
 plugins		return PLUGINS;
 require		return REQUIRE;
 test		return TEST;
-tested		return TESTED;
 trip		return TRIP;
 want		return WANT;
 \"[^\"]*\"	{

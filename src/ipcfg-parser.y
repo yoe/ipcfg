@@ -52,7 +52,6 @@ extern int yylineno;
 %token		REQUIRE
 %token		SET
 %token		TEST
-%token		TESTED
 %token		TRIP
 %token		WANT
 %token <string> QUOTEDSTRING

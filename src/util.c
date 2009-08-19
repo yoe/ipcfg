@@ -12,6 +12,8 @@
 #include <ipcfg/util.h>
 #include <ipcfg/cnode.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
 char* default_ifacename(ipcfg_cnode* node, ipcfg_context* ctx) {
 	if(ctx->ifname) {
@@ -36,4 +38,20 @@ char* default_ifacename(ipcfg_cnode* node, ipcfg_context* ctx) {
 		return ctx->ifname;
 	}
 	return NULL;
+}
+
+char* normalize_namespace_string(char* nspace, char* configname) {
+	char* retval;
+	if(!strchr(configname, ':')) {
+		size_t length;
+		if(!nspace) {
+			return NULL;
+		}
+		length = strlen(nspace)+strlen(configname)+2;
+		retval = malloc(length);
+		snprintf(retval, length, "%s:%s", nspace, configname);
+	} else {
+		retval = strdup(configname);
+	}
+	return retval;
 }

@@ -14,5 +14,6 @@
 #include <ipcfg/cnode.h>
 
 char* default_ifacename(ipcfg_cnode* node, ipcfg_context* ctx);
+char* normalize_namespace_string(char* nspace, char* configname);
 
 #endif

@@ -18,6 +18,7 @@
 #include <ipcfg/private/configparse.h>
 #include <ipcfg/private/init.h>
 #include <ipcfg/backend/init.h>
+#include <ipcfg/action.h>
 
 int main(int argc, char**argv) {
 	char* name=basename(argv[0]);
@@ -26,6 +27,7 @@ int main(int argc, char**argv) {
 	p_ipcfg_event_init();
 	p_ipcfg_cnode_init();
 	p_ipcfg_test_init();
+	p_ipcfg_action_init();
 	p_ipcfg_config_init();
 
 	/* Initialize the backend */

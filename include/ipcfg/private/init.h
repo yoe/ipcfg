@@ -15,5 +15,6 @@ void p_ipcfg_event_init(void);
 void p_ipcfg_cnode_init(void);
 void p_ipcfg_test_init(void);
 void p_ipcfg_config_init(void);
+void p_ipcfg_action_init(void);
 
 #endif

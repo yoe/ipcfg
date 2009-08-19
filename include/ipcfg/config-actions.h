@@ -9,7 +9,7 @@
  * (with thanks to phk@FreeBSD.org)
  */
 #ifndef IPCFG_CONFIG_ACTIONS_H
-#define IPCFG_CONFIG_ACTIOCS_H
+#define IPCFG_CONFIG_ACTIONS_H
 
 #include <ipcfg/ll.h>
 #include <ipcfg/cnode.h>

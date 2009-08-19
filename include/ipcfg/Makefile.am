@@ -11,5 +11,8 @@ ipcfginclude_HEADERS = cnode.h \
 	plugins.h \
 	test.h \
 	util.h \
-	action.h
+	action.h \
+	context.h \
+	config.h \
+	core.h
 SUBDIRS = private backend

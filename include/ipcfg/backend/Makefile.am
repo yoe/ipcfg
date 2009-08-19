@@ -1,2 +1,2 @@
 backendincludedir=$(includedir)/ipcfg/backend
-backendinclude_HEADERS = dhcp.h pid.h iface.h
+backendinclude_HEADERS = dhcp.h pid.h iface.h init.h

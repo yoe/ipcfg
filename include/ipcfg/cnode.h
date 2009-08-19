@@ -60,6 +60,9 @@ ipcfg_cnode* ipcfg_find_confignode_for(char* name);
 ipcfg_cnode* ipcfg_get_anonymous_confignode();
 /* Perform a confignode in the 'normal' way. */
 int ipcfg_perform_confignode(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx);
+/* Assume that the "data" pointer in a confignode is also a confignode, and
+ * perform that */
+int ipcfg_perform_data(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx);
 /* Perform a confignode, following up on success, but do not follow up
  * on failure, at any level deep in the hierarchy */
 int ipcfg_perform_confignode_no_fail(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx);

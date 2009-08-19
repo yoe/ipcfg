@@ -108,6 +108,10 @@ int ipcfg_perform_confignode_no_fail(ipcfg_cnode* node, ipcfg_action act, ipcfg_
 	return retval;
 }
 
+int ipcfg_perform_data(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
+	return ipcfg_perform_confignode((ipcfg_cnode*)node->data, act, ctx);
+}
+
 #define COPY_IF_EMPTY(t, s)	{ if(!t) t=s; }
 int ipcfg_move_top_to(ipcfg_cnode* top, ipcfg_cnode* leaf) {
 	if(leaf->name) {

@@ -89,7 +89,7 @@ startupconfig: mustline
 	| pluginline
 	;
 
-mustline: MUST ifacenumber quotedlist
+mustline: MUST ifacenumber minlist
 		{ ipcfg_create_must_config($2, $3); }
 	;
 
@@ -268,7 +268,7 @@ groupstmt: GROUP QUOTEDSTRING QUOTEDSTRING blockstart blockconfig blockstop
 		}
 	;
 
-actionstmt: ACTION QUOTEDSTRING quotedlist
+actionstmt: ACTION QUOTEDSTRING optlist
 		{
 			$$ = ipcfg_get_anonymous_confignode();
 			$$->data = $3;

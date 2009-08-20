@@ -273,6 +273,12 @@ actionstmt: ACTION QUOTEDSTRING optlist
 			$$ = ipcfg_get_anonymous_confignode();
 			$$->data = $3;
 			$$->fptr = ipcfg_find_action(namespace_stack->data, $2);
+			if(!$$->fptr) {
+				char s[80];
+				snprintf(s, 80, "Unknown action: %s", $2);
+				yyerror(s);
+				exit(EXIT_FAILURE);
+			}
 		}
 	;
 %%

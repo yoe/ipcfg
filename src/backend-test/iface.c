@@ -72,6 +72,20 @@ static int be_set_static6(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ct
 	return 0;
 }
 
+static int be_set_dhcp4(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
+	char* ifname = default_ifacename(node, ctx);
+
+	printf("be_test: set_dhcp4 %s\n", ifname);
+	return 0;
+}
+
+static int be_set_dhcp6(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
+	char* ifname = default_ifacename(node, ctx);
+
+	printf("be_test: set_dhcp6 %s\n", ifname);
+	return 0;
+}
+
 void ipcfg_backend_init(void) {
 	ipcfg_cnode* lo_node;
 	char* ip4 = "127.0.0.1/8";
@@ -80,6 +94,8 @@ void ipcfg_backend_init(void) {
 	ipcfg_register_test("core", "mii", be_test_mii);
 	ipcfg_register_action("core", "static4", be_set_static4);
 	ipcfg_register_action("core", "static6", be_set_static6);
+	ipcfg_register_action("core", "dhcp4", be_set_dhcp4);
+	ipcfg_register_action("core", "dhcp6", be_set_dhcp6);
 	lo_node = ipcfg_get_confignode_for("lo");
 	lo_node->data = ip4;
 	lo_node->fptr = be_set_static4;

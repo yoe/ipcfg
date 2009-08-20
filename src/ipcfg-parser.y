@@ -272,7 +272,7 @@ actionstmt: ACTION QUOTEDSTRING optlist
 		{
 			$$ = ipcfg_get_anonymous_confignode();
 			$$->data = $3;
-			$$->fptr = ipcfg_find_action(namespace_stack->data, $3);
+			$$->fptr = ipcfg_find_action(namespace_stack->data, $2);
 		}
 	;
 %%

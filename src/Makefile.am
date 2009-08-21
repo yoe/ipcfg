@@ -18,11 +18,11 @@ ipcfg_SOURCES = cnode.c \
 	core.c \
 	action.c
 ipcfg_CPPFLAGS = -DEXECPREFIX='"$(exec_prefix)"' -DLOCALSTATEDIR='"$(localstatedir)"' -DPIDFILEDIR='"$(localstatedir)/run"' -DSYSCONFDIR='"$(sysconfdir)"' -DPLUGINDIR='"$(libdir)/ipcfg"'
-ipcfg_LDADD = backend-test/libbackend-test.a
+ipcfg_LDADD = backend/$(BACKEND)
 AM_CFLAGS = -I$(srcdir)/../include
 AM_YFLAGS = -d
 AM_LDFLAGS = -lm
-SUBDIRS = backend-test
+SUBDIRS = backend
 BUILT_SOURCES = ipcfg-parser.h
 install-exec-hook:
 	cd $(DESTDIR)$(bindir) && \

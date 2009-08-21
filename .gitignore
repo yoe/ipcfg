@@ -3,6 +3,8 @@ include/ipcfg/private/config.h.in
 include/ipcfg/private/config.h.in~
 config.log
 config.status
+config.guess
+config.sub
 configure
 Makefile
 Makefile.in
@@ -22,5 +24,5 @@ ipcfg-lexer.c
 ipcfg-parser.h
 ipcfg-parser.c
 lex.yy.c
-src/backend-test/libbackend-test.a
+src/backend/libbackend*.a
 ipcfg-parser.output

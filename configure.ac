@@ -19,12 +19,14 @@ AC_CANONICAL_HOST
 # Checks for libraries.
 AC_SEARCH_LIBS(dlopen, dl, , AC_ERROR([Could not find libdl]))
 AC_MSG_CHECKING([for backend to use])
+MODULES=""
 AC_ARG_WITH(backend,
 	[AS_HELP_STRING([--with-backend],[select backend (test, linux; default linux)])],
 	[BACKEND=libbackend-"$withval".a],
 	[case $host_os in
 	linux*)
 		BACKEND=libbackend-linux.a
+		MODULES="$MODULES libnl-1"
 		;;
 	*)
 		BACKEND=libbackend-test.a
@@ -32,6 +34,7 @@ AC_ARG_WITH(backend,
 	esac])
 AC_SUBST(BACKEND)
 AC_MSG_RESULT([$BACKEND])
+PKG_CHECK_MODULES(platformdeps, "$MODULES")
 
 # Checks for header files.
 

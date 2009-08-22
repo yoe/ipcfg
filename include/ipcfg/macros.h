@@ -12,12 +12,23 @@
 #define IPCFG_MACROS_H
 
 #ifdef __GNUC__
-#define IPCFG_EXPECT_TRUE(cond) __builtin_expect((((cond)!=0)), 1)
-#define IPCFG_EXPECT_FALSE(cond) __builtin_expect((cond), 0)
-#define IPCFG_TODO fprintf(stderr, "E: %s not yet implemented!\n", __PRETTY_FUNCTION__); exit(EXIT_FAILURE);
-#else
-#define IPCFG_EXPECT_TRUE(cond) (cond)
-#define IPCFG_EXPECT_FALSE(cond) (cond)
-#define IPCFG_TODO fprintf(stderr, "E: a function was called which has not yet been implemented!\n"); exit(EXIT_FAILURE);
-#endif
-#endif
+
+# define IPCFG_EXPECT_TRUE(cond) __builtin_expect((((cond)!=0)), 1)
+# define IPCFG_EXPECT_FALSE(cond) __builtin_expect((cond), 0)
+# define IPCFG_TODO fprintf(stderr, "E: %s not yet implemented!\n", __PRETTY_FUNCTION__); exit(EXIT_FAILURE);
+
+# ifdef DODBG
+#  define DEBUG(msg, args...)	fprintf(stderr, msg , ##args)
+# else // ! DODBG
+#  define DEBUG(msg, args...)
+# endif // DODBG
+
+#else // ! __GNUC__
+
+# define IPCFG_EXPECT_TRUE(cond) (cond)
+# define IPCFG_EXPECT_FALSE(cond) (cond)
+# define IPCFG_TODO fprintf(stderr, "E: a function was called which has not yet been implemented!\n"); exit(EXIT_FAILURE);
+
+#endif // __GNUC__
+
+#endif // IPCFG_MACROS_Ḧ

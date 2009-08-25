@@ -102,7 +102,9 @@ void ipcfg_backend_do_defaults(void) {
 	}
 	if(!ipcfg_find_confignode_for("default")) {
 		node = ipcfg_get_confignode_for("default");
-		node->fptr = be_set_dhcp4;
+		node->fptr = be_test_mii;
+		node->success = ipcfg_get_anonymous_confignode();
+		node->success->fptr = be_set_dhcp4;
 	}
 }
 

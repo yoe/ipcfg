@@ -15,5 +15,6 @@
 #include <ipcfg/cnode.h>
 
 bool be_ifname_exists(char* ifname);
+void ipcfg_backend_do_defaults(void);
 
 #endif

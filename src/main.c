@@ -18,6 +18,7 @@
 #include <ipcfg/private/configparse.h>
 #include <ipcfg/private/init.h>
 #include <ipcfg/backend/init.h>
+#include <ipcfg/backend/iface.h>
 #include <ipcfg/action.h>
 
 int main(int argc, char**argv) {
@@ -35,6 +36,9 @@ int main(int argc, char**argv) {
 
 	/* Initialize the core tests and actions */
 	p_ipcfg_core_init();
+
+	/* Initialize non-initialized required confignodes */
+	ipcfg_backend_do_defaults();
 
 	p_ipcfg_read_config();
 

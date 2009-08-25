@@ -11,6 +11,7 @@
  */
 #include <ipcfg/commands.h>
 #include <ipcfg/cnode.h>
+#include <ipcfg/macros.h>
 
 #include <ipcfg/backend/iface.h>
 
@@ -47,8 +48,13 @@ int ipcfg_do_ifup(int argc, char** argv) {
 		strcpy(s, argv[1]);
 	}
 	if(!(node = ipcfg_find_confignode_for(s))) {
-		fprintf(stderr, "E: Unknown configuration %s\n", s);
-		exit(EXIT_FAILURE);
+		if(be_ifname_exists(s)) {
+			DEBUG("Node %s not fout, using defaults...\n", s);
+			node = ipcfg_find_confignode_for("default");
+		} else {
+			fprintf(stderr, "E: Unknown configuration %s\n", s);
+			exit(EXIT_FAILURE);
+		}
 	}
 	if(be_ifname_exists(s)) {
 		ctx->ifname = s;

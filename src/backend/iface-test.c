@@ -86,20 +86,29 @@ static int be_set_dhcp6(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx)
 	return 0;
 }
 
-void ipcfg_backend_init(void) {
-	ipcfg_cnode* lo_node;
+void ipcfg_backend_do_defaults(void) {
+	ipcfg_cnode* node;
 	char* ip4 = "127.0.0.1/8";
 	char* ip6 = "::1/128";
 
+	if(!ipcfg_find_confignode_for("lo")) {
+		node = ipcfg_get_confignode_for("lo");
+		node->data = ip4;
+		node->fptr = be_set_static4;
+		node->success = ipcfg_get_anonymous_confignode();
+		node->success->data = ip6;
+		node->success->fptr = be_set_static6;
+	}
+	if(!ipcfg_find_confignode_for("default")) {
+		node = ipcfg_get_confignode_for("default");
+		node->fptr = be_set_dhcp4;
+	}
+}
+
+void ipcfg_backend_init(void) {
 	ipcfg_register_test("core", "mii", be_test_mii);
 	ipcfg_register_action("core", "static4", be_set_static4);
 	ipcfg_register_action("core", "static6", be_set_static6);
 	ipcfg_register_action("core", "dhcp4", be_set_dhcp4);
 	ipcfg_register_action("core", "dhcp6", be_set_dhcp6);
-	lo_node = ipcfg_get_confignode_for("lo");
-	lo_node->data = ip4;
-	lo_node->fptr = be_set_static4;
-	lo_node->success = ipcfg_get_anonymous_confignode();
-	lo_node->success->data = ip6;
-	lo_node->success->fptr = be_set_static6;
 }

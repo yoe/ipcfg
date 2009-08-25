@@ -15,7 +15,7 @@
 
 # define IPCFG_EXPECT_TRUE(cond) __builtin_expect((((cond)!=0)), 1)
 # define IPCFG_EXPECT_FALSE(cond) __builtin_expect((cond), 0)
-# define IPCFG_TODO fprintf(stderr, "E: %s not yet implemented!\n", __func__); exit(EXIT_FAILURE);
+# define IPCFG_TODO fprintf(stderr, "E: %s implementation incomplete!\n", __func__); exit(EXIT_FAILURE);
 
 # ifdef DODBG
 #  define DEBUG(msg, args...)	fprintf(stderr, msg , ##args)

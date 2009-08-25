@@ -10,6 +10,7 @@
  */
 %{
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <ipcfg/private/configparse.h>
 #include <ipcfg/config-actions.h>
@@ -26,7 +27,6 @@ int yylex(void);
 int yyerror(char*);
 DLList* namespace_stack;
 extern int yylineno;
-#define YYDEBUG 1
 %}
 
 %error-verbose
@@ -284,7 +284,6 @@ actionstmt: ACTION QUOTEDSTRING optlist
 %%
 
 int p_ipcfg_parse(void) {
-	yydebug=1;
 	namespace_stack = dl_list_append(NULL, "core");
 	return yyparse();
 }

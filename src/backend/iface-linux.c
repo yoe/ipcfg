@@ -23,6 +23,8 @@
 #include <netlink/netlink.h>
 #include <netlink/route/link.h>
 
+#include <linux/if.h>
+
 static struct nl_handle* rtsock;
 static struct nl_cache* rtlcache;
 
@@ -40,7 +42,32 @@ bool be_ifname_exists(char* name) {
 }
 
 static int be_test_mii(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
-	IPCFG_TODO;
+	char* name = default_ifacename(node, ctx);
+	struct rtnl_link* link = rtnl_link_get_by_name(rtlcache, name);
+	struct rtnl_link* request;
+	if(!link) {
+		/* Interface does not exist -- something is broken */
+		DEBUG("Tried to test MII for non-existing interface %s\n", name);
+		rtnl_link_put(link);
+		return 1;
+	}
+	/* We need to bring the interface up to see whether there is a link. */
+	request = rtnl_link_alloc();
+	rtnl_link_set_flags(request, IFF_UP);
+	rtnl_link_change(rtsock, link, request, 0);
+	rtnl_link_put(request);
+	/* Now fetch the link data again, and see whether there is a
+	 * connection */
+	rtnl_link_put(link);
+	link = rtnl_link_get_by_name(rtlcache, name);
+	if(rtnl_link_get_flags(link) & IFF_RUNNING) {
+		DEBUG("MII test for %s successful\n", name);
+		rtnl_link_put(link);
+		return 0;
+	}
+	rtnl_link_put(link);
+	DEBUG("MII test for %s failed\n", name);
+	return 1;
 }
 
 static int be_set_static4(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {

@@ -47,7 +47,7 @@ static int be_test_mii(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) 
 	char* name = default_ifacename(node, ctx);
 	struct rtnl_link* link = rtnl_link_get_by_name(rtlcache, name);
 	struct rtnl_link* request;
-	if(!link) {
+	if(IPCFG_EXPECT_FALSE(!link)) {
 		/* Interface does not exist -- something is broken */
 		DEBUG("Tried to test MII for non-existing interface %s\n", name);
 		rtnl_link_put(link);
@@ -58,9 +58,9 @@ static int be_test_mii(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) 
 	rtnl_link_set_flags(request, IFF_UP);
 	rtnl_link_change(rtsock, link, request, 0);
 	rtnl_link_put(request);
+	rtnl_link_put(link);
 	/* Now fetch the link data again, and see whether there is a
 	 * connection */
-	rtnl_link_put(link);
 	link = rtnl_link_get_by_name(rtlcache, name);
 	if(rtnl_link_get_flags(link) & IFF_RUNNING) {
 		DEBUG("MII test for %s successful\n", name);

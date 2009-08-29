@@ -72,26 +72,20 @@ static int be_test_mii(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) 
 	return 1;
 }
 
-static int be_set_static_type(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx, int af) {
+static int be_set_static_type(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx, int af, ipcfg_context_data* ctx_addr) {
 	char* addr_s;
 	struct nl_addr* addr;
 	struct rtnl_addr* rtaddr = rtnl_addr_alloc();
+	struct rtnl_link* request;
+	struct rtnl_link* link;
+	char* name = default_ifacename(node, ctx);
 	int retval;
 
-	/* Figure out what IP address we need to set, first */
+	/* Figure out what address we need to set, first */
 	if(node->data) {
 		DLList* l = node->data;
 		addr_s = strdup(l->data);
 	} else {
-		ipcfg_context_data* ctx_addr;
-		switch(af) {
-			case AF_INET:
-				ctx_addr = ipcfg_ctx_lookup_data(ctx, NULL, "core:ip4addr");
-				break;
-			case AF_INET6:
-				ctx_addr = ipcfg_ctx_lookup_data(ctx, NULL, "core:ip4addr");
-				break;
-			}
 		if(!ctx_addr) {
 			DEBUG("No address found to set\n"); 
 			return 1;
@@ -99,11 +93,10 @@ static int be_set_static_type(ipcfg_cnode* node, ipcfg_action act, ipcfg_context
 		addr_s = strdup(ctx_addr->data);
 	}
 	if(!(addr=nl_addr_parse(addr_s, af))) {
-		DEBUG("Invalid IP address given: %s\n", addr_s);
+		DEBUG("Invalid address given: %s\n", addr_s);
 		return 1;
 	}
-	rtnl_addr_set_ifindex(rtaddr, rtnl_link_name2i(rtlcache,
-			default_ifacename(node, ctx)));
+	rtnl_addr_set_ifindex(rtaddr, rtnl_link_name2i(rtlcache, name));
 	rtnl_addr_set_local(rtaddr, addr);
 	if(act == IPCFG_ACT_UP) {
 		retval = rtnl_addr_add(rtsock, rtaddr, 0) * -1;
@@ -111,16 +104,20 @@ static int be_set_static_type(ipcfg_cnode* node, ipcfg_action act, ipcfg_context
 		retval = rtnl_addr_delete(rtsock, rtaddr, 0) * -1;
 	}
 	rtnl_addr_put(rtaddr);
+	nl_addr_put(addr);
+	free(addr_s);
 
 	return retval;
 }
 
 static int be_set_static4(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
-	return be_set_static_type(node, act, ctx, AF_INET);
+	ipcfg_context_data* ctx_addr = ipcfg_ctx_lookup_data(ctx, NULL, "core:ip4addr");
+	return be_set_static_type(node, act, ctx, AF_INET, ctx_addr);
 }
 
 static int be_set_static6(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
-	return be_set_static_type(node, act, ctx, AF_INET6);
+	ipcfg_context_data* ctx_addr = ipcfg_ctx_lookup_data(ctx, NULL, "core:ip4addr");
+	return be_set_static_type(node, act, ctx, AF_INET6, ctx_addr);
 }
 
 static int be_set_dhcp4(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {

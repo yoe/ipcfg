@@ -81,6 +81,23 @@ static int be_set_static_type(ipcfg_cnode* node, ipcfg_action act, ipcfg_context
 	char* name = default_ifacename(node, ctx);
 	int retval;
 
+	/* If the link isn't up, bring it up first. Otherwise this has nasty
+	 * side-effects with lo and IPv6 */
+	link = rtnl_link_get_by_name(rtlcache, name);
+	if(IPCFG_EXPECT_FALSE(!link)) {
+		/* Interface does not exist -- something is broken */
+		DEBUG("Tried to set address for non-existing interface %s\n", name);
+		rtnl_link_put(link);
+		return 1;
+	}
+	if(!(rtnl_link_get_flags(link) & IFF_UP)) {
+		request = rtnl_link_alloc();
+		rtnl_link_set_flags(request, IFF_UP);
+		rtnl_link_change(rtsock, link, request, 0);
+		rtnl_link_put(request);
+	}
+	rtnl_link_put(link);
+
 	/* Figure out what address we need to set, first */
 	if(node->data) {
 		DLList* l = node->data;

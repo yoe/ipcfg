@@ -133,7 +133,7 @@ static int be_set_static4(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ct
 }
 
 static int be_set_static6(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
-	ipcfg_context_data* ctx_addr = ipcfg_ctx_lookup_data(ctx, NULL, "core:ip4addr");
+	ipcfg_context_data* ctx_addr = ipcfg_ctx_lookup_data(ctx, NULL, "core:ip6addr");
 	return be_set_static_type(node, act, ctx, AF_INET6, ctx_addr);
 }
 

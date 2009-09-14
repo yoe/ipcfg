@@ -5,7 +5,7 @@
 #include <regex.h>
 #include <string.h>
 
-int be_do_dhcp(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
+int be_do_dhcp4(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 	char* name = default_ifacename(node, ctx);
 	char* pidfile;
 	FILE* fptr;

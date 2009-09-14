@@ -9,6 +9,7 @@
  * (with thanks to phk@FreeBSD.org)
  */
 #include <ipcfg/backend/iface.h>
+#include <ipcfg/backend/dhcp.h>
 #include <ipcfg/util.h>
 #include <ipcfg/cnode.h>
 #include <ipcfg/test.h>
@@ -137,10 +138,6 @@ static int be_set_static6(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ct
 	return be_set_static_type(node, act, ctx, AF_INET6, ctx_addr);
 }
 
-static int be_set_dhcp4(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
-	IPCFG_TODO;
-}
-
 static int be_set_dhcp6(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 	IPCFG_TODO;
 }
@@ -163,7 +160,7 @@ void ipcfg_backend_do_defaults(void) {
 		node = ipcfg_get_confignode_for("default");
 		node->fptr = be_test_mii;
 		node->success = ipcfg_get_anonymous_confignode();
-		node->success->fptr = be_set_dhcp4;
+		node->success->fptr = be_do_dhcp4;
 	}
 }
 
@@ -177,6 +174,6 @@ void ipcfg_backend_init(void) {
 	ipcfg_register_test("core", "mii", be_test_mii);
 	ipcfg_register_action("core", "static4", be_set_static4);
 	ipcfg_register_action("core", "static6", be_set_static6);
-	ipcfg_register_action("core", "dhcp4", be_set_dhcp4);
-	ipcfg_register_action("core", "dhcp6", be_set_dhcp6);
+	ipcfg_register_action("core", "dhcp4", be_do_dhcp4);
+	ipcfg_register_action("core", "dhcp6", be_do_dhcp6);
 }

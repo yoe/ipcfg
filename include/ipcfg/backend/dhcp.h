@@ -15,9 +15,11 @@
 #include <ipcfg/context.h>
 #include <stdbool.h>
 
-/* Run the DHCP client, and set up the device with the resulting
+/* Run the DHCPv4 client, and set up the device with the resulting
  * configuration. Does a DHCP release on ifdown. */
-int be_do_dhcp(ipcfg_cnode*, ipcfg_action, ipcfg_context* ctx);
+int be_do_dhcp4(ipcfg_cnode*, ipcfg_action, ipcfg_context*);
+/* Same, for IPv6 */
+int be_do_dhcp6(ipcfg_cnode*, ipcfg_action, ipcfg_context*);
 /* Test whether there is a DHCP server on the network by trying to
  * acquire a DHCP lease, but do not yet activate it. Does nothing on
  * ifdown. */

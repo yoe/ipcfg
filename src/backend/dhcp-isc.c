@@ -1,9 +1,11 @@
 #include <ipcfg/backend/dhcp.h>
+#include <ipcfg/util.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <regex.h>
 #include <string.h>
+#include <stdio.h>
 
 int be_do_dhcp4(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 	char* name = default_ifacename(node, ctx);
@@ -75,4 +77,8 @@ int be_do_dhcp4(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
   out:
 	free(pidfile);
 	return retval;
+}
+
+int be_do_dhcp6(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
+	IPCFG_TODO
 }

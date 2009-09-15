@@ -41,7 +41,7 @@ static int do_all_down(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) 
 	int i=0;
 	ipcfg_cnode* defaultnode = ipcfg_find_confignode_for("default");
 
-	ipcfg_events_suspend();
+	p_ipcfg_events_suspend();
 	while(names[i]) {
 		ipcfg_cnode* node = ipcfg_find_confignode_for(names[i]);
 		ipcfg_context* ctx_ = calloc(1, sizeof(ipcfg_context));
@@ -58,7 +58,7 @@ static int do_all_down(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) 
 		}
 		free(ctx_);
 	}
-	ipcfg_events_resume();
+	p_ipcfg_events_resume();
 	return retval;
 }
 

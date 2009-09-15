@@ -49,6 +49,8 @@ static event_resource_t* resource_index;
 static unsigned int curindex = 0;
 static size_t resindex_size = 0;
 
+static bool suspended = false;
+
 DEFINE_HASHTABLE_INSERT(insert_name, char, DLList);
 DEFINE_HASHTABLE_SEARCH(search_name, char, DLList);
 DEFINE_HASHTABLE_REMOVE(remove_name, char, DLList);
@@ -102,6 +104,9 @@ int ipcfg_signal_event(char* name, char* event, ipcfg_action act, ipcfg_context*
 	DLList* list;
 	int retval=0;
 
+	if(suspended) {
+		return 0;
+	}
 	list = search_name(name_index, name);
 	while((list=dl_list_get_next(list))) {
 		event_resource_t* res = (event_resource_t*)list->data;
@@ -146,6 +151,14 @@ int ipcfg_signal_event(char* name, char* event, ipcfg_action act, ipcfg_context*
 		}
 	}
 	return retval;
+}
+
+void p_ipcfg_events_suspend(void) {
+	suspended = true;
+}
+
+void p_ipcfg_events_resume(void) {
+	suspended = false;
 }
 
 void p_ipcfg_event_init(void) {

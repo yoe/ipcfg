@@ -1,4 +1,6 @@
 #include <ipcfg/backend/dhcp.h>
+#include <ipcfg/action.h>
+#include <ipcfg/macros.h>
 #include <ipcfg/util.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -6,6 +8,9 @@
 #include <regex.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
 
 int be_do_dhcp4(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 	char* name = default_ifacename(node, ctx);
@@ -14,20 +19,20 @@ int be_do_dhcp4(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 	char* buf;
 	int retval=0;
 
-	pidfile = asprintf("/var/run/dhclient.%s.pid", name);
-	if(action==IPCFG_ACT_UP) {
+	asprintf(&pidfile, "/var/run/dhclient.%s.pid", name);
+	if(act==IPCFG_ACT_UP) {
 		regex_t rebuf;
 		regmatch_t match[1];
 
-		buf = asprintf("/sbin/dhclient -pf %s %s", pidfile, name);
+		asprintf(&buf, "/sbin/dhclient -pf %s %s", pidfile, name);
 		fptr = popen(buf, "r");
 		free(buf);
 		buf=malloc(80);
 		regcomp(&rebuf, "/DHCP([A-Z]*)/", REG_EXTENDED);
 		while(!feof(fptr)) {
 			fgets(buf, 80, fptr);
-			if(regexec(&rebuf, buf, 1, &match, 0) != REG_NOMATCH) {
-				if(strncmp(buf, "DHCPACK")) {
+			if(regexec(&rebuf, buf, 1, match, 0) != REG_NOMATCH) {
+				if(strncmp(buf, "DHCPACK", 7)) {
 					/* We have a new IP address -- figure
 					 * out what it is, and fire the
 					 * appropriate events */
@@ -61,7 +66,7 @@ int be_do_dhcp4(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 				retval=1;
 				goto out;
 		}
-		buf=asprintf("/sbin/dhclient -r %s", name);
+		asprintf(&buf, "/sbin/dhclient -r %s", name);
 		fptr = popen(buf, "r");
 		free(buf);
 		/* We don't want to send SIGPIPE to dhclient, so read (and

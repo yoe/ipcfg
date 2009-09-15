@@ -33,11 +33,12 @@ void ipcfg_usage(int usage_type) {
 	printf("Interface names can be 'auto' on ifup, or 'all' on ifdown\n");
 }
 
-int ipcfg_do_ifup(int argc, char** argv) {
+int ipcfg_do_updown(int argc, char** argv, ipcfg_action which) {
 	char* ptr;
 	char s[strlen(argv[1])];
 	ipcfg_context* ctx = calloc(1, sizeof(ipcfg_context));
 	ipcfg_cnode* node;
+	int retval;
 
 	if(argc<2) {
 		ipcfg_usage(USAGE_ERROR);
@@ -60,13 +61,16 @@ int ipcfg_do_ifup(int argc, char** argv) {
 		ctx->ifname = s;
 		ctx->ifname_src = IPCFG_SRC_CMDLINE;
 	}
-	return ipcfg_perform_confignode(node, IPCFG_ACT_UP, ctx);
+	if((retval=ipcfg_perform_confignode(node, which, ctx))) {
+		DEBUG("FAIL\n");
+	}
+	return retval;
+}
+
+int ipcfg_do_ifup(int argc, char** argv) {
+	return ipcfg_do_updown(argc, argv, IPCFG_ACT_UP);
 }
 
 int ipcfg_do_ifdown(int argc, char** argv) {
-	if(argc<2) {
-		ipcfg_usage(USAGE_ERROR);
-	}
-	/* TODO: getopt stuff, and perform ifdown */
-	return 0;
+	return ipcfg_do_updown(argc, argv, IPCFG_ACT_DOWN);
 }

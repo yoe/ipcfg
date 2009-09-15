@@ -16,7 +16,8 @@ ipcfg_SOURCES = cnode.c \
 	context.c \
 	config.c \
 	core.c \
-	action.c
+	action.c \
+	defaults.c
 ipcfg_CPPFLAGS = -DEXECPREFIX='"$(exec_prefix)"' -DLOCALSTATEDIR='"$(localstatedir)"' -DPIDFILEDIR='"$(localstatedir)/run"' -DSYSCONFDIR='"$(sysconfdir)"' -DPLUGINDIR='"$(libdir)/ipcfg"'
 ipcfg_LDADD = backend/$(BACKEND) @platformdeps_LIBS@
 AM_CFLAGS = -I$(srcdir)/../include

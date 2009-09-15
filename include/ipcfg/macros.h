@@ -11,6 +11,8 @@
 #ifndef IPCFG_MACROS_H
 #define IPCFG_MACROS_H
 
+#include <stdio.h>
+
 # define IPCFG_TODO fprintf(stderr, "E: %s implementation incomplete!\n", __func__); exit(EXIT_FAILURE);
 
 # ifdef DODBG

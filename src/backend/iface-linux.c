@@ -191,6 +191,10 @@ void ipcfg_backend_do_defaults(void) {
 	}
 }
 
+char** be_get_ifnames(void) {
+	IPCFG_TODO;
+}
+
 void ipcfg_backend_init(void) {
 	/* Open the netlink socket, and initialize the caches */
 	rtsock = nl_handle_alloc();

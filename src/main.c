@@ -20,6 +20,7 @@
 #include <ipcfg/backend/init.h>
 #include <ipcfg/backend/iface.h>
 #include <ipcfg/action.h>
+#include <ipcfg/defaults.h>
 
 int main(int argc, char**argv) {
 	char* name=basename(argv[0]);
@@ -36,6 +37,7 @@ int main(int argc, char**argv) {
 
 	/* Initialize the core tests and actions */
 	p_ipcfg_core_init();
+	ipcfg_core_do_defaults();
 
 	/* Initialize non-initialized required confignodes */
 	ipcfg_backend_do_defaults();

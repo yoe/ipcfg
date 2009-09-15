@@ -33,4 +33,4 @@
 
 #endif // __GNUC__
 
-#endif // IPCFG_MACROS_Ḧ
+#endif // IPCFG_MACROS_H

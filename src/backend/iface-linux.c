@@ -44,10 +44,43 @@ bool be_ifname_exists(char* name) {
 	}
 }
 
-static int be_test_mii(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
+static int be_do_link_state(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 	char* name = default_ifacename(node, ctx);
 	struct rtnl_link* link = rtnl_link_get_by_name(rtlcache, name);
 	struct rtnl_link* request;
+	int retval;
+
+	if(IPCFG_EXPECT_FALSE(!link)) {
+		DEBUG("Tried to modify non-existing interface %s\n", name);
+		rtnl_link_put(link);
+		return 1;
+	}
+	request = rtnl_link_alloc();
+	if(act == IPCFG_ACT_UP) {
+		DEBUG("Bringing %s up\n", name);
+		rtnl_link_set_flags(request, IFF_UP);
+	} else {
+		DEBUG("Bringing %s down\n", name);
+		rtnl_link_unset_flags(request, IFF_UP);
+	}
+	retval = rtnl_link_change(rtsock, link, request, 0);
+	rtnl_link_put(request);
+	rtnl_link_put(link);
+
+	retval*=-1;
+
+	if(retval) {
+		DEBUG("Could not modify state of %s: %s\n", name, strerror(retval));
+	}
+
+	return retval;
+}
+
+static int be_test_mii(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
+	char* name = default_ifacename(node, ctx);
+	struct rtnl_link* link = rtnl_link_get_by_name(rtlcache, name);
+	int err;
+
 	if(IPCFG_EXPECT_FALSE(!link)) {
 		/* Interface does not exist -- something is broken */
 		DEBUG("Tried to test MII for non-existing interface %s\n", name);
@@ -55,11 +88,9 @@ static int be_test_mii(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) 
 		return 1;
 	}
 	/* We need to bring the interface up to see whether there is a link. */
-	request = rtnl_link_alloc();
-	rtnl_link_set_flags(request, IFF_UP);
-	rtnl_link_change(rtsock, link, request, 0);
-	rtnl_link_put(request);
-	rtnl_link_put(link);
+	if((err=be_do_link_state(node, IPCFG_ACT_UP, ctx))) {
+		return err;
+	}
 	/* Now fetch the link data again, and see whether there is a
 	 * connection */
 	link = rtnl_link_get_by_name(rtlcache, name);
@@ -77,7 +108,6 @@ static int be_set_static_type(ipcfg_cnode* node, ipcfg_action act, ipcfg_context
 	char* addr_s;
 	struct nl_addr* addr;
 	struct rtnl_addr* rtaddr = rtnl_addr_alloc();
-	struct rtnl_link* request;
 	struct rtnl_link* link;
 	char* name = default_ifacename(node, ctx);
 	int retval;
@@ -92,10 +122,7 @@ static int be_set_static_type(ipcfg_cnode* node, ipcfg_action act, ipcfg_context
 		return 1;
 	}
 	if(!(rtnl_link_get_flags(link) & IFF_UP)) {
-		request = rtnl_link_alloc();
-		rtnl_link_set_flags(request, IFF_UP);
-		rtnl_link_change(rtsock, link, request, 0);
-		rtnl_link_put(request);
+		be_do_link_state(node, IPCFG_ACT_UP, ctx);
 	}
 	rtnl_link_put(link);
 
@@ -125,6 +152,10 @@ static int be_set_static_type(ipcfg_cnode* node, ipcfg_action act, ipcfg_context
 	nl_addr_put(addr);
 	free(addr_s);
 
+	if(retval) {
+		DEBUG("Could not set address on %s: %s\n", name, strerror(retval));
+	}
+
 	return retval;
 }
 
@@ -144,17 +175,13 @@ static int be_set_dhcp6(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx)
 
 void ipcfg_backend_do_defaults(void) {
 	ipcfg_cnode* node;
-	char* ip4 = "127.0.0.1/8";
-	char* ip6 = "::1/128";
 
 	if(!ipcfg_find_confignode_for("lo")) {
-		/* Create a confignode for the "lo" interface */
+		/* Create a confignode for the "lo" interface. On Linux,
+		 * we just need to bring it up -- the kernel will do the
+		 * rest */
 		node = ipcfg_get_confignode_for("lo");
-		node->data = dl_list_append(node->data, ip4);
-		node->fptr = be_set_static4;
-		node->success = ipcfg_get_anonymous_confignode();
-		node->success->data = dl_list_append(node->success->data, ip6);
-		node->success->fptr = be_set_static6;
+		node->fptr = be_do_link_state;
 	}
 	if(!ipcfg_find_confignode_for("default")) {
 		node = ipcfg_get_confignode_for("default");
@@ -176,4 +203,5 @@ void ipcfg_backend_init(void) {
 	ipcfg_register_action("core", "static6", be_set_static6);
 	ipcfg_register_action("core", "dhcp4", be_do_dhcp4);
 	ipcfg_register_action("core", "dhcp6", be_do_dhcp6);
+	ipcfg_register_action("core", "link_state", be_do_link_state);
 }

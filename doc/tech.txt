@@ -44,7 +44,8 @@ be configured at boot time), the context will not be the same as when
 the user asks for 'ifup eth0', even if both actions produce the same
 result. Likewise, when a confignode wants to perform a number of tests
 on a network without specifying which network interface we're using, the
-system will record what interface we're working on in the context.
+system will record what interface we're working on in the context; and
+the results of these tests will also be stored in the context.
 
 The system has a number of global indexes: the "test" index, the
 "config" index, the "action" index, and the index of named confignodes.
@@ -54,20 +55,33 @@ points to a function suitable for the 'fptr' pointer in the confignode
 system. These test functions may expect arguments; if they exist, they
 will be available as a DLList* in the "data" argument of the confignode.
 Registering a test must be done in the initialization function of that
-plugin, so that it is immediately available.
+plugin, so that it is immediately available. Tests may set variables in
+the context, and have to bring a link physically up (so that a wireless
+interface can scan for Access Points, or so that a wired interface can
+test for a cable, or some such), but should ideally have no other
+side-effects.
 
 The implementation of the "action" index is suspiciously similar to the
 implementation of the "test" index. They are separate, because they
 perform different functions in the config file; however, from an API
-point of view, they are the same.
+point of view, they are the same. An action should ideally not modify
+context variables, and should have exactly one significant side-effect.
+For instance, it could set an IP address on an interface, or set the
+default route, or something similar. Actions can take arguments as well;
+they too are specified as a DLList* on the 'data' pointer of the
+confignode.
 
 Any plugin may register an anonymous confignode in the "config" index.
 This allows these confignodes to be referred to from live
 configurations. Note that the user may also register any type of
-configuration in the "config" index.
+configuration in the "config" index. An item in the "config" index could
+be thought of as a compound action, or a compound test -- or a
+combination of both. One cannot specify arguments to a confignode, but
+it is of course possible to specify values through the context.
 
 The index of named confignodes is special, in that it does not pay
-attention to namespaces.
+attention to namespaces. For this reason, plugins should not create new
+named confignodes.
 
 2. API Details
 ==============
@@ -108,7 +122,8 @@ Fairly basic. Also see the above.
 The "fptr" function will receive a pointer to _this_ confignode. This
 allows it not only to find the "data" pointer (which the confignode
 framework does not care about), but also to investigate the state
-machine.
+machine. Plugin developers should however refrain from doing weird stuff
+with confignodes after everything has been parsed, for obvious reasons.
 
 The difference between the "name" and "ifname" strings is that the first
 is a _symbolic_ name; when the user asks to bring up "eth0", the system
@@ -131,6 +146,13 @@ first place. It also is not possible to turn an anonymous confignode
 into a named one. This is on purpose. If you want to change the system
 at runtime rather than at configuration time, use the event system.
 
+It is of course possible to overwrite a named confignode with another
+confignode. This will, however, result in broken behaviour, and should
+not be done. Instead, developers should follow the confignode tree down
+the 'success' line until they find a NULL pointer, and append values
+there. Usually, however, it is not necessary to manually walk the tree
+-- the config file parser will do this for you.
+
 To run a confignode, use the "perform_confignode" function. There is
 also a "perform_confignode_no_fail" function, which would ignore the
 "failure" pointer of the topmost confignode (but not those of any
@@ -140,8 +162,7 @@ confignodes below the topmost one).
 -----------
 
 Events are known from other frameworks (e.g., the 'signals' in GNOME's
-GObject system). What's specific about events in the ipcfg system is
-that rather than just a name, they have three properties: a "name", an
+GObject system). Events in ipcfg have three properties: a "name", an
 "event", and an "action". The name refers to the "name" of the object
 (confignode, interface, ...) that generated the event. The "event" is
 the name of the event; this is a free-form string. The "action" explains
@@ -159,12 +180,19 @@ function takes a context as an argument; it is not an error to provide a
 NULL pointer if no useful context exists.
 
 The core system currently provides the following events:
-- node_success: a named confignode was performed successfully.
-- node_failure: a named confignode was not performed successfully.
+- node_success: a named confignode was performed successfully. The
+  "name" part of the event will be the name of the confignode.
+- node_failure: a named confignode was not performed successfully. The
+  "name" part of the event will be the name of the confignode.
 - iface_success: a confignode (named or anonymous) with a value in the
-  "iface" pointer was performed successfully.
+  "iface" pointer was performed successfully. The "name" part of the
+  event will be the name of the interface. Note that this event may
+  trigger several times when bringing up a configuration where several
+  succeeding confignodes have the same name in the 'ifname' member.
 - iface_failure: a confignode (named or anonymous) with a value in the
-  "iface" pointer was not performed successfully.
+  "iface" pointer was not performed successfully. The "name" part of the
+  event will be the name of the interface; this, too, may trigger
+  several times.
 
 2.3. Contexts
 -------------
@@ -172,29 +200,62 @@ The core system currently provides the following events:
 A "context" provides a plugin programmer with a means of detecting what
 the user is trying to accomplish. For instance, the user might have
 asked "give me a network -- /any/ network", or instead the user might
-have asked "bring up interface eth0". A confignode might act differently
--- for example, in error handling -- depending on which of the two cases
-is true.
+have asked "bring up interface eth0". A confignode might behave
+differently -- for example, in error handling -- depending on which of
+the two cases is true.
 
-As said before, the current context system is fairly rudimentary and
-will probably need to be revisited. If so, this will surely happen
-before an eventual 1.0 release.
+The context system has two types of members: members in a hash table,
+and direct members. The direct members can be accessed much faster than
+those in the hash table, and are only used for those context items that
+are almost always useful to be in the context. At present, these are the
+interface name we're working on, and the confignode that was the start
+of our tree.
+
+The others, as said, are in a data pointer that is part of the
+ipcfg_context structure, and can only be accessed through five helper
+functions: ipcfg_ctx_set_value(), ipcfg_ctx_unset_value(),
+ipcfg_ctx_add_data(), ipcfg_ctx_unset_data(), and
+ipcfg_ctx_lookup_data(). The first two of these can easily be used from
+a confignode, and are primarily intended to be used by the config file
+parser. As such, they will always set a value at the IPCFG_SRC_CONFIG
+priority, and will only specify strings as data. The next two can be
+used to set or unset any type of data, at any priority; however,
+developers should not abuse priorities such as IPCFG_SRC_CMDLINE, for
+obvious reasons.
+
+Every piece of data in a context has a priority. The intention for this
+is that the system should not try to override the interface name if the
+user forced it to be something else in either configuration, or on the
+command line, or something similar. This part of the system still needs
+fine-tuning, however.
 
 3. Plugins.
 ===========
 
-This still needs to be implemented.
+A plugin is a shared object that is dlopen()ed by the main system.
 
-Plugins will have the following abilities:
-- Extend what a user can specify in the configuration file
-- Create or replace confignodes
-- Adding actions that confignodes can perform.
-- Creating events
-- Depend on, or conflict with, other plugins
-- Provide an API in a scripting language (perl, lua, python, ...) to
-  allow the user to create configuration files or plugins in that
-  language
-- ... anything else, I guess.
+Plugins are not loaded automatically; the plugins to be used are
+specified in the configuration file, as an argument to the "plugins"
+keyword. They live in whatever automake specifies as $(pkglibdir).
+
+Plugins are loaded with RTLD_NOW | RTLD_GLOBAL | RTLD_DEEPBIND set in
+the 'flags' field. This means that they can export symbols to other
+modules, but that they will try to use their own symbols if possible.
+
+After loading the module, ipcfg will do a lookup for a symbol called
+"ipcfg_plugin_init", assign it to a function pointer, and jump to that
+address. Therefore, every plugin should have a symbol with that name,
+which can be assigned to a function pointer of type ipcfg_init_fn:
+
+typedef int(*ipcfg_init_fn)(void);
+
+If this function returns nonzero, it is assumed that loading it has
+failed, and the module will be unloaded again. As such, modules that
+return non-zero should take care to free any resources they may have
+opened, such as memory or file descriptors, before returning; otherwise
+the ipcfg binary may fail at any point in the future.
+
+At no other point will a module be unloaded.
 
 4. Backends.
 ============
@@ -211,10 +272,20 @@ user over a named pipe; this is useful for debugging and/or development.
 
 For the time being, the used backend is selected at compile time. In the
 future, the system may be extended so that backends can be selected at
-run time.
+run time. There are a number of system-specific backends; and there is
+one 'test' backend that can be used to develop other parts of the
+system and that should work on any POSIX system. It may or may not be
+complete, but is selected with the '--with-backend=test' option to
+'configure'.
 
-Plugins should not implement backends, nor should the muck with things
-that are supposed to be handled by the backend.
+Preferably, plugins should not implement backends, nor should they muck
+with things that are supposed to be handled by the backend. Instead, in
+the interest of portability, plugins should _use_ the backend. If
+something is not provided by the backend, plugin developers should
+provide patches for the various backends to implement the functionality
+that they would wish to see. Note, however, that the above is a
+"should"; it is by no means forbidden to do backend-like stuff from a
+plugin.
 
 5. Config file keywords
 =======================
@@ -233,23 +304,24 @@ file parser to confignodes, as specified above.
 5.1. General syntaxis.
 ----------------------
 
-Everything that can be added by a plugin is namespaced. Arguments and
-plugin-provided tests, actions, or configurations, are specified as
-quoted strings:
+Everything that can be added by a plugin is quoted and namespaced.
+Arguments and plugin-provided tests, actions, or configurations, are
+specified as quoted strings:
 
 namespace "firewall"
 
 In this example, '"firewall"' is an argument to the "namespace" keyword;
 the value of the argument is the string 'firewall', without the quotes.
 
-The system has namespaces for everything except interface names. There
-are two ways to specify a namespace: by using a colon-separated string
-in which the first part is the namespace and all other parts (including
-any colons after the first) are the name; or by specifying the default
-namespace by way of the 'namespace' keyword, and not using any colons in
-the name. This means that it is possible to have a name in a namespace
-that contains colons, but it does mean you have to fully specify the
-name, including its namespace, every time you want to use it.
+The system has namespaces for everything except names of 'iface'
+stanzas. There are two ways to specify a namespace: by using a
+colon-separated string in which the first part is the namespace and all
+other parts (including any colons after the first) are the name; or by
+specifying the default namespace by way of the 'namespace' keyword, and
+not using any colons in the name. This means that it is possible to have
+a name as part of a namespace that contains colons, but it does mean you
+have to fully specify the name, including its namespace, every time you
+want to use it.
 
 If no default namespace has been explicitly specified, the 'core'
 namespace is assumed.
@@ -266,14 +338,14 @@ config "work"
 except that the latter changes the default namespace for everything that
 comes after it.
 
-Note that names with colons in them are legal, but then you must specify
-the namespace every time:
+As seen above, names with colons in them are legal, but then you must
+specify the namespace every time:
 
 config "perl:Some::Module"
 
 would refer to the "Some::Module" configuration item in the hypothetical
 "perl" namespace. Because this is confusing and error-prone, using
-colons in names is discouraged.
+colons in names is discouraged, though not forbidden.
 
 When an option takes a variable number of arguments, they need to be
 specified as a list. A list looks like this:
@@ -294,7 +366,7 @@ iface "eth0" {
 }
 # the namespace is back to "core" at this point, not "silly".
 
-5.1. Global keywords.
+5.2. Global keywords.
 ---------------------
 
 - must/want and all/one/trip: these specify what interfaces to bring up
@@ -305,14 +377,14 @@ iface "eth0" {
   interfaces, whereas 'one' will stop after the first successfully
   brought up interface; and 'trip' will add event listeners so that if
   an interface later on goes down unexpectedly, the system will try to
-  bring another interface up. Note that this requires daemon
+  bring another interface up. Note that the latter requires daemon
   functionality (see below).
 - (no) daemon: explicitly request or forbid the daemon. When using
   functionality that requires the daemon, the system will attempt to
   start the daemon; if 'no daemon' has been specified, however, this
-  will fail. By using 'daemon', the system will immediately start the
-  daemon, regardless of whether any functionality in the config file
-  requires it.
+  will fail, and ipcfg will exit with an error message. By using
+  'daemon', the system will immediately start the daemon, regardless of
+  whether any functionality in the config file requires it.
 - plugins: specifies the list of plugins the system should load. Note
   that no functionality that is implemented by a plugin can be used
   before this keyword has been encountered.
@@ -320,7 +392,7 @@ iface "eth0" {
   keywords, this may be specified inside a block; namespaces are scoped
   within blocks, as specified above.
 
-5.2. Configuration keywords
+5.3. Configuration keywords
 ---------------------------
 
 - iface: takes one string as an argument, and a block. The string
@@ -366,7 +438,7 @@ iface "work_wireless" {
   Plugins may predefine other "config" items. However, "config" does not
   take arguments; see "action".
   
-  The argument to "config is a list; i.e., it is possible to specify the
+  The argument to "config" is a list; i.e., it is possible to specify the
   "work_wired" example as follows:
 
 iface "work_wired" {
@@ -394,23 +466,22 @@ iface "work_wired" {
 - require test: takes a string as an argument, and optionally a list.
   Performs a test, which may be successful or may fail; the list are
   arguments for the test. If the test fails, the system will abort
-  trying to bring up the interface it was trying to bring up. An example
-  could be:
+  what it was trying to do. An example could be:
 
 iface "eth0" {
-	test "mii"
+	require test "mii"
 	config "dhcp4"
 }
 
   If we are not connected to a network (which is what the 'mii' test
   tests for), it makes no sense to try to do DHCP, so abort.
 - fail test: same as above, except that the result is inverted; that is,
-  the system will abort trying to bring up the interface if the test
-  succeeds, rather than if it fails.
+  the system will abort what it was trying to do if the test succeeds,
+  rather than if it fails.
 - if: same as the previous two, except that it takes a block as an extra
-  argument; if the test fails, the block is executed. This allows for
+  argument; if the test fails, the block is skipped. This allows for
   conditional statements. Note that 'else' is not supported at this
-  time. 'if' may be nested.
+  time. 'if' may however be nested.
   With 'if', many things are possible. For example, we can reimplement
   'want one':
 
@@ -423,7 +494,7 @@ iface "any_wired" {
 	config "dhcp4"
 }
 
-  Note that "set" is not scoped. If there is no cable connected to eth0,
-  the system checks for eth1; if there is no cable connected there
-  either, we abort. Next, we'll try doing DHCP off the interface we
-  found in this manner.
+  Note that "set" is not scoped. In this example, if there is no cable
+  connected to eth0, the system checks for eth1; if there is no cable
+  connected there either, we abort. Next, we'll try doing DHCP off the
+  interface we found in this manner.

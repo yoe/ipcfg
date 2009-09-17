@@ -54,7 +54,8 @@ typedef struct {
 } ipcfg_context_helper_t;
 
 ipcfg_context_data* ipcfg_ctx_lookup_data(ipcfg_context* ctx, char* nspace, char* name);
-int ipcfg_ctx_add_data(ipcfg_context* ctx, char* nspace, char* name, bool force, ipcfg_context_data* data);
+int ipcfg_ctx_add_data(ipcfg_context* ctx, char* nspace, char* name, ipcfg_context_data* data);
+int ipcfg_ctx_del_data(ipcfg_context* ctx, char* nspace, char* name);
 int ipcfg_ctx_set_value(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx);
 int ipcfg_ctx_unset_value(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx);
 

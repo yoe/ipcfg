@@ -48,6 +48,7 @@ int ipcfg_ctx_unset_value(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ct
 	return 0;
 }
 
+
 ipcfg_context_data* ipcfg_ctx_lookup_data(ipcfg_context* ctx, char* nspace, char* name) {
 	ipcfg_context_data* retval;
 	char* key;
@@ -59,4 +60,32 @@ ipcfg_context_data* ipcfg_ctx_lookup_data(ipcfg_context* ctx, char* nspace, char
 	retval = search_data(ctx->data, key);
 	free(key);
 	return retval;
+}
+
+int ipcfg_ctx_add_data(ipcfg_context* ctx, char* nspace, char* name, ipcfg_context_data* data) {
+	char* key = normalize_namespace_string(nspace, name);
+
+	if(!ctx->data) {
+		return 1;
+	}
+	if(search_data(ctx->data, key)) {
+		remove_data(ctx->data, key);
+	}
+	insert_data(ctx->data, key, data);
+	free(key);
+	return 0;
+}
+
+int ipcfg_ctx_del_data(ipcfg_context* ctx, char* nspace, char* name) {
+	char* key = normalize_namespace_string(nspace, name);
+
+	if(!ctx->data) {
+		return 1;
+	}
+	if(!search_data(ctx->data, key)) {
+		return 1;
+	}
+	remove_data(ctx->data, key);
+	free(key);
+	return 0;
 }

@@ -28,7 +28,7 @@ int ipcfg_load_plugins(DLList* pluginlist) {
 		char name[PATH_MAX];
 		ipcfg_init_fn func;
 
-		snprintf(name, PATH_MAX, PLUGINDIR "/%s", (char*)pluginlist->data);
+		snprintf(name, PATH_MAX, PLUGINDIR "/%s.so", (char*)pluginlist->data);
 		handle = dlopen(name, RTLD_NOW | RTLD_GLOBAL | RTLD_DEEPBIND);
 		if(!(func = dlsym(handle, "ipcfg_plugin_init"))) {
 			fprintf(stderr, "E: Could not load plugin %s: no initialization function. Unloading.\n", (char*)pluginlist->data);

@@ -34,7 +34,10 @@ int ipcfg_load_plugins(DLList* pluginlist) {
 			fprintf(stderr, "E: Could not load plugin %s: no initialization function. Unloading.\n", (char*)pluginlist->data);
 			dlclose(handle);
 		} else {
-			func();
+			if(func()) {
+				fprintf(stderr, "E: Could not load plugins %s: initialization function failed. Unloading.\n", (char*)pluginlist->data);
+				dlclose(handle);
+			}
 		}
 	}
 	return 0;

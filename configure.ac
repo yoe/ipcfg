@@ -7,10 +7,10 @@ AM_INIT_AUTOMAKE([dist-bzip2 foreign])
 AM_MAINTAINER_MODE
 AC_CONFIG_SRCDIR([src/cnode.c])
 AC_CONFIG_HEADERS([include/ipcfg/private/config.h])
+LT_INIT(dlopen)
 
 # Checks for programs.
 AC_PROG_CC_C99
-AC_PROG_RANLIB
 AC_PROG_LEX
 AC_PROG_YACC
 AC_PROG_LN_S
@@ -50,5 +50,7 @@ AC_CONFIG_FILES([Makefile
 		 include/ipcfg/private/Makefile
 		 include/ipcfg/backend/Makefile
 		 src/Makefile
-		 src/backend/Makefile])
+		 src/backend/Makefile
+		 src/modules/Makefile
+		])
 AC_OUTPUT

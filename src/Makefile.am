@@ -23,7 +23,7 @@ ipcfg_LDADD = backend/$(BACKEND) @platformdeps_LIBS@
 AM_CFLAGS = -I$(srcdir)/../include
 AM_YFLAGS = -d
 AM_LDFLAGS = -lm
-SUBDIRS = backend
+SUBDIRS = backend modules
 BUILT_SOURCES = ipcfg-parser.h
 install-exec-hook:
 	cd $(DESTDIR)$(bindir) && \

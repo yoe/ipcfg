@@ -25,6 +25,7 @@
 
 #include <ipcfg/test.h>
 #include <ipcfg/macros.h>
+#include <ipcfg/util.h>
 
 int ipcfg_wireless_essidlist(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 	char* name = default_ifacename(node, ctx);
@@ -34,8 +35,12 @@ int ipcfg_wireless_essidlist(ipcfg_cnode* node, ipcfg_action act, ipcfg_context*
 	DEBUG("Scanning for networks on %s", name);
 	iwsock = iw_sockets_open();
 	iw_scan(iwsock, name, WE_VERSION, &iwctx);
+
+	return 0;
 }
 
 int ipcfg_plugin_init(void) {
 	ipcfg_register_test("wireless", "essidlist", ipcfg_wireless_essidlist);
+
+	return 0;
 }

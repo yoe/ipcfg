@@ -23,11 +23,13 @@
 
 #ifdef __GNUC__
 
+# define IPCFG_NO_EXPORT	__attribute__((visibility("hidden")))
 # define IPCFG_EXPECT_TRUE(cond) __builtin_expect((((cond)!=0)), 1)
 # define IPCFG_EXPECT_FALSE(cond) __builtin_expect((cond), 0)
 
 #else // ! __GNUC__
 
+# define IPCFG_NO_EXPORT
 # define IPCFG_EXPECT_TRUE(cond) (cond)
 # define IPCFG_EXPECT_FALSE(cond) (cond)
 

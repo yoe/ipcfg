@@ -11,10 +11,10 @@
 #ifndef IPCFG_PRIVATE_INIT_H
 #define IPCFG_PRIVATE_INIT_H
 
-void p_ipcfg_event_init(void);
-void p_ipcfg_cnode_init(void);
-void p_ipcfg_test_init(void);
-void p_ipcfg_config_init(void);
-void p_ipcfg_action_init(void);
+void p_ipcfg_event_init(void) IPCFG_NO_EXPORT;
+void p_ipcfg_cnode_init(void) IPCFG_NO_EXPORT;
+void p_ipcfg_test_init(void) IPCFG_NO_EXPORT;
+void p_ipcfg_config_init(void) IPCFG_NO_EXPORT;
+void p_ipcfg_action_init(void) IPCFG_NO_EXPORT;
 
 #endif

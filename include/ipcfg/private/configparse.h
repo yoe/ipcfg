@@ -10,8 +10,9 @@
  */
 #ifndef IPCFG_PRIVATE_CONFIGPARSE_H
 #define IPCFG_PRIVATE_CONFIGPARSE_H
-int p_ipcfg_read_config(void);
-int p_ipcfg_parse(void);
+#include <ipcfg/macros.h>
+int p_ipcfg_read_config(void) IPCFG_NO_EXPORT;
+int p_ipcfg_parse(void) IPCFG_NO_EXPORT;
 #define NUMBER_ALL 1
 #define NUMBER_TRIP 2
 #define NUMBER_ONE 3

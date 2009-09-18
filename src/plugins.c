@@ -29,16 +29,21 @@ int ipcfg_load_plugins(DLList* pluginlist) {
 		ipcfg_init_fn func;
 
 		snprintf(name, PATH_MAX, PLUGINDIR "/%s.so", (char*)pluginlist->data);
-		handle = dlopen(name, RTLD_NOW | RTLD_GLOBAL | RTLD_DEEPBIND);
+		if(!(handle = dlopen(name, RTLD_NOW | RTLD_GLOBAL | RTLD_DEEPBIND))) {
+			fprintf(stderr, "E: Could not load plugin %s: error during dlopen: %s\n", (char*)pluginlist->data, dlerror());
+			return 1;
+		}
 		if(!(func = dlsym(handle, "ipcfg_plugin_init"))) {
 			fprintf(stderr, "E: Could not load plugin %s: no initialization function. Unloading.\n", (char*)pluginlist->data);
 			dlclose(handle);
-		} else {
-			if(func()) {
-				fprintf(stderr, "E: Could not load plugins %s: initialization function failed. Unloading.\n", (char*)pluginlist->data);
-				dlclose(handle);
-			}
+			return 1;
 		}
+		if(func()) {
+			fprintf(stderr, "E: Could not load plugins %s: initialization function failed. Unloading.\n", (char*)pluginlist->data);
+			dlclose(handle);
+			return 1;
+		}
+		pluginlist = pluginlist->next;
 	}
 	return 0;
 }

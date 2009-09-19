@@ -52,6 +52,10 @@ int yyerror(char* s) {
 
 int p_ipcfg_read_config(void) {
 	if(!(yyin = fopen(SYSCONFDIR "/ipcfg/config", "r"))) {
+		if(errno == ENOENT) {
+			DEBUG("Configuration file does not exist, using defaults...\n");
+			return 0;
+		}
 		perror("Could not open config file");
 		exit(EXIT_FAILURE);
 	}

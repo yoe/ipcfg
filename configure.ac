@@ -18,6 +18,8 @@ AC_CANONICAL_HOST
 
 # Checks for libraries.
 AC_SEARCH_LIBS(dlopen, dl, , AC_ERROR([Could not find libdl]))
+AC_CHECK_LIB(iw, iw_scan,[WL_LIBS='-liw'],[AC_ERROR([Could not find libiw]); WL_LIBS=''])
+AC_SUBST(WL_LIBS)
 AC_MSG_CHECKING([for backend to use])
 MODULES=""
 AC_ARG_WITH(backend,

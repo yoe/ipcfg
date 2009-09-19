@@ -63,7 +63,7 @@ static int be_set_static6(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ct
 	char* ifname = default_ifacename(node, ctx);
 
 	if(!node->data) {
-		ipcfg_context_data* data = ipcfg_ctx_lookup_data(ctx, "core", "ip4addr");
+		ipcfg_context_data* data = ipcfg_ctx_lookup_data(ctx, "core", "ip6addr");
 		name = (char*)data->data;
 	} else {
 		name = (char*)node->data;

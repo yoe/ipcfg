@@ -104,6 +104,30 @@ static int be_test_mii(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) 
 	return 1;
 }
 
+static int be_test_isup(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
+	char* name = default_ifacename(node, ctx);
+	struct rtnl_link* link;
+
+	if(act != IPCFG_ACT_UP) {
+		DEBUG("Interface is not being brought up, ignoring...\n");
+		return 0;
+	}
+	if(node->data) {
+		DLList* l = node->data;
+		name = l->data;
+	}
+	link = rtnl_link_get_by_name(rtlcache, name);
+	if(IPCFG_EXPECT_FALSE(!link)) {
+		DEBUG("Tried to check non-existing interface %s\n", name);
+		rtnl_link_put(link);
+		return 1;
+	}
+	if(rtnl_link_get_flags(link) && IFF_UP) {
+		return 0;
+	}
+	return 1;
+}
+
 static int be_set_static_type(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx, int af, ipcfg_context_data* ctx_addr) {
 	char* addr_s;
 	struct nl_addr* addr;
@@ -203,6 +227,7 @@ void ipcfg_backend_init(void) {
 
 	/* Register the tests and actions we implement */
 	ipcfg_register_test("core", "mii", be_test_mii);
+	ipcfg_register_test("core", "isup", be_test_isup);
 	ipcfg_register_action("core", "static4", be_set_static4);
 	ipcfg_register_action("core", "static6", be_set_static6);
 	ipcfg_register_action("core", "dhcp4", be_do_dhcp4);

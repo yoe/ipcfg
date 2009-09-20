@@ -27,6 +27,7 @@ int yylex(void);
 int yyerror(char*);
 DLList* namespace_stack;
 extern int yylineno;
+#define YYDEBUG 1
 %}
 
 %error-verbose
@@ -191,15 +192,18 @@ minlist: QUOTEDSTRING
 
 failtest: FAIL TEST QUOTEDSTRING optlist
 		{
+			ipcfg_cnode* node = ipcfg_get_anonymous_confignode();
 			$$ = ipcfg_get_anonymous_confignode();
-			$$->data = ipcfg_find_test(namespace_stack->data, $3);
-			if(!($$->data)) {
+			node->fptr = ipcfg_find_test(namespace_stack->data, $3);
+			if(!(node->fptr)) {
 				char s[80];
 				snprintf(s, 80, "Unknown test: %s", $3);
 				yyerror(s);
 				exit(EXIT_FAILURE);
 			}
+			node->data = $4;
 			$$->fptr = ipcfg_fail_test;
+			$$->data = node;
 		}
 	;
 

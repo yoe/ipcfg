@@ -158,9 +158,9 @@ void ipcfg_create_must_config(int which, void* names) {
 
 int ipcfg_fail_test(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 	if(ipcfg_perform_confignode(node->data, act, ctx)) {
-		return 0;
-	} else {
 		return 1;
+	} else {
+		return 0;
 	}
 }
 

@@ -197,6 +197,39 @@ static int be_set_dhcp6(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx)
 	IPCFG_TODO;
 }
 
+static int be_add_route(int af, char* network, char* router) {
+	IPCFG_TODO;
+}
+
+static int be_set_defroute4(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
+	char* router;
+	if(!node->data) {
+		ipcfg_context_data* ctx_rtr = ipcfg_ctx_lookup_data(ctx, NULL, "core:ip4defroute");
+		if(!ctx_rtr) {
+			DEBUG("E: No default router was specified\n");
+			return 1;
+		}
+		router = ctx_rtr->data;
+	} else {
+		DLList* l = (DLList*)node->data;
+		router = l->data;
+	}
+	return be_add_route(AF_INET, "0.0.0.0", router);
+}
+
+static int be_set_manroute4(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
+	char* route;
+	char* router;
+	if(!node->data) {
+		DEBUG("E: No route was specified\n");
+		return 1;
+	}
+	DLList* l = (DLList*)node->data;
+	route = l->data;
+	router = l->next->data;
+	return be_add_route(AF_INET, route, router);
+}
+
 void ipcfg_backend_do_defaults(void) {
 	ipcfg_cnode* node;
 
@@ -233,4 +266,6 @@ void ipcfg_backend_init(void) {
 	ipcfg_register_action("core", "dhcp4", be_do_dhcp4);
 	ipcfg_register_action("core", "dhcp6", be_do_dhcp6);
 	ipcfg_register_action("core", "link_state", be_do_link_state);
+	ipcfg_register_action("core", "defroute4", be_set_defroute4);
+	ipcfg_register_action("core", "route4", be_set_manroute4);
 }

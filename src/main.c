@@ -39,10 +39,10 @@ int main(int argc, char**argv) {
 	p_ipcfg_core_init();
 	ipcfg_core_do_defaults();
 
+	p_ipcfg_read_config();
+
 	/* Initialize non-initialized required confignodes */
 	ipcfg_backend_do_defaults();
-
-	p_ipcfg_read_config();
 
 	if(argc>=2 && !strcmp(name, "ipcfg")) {
 		name=*(++argv);

@@ -26,3 +26,8 @@ ipcfg-parser.c
 lex.yy.c
 src/backend/libbackend*.a
 ipcfg-parser.output
+src/modules/.libs
+libtool
+ltmain.sh
+src/modules/*.la
+src/modules/*.lo

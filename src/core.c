@@ -86,7 +86,7 @@ static int copy_value(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 		free(d1->data);
 		d1->data = strdup(d2->data);
 	} else {
-		ipcfg_context_add_data(ctx, "core", name1, d1);
+		ipcfg_ctx_add_data(ctx, "core", name1, d1);
 	}
 	return 0;
 }

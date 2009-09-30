@@ -85,8 +85,10 @@ static int copy_value(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 	if(d1 && d1->src <= d2->src) {
 		free(d1->data);
 		d1->data = strdup(d2->data);
+	} else {
+		ipcfg_context_add_data(ctx, "core", name1, d1);
 	}
-	return strcmp(d1->data, d2->data);
+	return 0;
 }
 
 static int load_config(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {

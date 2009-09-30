@@ -32,11 +32,74 @@ static int test_network(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx)
 	return 1;
 }
 
+static int test_value(ipcfg_cnode* node, icpfg_action act, ipcfg_context* ctx) {
+	DLList* l = node->data;
+	char* name;
+	char* val;
+	ipcfg_context_data* d;
+
+	if(!l || !l->next) {
+		return 1;
+	}
+	name = l->data;
+	val = l->next->data;
+	d = ipcfg_ctx_lookup_data(ctx, "core", name);
+	return strncmp(val, d->data, strlen(val));
+}
+
+static int test_indirect(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
+	DLList* l = node->data;
+	char* name1;
+	char* name2;
+	ipcfg_context_data* d1;
+	ipcfg_context_data* d2;
+	
+	if(!l || !l->next) {
+		return 1;
+	}
+	name1 = l->data;
+	name2 = l->next->data;
+	d1 = ipcfg_ctx_lookup_data(ctx, "core", name1);
+	d2 = ipcfg_ctx_lookup_data(ctx, "core", name2);
+	return strcmp(d1->data, d2->data);
+}
+
+static int test_indirect(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
+	DLList* l = node->data;
+	char* name1;
+	char* name2;
+	ipcfg_context_data* d1;
+	ipcfg_context_data* d2;
+
+	if(!l || !l->next) {
+		return 1;
+	}
+	name1 = l->data;
+	name2 = l->next->data;
+	d1 = ipcfg_ctx_lookup_data(ctx, "core", name1);
+	d2 = ipcfg_ctx_lookup_data(ctx, "core", name2);
+	if(!d2) {
+		return 1;
+	}
+	if(d1 && d1->src <= d2->src) {
+		free(d1->data);
+		d1->data = strdup(d2->data);
+	}
+	return strcmp(d1->data, d2->data);
+}
+
 static int load_config(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 	DLList* l = node->data;
-	char* name = l->data;
-	ipcfg_context_data* d = ipcfg_ctx_lookup_data(ctx, "core", name);
-	ipcfg_cnode* othernode = ipcfg_find_config("core", d->data);
+	char* name;
+	ipcfg_context_data* d;
+	ipcfg_cnode* othernode;
+
+	if(!l) {
+		return 1;
+	}
+	name = l->data;
+	d = ipcfg_ctx_lookup_data(ctx, "core", name);
+	othernode = ipcfg_find_config("core", d->data);
 	if(othernode) {
 		return ipcfg_perform_confignode(othernode, act, ctx);
 	} else {
@@ -46,5 +109,8 @@ static int load_config(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) 
 
 void p_ipcfg_core_init(void) {
 	ipcfg_register_test("core", "network", test_network);
+	ipcfg_register_test("core", "value", test_value);
+	ipcfg_register_test("core", "indirect_value", test_indirect);
 	ipcfg_register_action("core", "indirect_config", load_config);
+	ipcfg_register_action("core", "copy_value", copy_value);
 }

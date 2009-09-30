@@ -1,25 +1,14 @@
 /*
  * wireless.c - Provide wireless extensions to the ipcfg tool.
  *
- * Copyright(c) 2009 Wouter Verhelst <wouter@debian.org>, with parts
- * shamelessly copied from iwlist, which is Copyright(c) 1997-2007 Jean
- * Tourrilhes <jt@hpl.hp.com>
- *
- * If only libiw was fully functional... sigh.
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * ----------------------------------------------------------------------------
+ * "THE BEER-WARE LICENSE" (Revision 42):
+ * <wouter@debian.org> wrote this software. As long as you retain this
+ * notice you can do whatever you want with this stuff. If we meet some
+ * day, and you think this stuff is worth it, you can buy me a beer in
+ * return. Wouter Verhelst.
+ * ----------------------------------------------------------------------------
+ * (with thanks to phk@FreeBSD.org)
  */
 #include <iwlib.h>
 

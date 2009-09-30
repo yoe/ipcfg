@@ -24,6 +24,18 @@ List of available tests:
 	Side-effects: none
 	Implemented by: backend
 	TODO: check for IP address
+- core:value
+	Arguments: context variable name, value
+	Test: runs strcmp() on the value of the given context variable
+	and the second argument.
+	Side-effects: none
+	Implemented by: core
+- core:indirect_value
+	Arguments: two context variable names
+	Test: runs strcmp() on the values of the two given context
+	variable names
+	Side-effects: none
+	Implemented by: core
 - wireless:essidlist
 	Arguments: list of networks to scan for
 	Test: compares the given list of networks in asciibetical order

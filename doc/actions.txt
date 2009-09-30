@@ -37,6 +37,16 @@ List of available actions:
 	if not found, returns success.
 	Implemented by: core
 	TODO: do something sane with namespaces.
+- core:copy_value:
+	Arguments: two context variable names
+	Effects: Adds a context variable with the first given name and
+	copies the value of the second given name into it. If a context
+	variable with the first given name already exists, and its value
+	has a source with priority lower than or equal to the second
+	context variable, it is overwritten. If no context variable as
+	named in the second variable exists, this action fails.
+	Implemented by: core
+	TODO: do something sane with namespaces
 - wireless:essid:
 	Arguments: optionally an ESSID
 	Effects/up: Brings the interface up. If no argument is given,

@@ -15,5 +15,6 @@ ipcfginclude_HEADERS = cnode.h \
 	context.h \
 	config.h \
 	core.h \
-	btree.h
+	btree.h \
+	defaults.h
 SUBDIRS = private backend

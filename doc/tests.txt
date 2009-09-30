@@ -1,0 +1,35 @@
+List of available tests:
+
+- core:network
+	Arguments: network to look for
+	Test: checks whether the "core:network" variable is currently
+	set to the argument. If so, returns success; if not, returns
+	failure.
+	Side-effects: none
+	Implemented by: core
+	TODO: This should actively search for a network, rather than
+	passively.
+- core:mii
+	Arguments: none
+	Test: checks whether the interface has a link.
+	Side-effects: brings the interface up
+	Implemented by: backend
+	TODO: undo side-effect if no link was found, undo side-effect on
+	down.
+- core:isup
+	Arguments: optionally, inteface name
+	Test/up: checks whether the current or specified interface is
+	physically up. Does not check for IP address
+	Test/down: none
+	Side-effects: none
+	Implemented by: backend
+	TODO: check for IP address
+- wireless:essidlist
+	Arguments: list of networks to scan for
+	Test: compares the given list of networks in asciibetical order
+	against the list of networks that can be found by an active
+	scan.
+	Side-effects: brings the interface up. Sets the "wireless:essid"
+	variable to the ESSID found.
+	Implemented by: module "wireless"
+	TODO: alternative version that allows better ordering

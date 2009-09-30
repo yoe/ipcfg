@@ -1,0 +1,50 @@
+List of available actions:
+
+- core:static4
+	Arguments: IPv4 address in dotted quad/CIDR notation
+	Effects/up: Brings the network interface up; sets the IPv4 address
+	Effects/down: Brings the network interface up; removes the IPv4 address
+	Implemented by: backend
+	TODO: sanitize effects/down
+- core:static6
+	As above, with IPv6 address
+- core:dhcp4
+	Arguments: none
+	Effects/up: calls "dhclient <interface>"
+	Effects/down: calls "dhclient -r <interface>"
+	Implemented by: backend
+- core:dhcp6
+	Arguments: none
+	Effects: not yet implemented
+- core:defroute4
+	Arguments: default router
+	Effects/up: not yet implemented
+	Effects/down: not yet implemented
+- core:route4
+	Arguments: network in dotted quad/CIDR notation, router
+	Effects/up: not yet implemented
+	Effects/down: not yet implemented
+- core:link_state:
+	Arguments: none
+	Effects/up: brings the network interface up.
+	Effects/down: brings the network interface down.
+	Implemented by: backend
+- core:indirect_config:
+	Arguments: string.
+	Effects: Reads the value of the string from the context;
+	performs a lookup of the found value in the config namespace; if
+	found, performs that confignode with given action and context;
+	if not found, returns success.
+	Implemented by: core
+	TODO: do something sane with namespaces.
+- wireless:essid:
+	Arguments: optionally an ESSID
+	Effects/up: Brings the interface up. If no argument is given,
+	does a lookup for wireless:essid in the context; if nothing is
+	found there either, returns failure. If an argument is given, or
+	the context contains a wireless:essid, uses that as the ESSID to
+	set. Sets the ESSID on teh given interface, which must be a
+	wireless interface.
+	Effects/down: Brings the interface down.
+	Implemented by: module "wireless".
+	TODO: remove the ESSID.

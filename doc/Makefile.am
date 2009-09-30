@@ -1,1 +1,1 @@
-EXTRA_DIST = tech.txt
+EXTRA_DIST = tech.txt actions.txt tests.txt

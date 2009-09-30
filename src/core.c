@@ -11,6 +11,7 @@
  */
 
 #include <string.h>
+#include <malloc.h>
 #include <ipcfg/cnode.h>
 #include <ipcfg/context.h>
 #include <ipcfg/test.h>
@@ -32,7 +33,7 @@ static int test_network(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx)
 	return 1;
 }
 
-static int test_value(ipcfg_cnode* node, icpfg_action act, ipcfg_context* ctx) {
+static int test_value(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 	DLList* l = node->data;
 	char* name;
 	char* val;
@@ -64,7 +65,7 @@ static int test_indirect(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx
 	return strcmp(d1->data, d2->data);
 }
 
-static int test_indirect(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
+static int copy_value(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 	DLList* l = node->data;
 	char* name1;
 	char* name2;

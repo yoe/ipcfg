@@ -1,0 +1,26 @@
+Source: ipcfg
+Section: admin
+Priority: optional
+Maintainer: Wouter Verhelst <wouter@debian.org>
+Build-Depends: libnl-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386], flex, bison, libiw-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386]
+
+Package: ipcfg
+Architecture: any
+Depends: ${shlibs:Depends}
+Conflicts: ifupdown
+Replaces: ifupdown
+Provides: ifupdown
+Description: Network configuration system
+ ipcfg is a modern, flexible network configuration system, by its
+ authors intended to eventually replace ifupdown as the default network
+ configuration management system in Debian.
+ .
+ Although it is not yet ready, it can already be used for fairly simple
+ network configuration tasks: a desktop with a fixed or DHCP-assigned IP
+ address, a laptop with a wireless interface, and others.
+ .
+ Even though it is incomplete, it already has a few features not found
+ in ifupdown: it can decide which interface to bring up at boot time
+ based on whether a link is available on a list of interfaces, and it
+ can change inteface names halfway through an 'ifup' run (allowing
+ things like 'ifup any-network').

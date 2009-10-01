@@ -268,24 +268,22 @@ This should make the system fairly portable between Linux, kFreeBSD, and
 The Hurd (note that the author at this point has no interest in writing
 backends for either FreeBSD or The Hurd, but patches are welcome).
 Additionally, a "test" backend is created, which communicates with the
-user over a named pipe; this is useful for debugging and/or development.
+user over stdout and that should work on any POSIX system; this is
+useful for debugging and/or development. It may or may not be complete,
+but is selected with the '--with-backend=test' option to 'configure'.
 
 For the time being, the used backend is selected at compile time. In the
 future, the system may be extended so that backends can be selected at
-run time. There are a number of system-specific backends; and there is
-one 'test' backend that can be used to develop other parts of the
-system and that should work on any POSIX system. It may or may not be
-complete, but is selected with the '--with-backend=test' option to
-'configure'.
+run time.
 
 Preferably, plugins should not implement backends, nor should they muck
 with things that are supposed to be handled by the backend. Instead, in
 the interest of portability, plugins should _use_ the backend. If
 something is not provided by the backend, plugin developers should
-provide patches for the various backends to implement the functionality
-that they would wish to see. Note, however, that the above is a
-"should"; it is by no means forbidden to do backend-like stuff from a
-plugin.
+provide patches and/or file wishlist items for the various backends to
+implement the functionality that they would wish to see. Note, however,
+that the above is a "should"; it is by no means forbidden to do
+backend-like stuff from a plugin.
 
 5. Config file keywords
 =======================

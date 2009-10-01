@@ -1,60 +1,90 @@
 List of available actions:
 
 - core:static4
-	Arguments: IPv4 address in dotted quad/CIDR notation
-	Effects/up: Brings the network interface up; sets the IPv4 address
-	Effects/down: Brings the network interface up; removes the IPv4 address
-	Implemented by: backend
-	TODO: sanitize effects/down
+	* Arguments: IPv4 address in dotted quad/CIDR notation
+	* Effects/up: Brings the network interface up; sets the IPv4 address
+	* Effects/down: Brings the network interface up; removes the IPv4 address
+	* Implemented by: backend
+	* TODO: sanitize effects/down
 - core:static6
 	As above, with IPv6 address
 - core:dhcp4
-	Arguments: none
-	Effects/up: calls "dhclient <interface>"
-	Effects/down: calls "dhclient -r <interface>"
-	Implemented by: backend
+	* Arguments: none
+	* Effects/up: calls "dhclient <interface>"
+	* Effects/down: calls "dhclient -r <interface>"
+	* Implemented by: backend
 - core:dhcp6
-	Arguments: none
-	Effects: not yet implemented
+	* Arguments: none
+	* Effects: not yet implemented
 - core:defroute4
-	Arguments: default router
-	Effects/up: not yet implemented
-	Effects/down: not yet implemented
+	* Arguments: default router
+	* Effects: not yet fully implemented
 - core:route4
-	Arguments: network in dotted quad/CIDR notation, router
-	Effects/up: not yet implemented
-	Effects/down: not yet implemented
-- core:link_state:
-	Arguments: none
-	Effects/up: brings the network interface up.
-	Effects/down: brings the network interface down.
-	Implemented by: backend
-- core:indirect_config:
-	Arguments: string.
-	Effects: Reads the value of the string from the context;
-	performs a lookup of the found value in the config namespace; if
-	found, performs that confignode with given action and context;
-	if not found, returns success.
-	Implemented by: core
-	TODO: do something sane with namespaces.
-- core:copy_value:
-	Arguments: two context variable names
-	Effects: Adds a context variable with the first given name and
-	copies the value of the second given name into it. If a context
-	variable with the first given name already exists, and its value
-	has a source with priority lower than or equal to the second
-	context variable, it is overwritten. If no context variable as
-	named in the second variable exists, this action fails.
-	Implemented by: core
-	TODO: do something sane with namespaces
-- wireless:essid:
-	Arguments: optionally an ESSID
-	Effects/up: Brings the interface up. If no argument is given,
-	does a lookup for wireless:essid in the context; if nothing is
-	found there either, returns failure. If an argument is given, or
-	the context contains a wireless:essid, uses that as the ESSID to
-	set. Sets the ESSID on teh given interface, which must be a
-	wireless interface.
-	Effects/down: Brings the interface down.
-	Implemented by: module "wireless".
-	TODO: remove the ESSID.
+	* Arguments: network in dotted quad/CIDR notation, router
+	* Effects: not yet fully implemented
+- core:link_state
+	* Arguments: none
+	* Effects/up: brings the network interface up.
+	* Effects/down: brings the network interface down.
+	* Implemented by: backend
+- core:indirect_config
+	* Arguments: string.
+	* Effects: Reads the value of the string from the context;
+	  performs a lookup of the found value in the config namespace;
+	  if found, performs that confignode with given action and
+	  context; if not found, returns success.
+	* Implemented by: core
+	* TODO: do something sane with namespaces.
+- core:copy_value
+	* Arguments: two context variable names
+	* Effects: Adds a context variable with the first given name and
+	  copies the value of the second given name into it. If a
+	  context variable with the first given name already exists, and
+	  its value has a source with priority lower than or equal to
+	  the second context variable, it is overwritten. If no context
+	  variable as named in the second variable exists, this action
+	  fails.
+	* Implemented by: core
+	* TODO: do something sane with namespaces
+- wireless:essid
+	* Arguments: optionally an ESSID
+	* Effects/up: Brings the interface up. If no argument is given,
+	  does a lookup for wireless:essid in the context; if nothing is
+	  found there either, returns failure. If an argument is given,
+	  or the context contains a wireless:essid, uses that as the
+	  ESSID to set. Sets the ESSID on teh given interface, which
+	  must be a wireless interface.
+	* Effects/down: Brings the interface down.
+	* Implemented by: module "wireless".
+	* TODO: remove the ESSID on down.
+- ifupdown:pre
+	* Arguments: list of variables
+	* Effects/up: runs all the scripts in the directory
+	  /etc/network/if-pre-up.d similarly to how ifupdown would run
+	  them. Each argument given to this action is taken to be the
+	  name of a context variable (the namespace 'ifupdown' is
+	  applied if none was given). This name, without its namespace,
+	  is converted to uppercase, and any dashes ('-') are converted
+	  to underscores ('_'). The result is then used as the name of
+	  an environment variable to which the value of the
+	  corresponding context variable is applied. If the specified
+	  context variable does not exist, an environment variable with
+	  the empty string as its value is created instead.
+	* Effects/down: runs all the scripts in the directory
+	  /etc/network/if-down.d similarly to how ifupdown would run
+	  them. The environment is created as on up.
+	* Implemented by: module "ifupdown".
+	* TODO: Get rid of this entire module. This is a quick-and-dirty
+	  hack to allow ipcfg to do something useful, but the long-term
+	  goal is for this not to remain here.
+	* TODO: do something sane with namespaces
+- ifupdown:post
+	As above, but with if-up.d and if-post-down.d
+- ifupdown:pre-up
+	As ifupdown:pre, but does nothing on down
+- ifupdown:pre-down
+	As ifupdown:pre, but does nothing on up
+- ifupdown:post-up
+	As ifupdown:post, but does nothing on down
+- ifupdown:post-down
+	As ifupdown:post, but does nothing on up

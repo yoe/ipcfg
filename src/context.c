@@ -66,7 +66,7 @@ int ipcfg_ctx_add_data(ipcfg_context* ctx, char* nspace, char* name, ipcfg_conte
 	char* key = normalize_namespace_string(nspace, name);
 
 	if(!ctx->data) {
-		return 1;
+		ctx->data = create_hashtable(10, str_hash_djb2, str_eq);
 	}
 	if(search_data(ctx->data, key)) {
 		remove_data(ctx->data, key);

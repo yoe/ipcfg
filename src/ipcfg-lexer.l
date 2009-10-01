@@ -33,6 +33,7 @@ no		return NO;
 one		return ONE;
 plugins		return PLUGINS;
 require		return REQUIRE;
+set		return SET;
 test		return TEST;
 trip		return TRIP;
 want		return WANT;

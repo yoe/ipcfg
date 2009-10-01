@@ -31,10 +31,10 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-static int ipcfg_ifupdown_run(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx, char* pathname, char* phase) {
+static int ipcfg_ifupdown_run(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx, char* pathname, char** phase) {
 	DIR* dir = NULL;
 	char** env;
-	int env_size = 3;
+	int env_size = 4;
 	DLList* l = node->data;
 	pid_t pid;
 	struct dirent* de;
@@ -54,9 +54,10 @@ static int ipcfg_ifupdown_run(ipcfg_cnode* node, ipcfg_action act, ipcfg_context
 	l = node->data;
 	env = malloc(env_size * sizeof(char*));
 	env[0] = "PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin";
-	env[1] = phase;
+	env[1] = phase[0];
+	env[2] = phase[1];
 	if(l) {
-		for(i=2;i<env_size;i++) {
+		for(i=3;i<env_size;i++) {
 			char* name;
 			char* ptr;
 			char* val;
@@ -112,7 +113,7 @@ static int ipcfg_ifupdown_run(ipcfg_cnode* node, ipcfg_action act, ipcfg_context
 	}
   out:
 	closedir(dir);
-	for(i=2;i<env_size;i++) {
+	for(i=3;i<env_size;i++) {
 		free(env[i]);
 	}
 	free(env);
@@ -123,28 +124,32 @@ static int ipcfg_ifupdown_post_down(ipcfg_cnode* node, ipcfg_action act, ipcfg_c
 	if(act != IPCFG_ACT_DOWN) {
 		return 0;
 	}
-	return ipcfg_ifupdown_run(node, act, ctx, "/etc/network/if-down.d", "PHASE=post-down");
+	char* env[] = { "PHASE=post-down", "MODE=stop" };
+	return ipcfg_ifupdown_run(node, act, ctx, "/etc/network/if-down.d", env);
 }
 
 static int ipcfg_ifupdown_pre_down(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 	if(act != IPCFG_ACT_DOWN) {
 		return 0;
 	}
-	return ipcfg_ifupdown_run(node, act, ctx, "/etc/network/if-down.d", "PHASE=pre-down");
+	char* env[] = { "PHASE=pre-down", "MODE=stop" };
+	return ipcfg_ifupdown_run(node, act, ctx, "/etc/network/if-down.d", env);
 }
 
 static int ipcfg_ifupdown_post_up(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 	if(act != IPCFG_ACT_UP) {
 		return 0;
 	}
-	return ipcfg_ifupdown_run(node, act, ctx, "/etc/network/if-up.d", "PHASE=post-up");
+	char* env[] = { "PHASE=post-up", "MODE=start" };
+	return ipcfg_ifupdown_run(node, act, ctx, "/etc/network/if-up.d", env);
 }
 
 static int ipcfg_ifupdown_pre_up(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 	if(act != IPCFG_ACT_UP) {
 		return 0;
 	}
-	return ipcfg_ifupdown_run(node, act, ctx, "/etc/network/if-pre-up.d", "PHASE=pre-up");
+	char* env[] = { "PHASE=pre-up", "MODE=start" };
+	return ipcfg_ifupdown_run(node, act, ctx, "/etc/network/if-pre-up.d", env);
 }
 
 static int ipcfg_ifupdown_pre(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {

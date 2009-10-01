@@ -23,11 +23,16 @@
 #include <ipcfg/util.h>
 #include <ipcfg/config.h>
 #include <ipcfg/action.h>
+#include <ipcfg-parser.h>
 int yylex(void);
 int yyerror(char*);
 DLList* namespace_stack;
 extern int yylineno;
 #define YYDEBUG 1
+
+static void print_token_value(FILE*, int, YYSTYPE);
+#define YYPRINT(file, type, value) print_token_value(file, type, value)
+
 %}
 
 %error-verbose
@@ -148,7 +153,7 @@ blockstop: '}'
 	;
 
 blockconfig: blockconfigstmt		{ $$ = $1; }
-	| blockconfig blockconfigstmt	{ $1->success = $2; }
+	| blockconfigstmt blockconfig	{ $1->success = $2; }
 	| blockconfig namespacestmt
 
 blockconfigstmt: test			{ $$ = $1; }
@@ -287,7 +292,14 @@ actionstmt: ACTION QUOTEDSTRING optlist
 	;
 %%
 
+static void print_token_value(FILE* f, int tokentype, YYSTYPE val) {
+	if(tokentype == QUOTEDSTRING) {
+		fprintf(f, "%s", val.string);
+	}
+}
+
 int p_ipcfg_parse(void) {
+	//yydebug=1;
 	namespace_stack = dl_list_append(NULL, "core");
 	return yyparse();
 }

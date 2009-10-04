@@ -64,6 +64,7 @@ int ipcfg_do_updown(int argc, char** argv, ipcfg_action which) {
 	if((retval=ipcfg_perform_confignode(node, which, ctx))) {
 		DEBUG("FAIL\n");
 	}
+	ipcfg_ctx_cleanup(ctx);
 	return retval;
 }
 

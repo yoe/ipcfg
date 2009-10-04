@@ -1,7 +1,5 @@
 /* hashtable_itr.c: an iterator for hash tables */
 /* Copyright (C) 2002, 2004 Christopher Clark  <firstname.lastname@cl.cam.ac.uk> */
-#ifndef HASHTABLE_ITERATOR_H
-#define HASHTABLE_ITERATOR_H
 
 #include <ipcfg/hashtable.h>
 #include <ipcfg/private/hashtable.h>
@@ -177,5 +175,3 @@ hashtable_iterator_search(struct hashtable_itr *itr,
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
-#endif // HASHTABLE_ITERATOR_H

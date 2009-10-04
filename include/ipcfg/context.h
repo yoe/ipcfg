@@ -58,5 +58,6 @@ int ipcfg_ctx_add_data(ipcfg_context* ctx, char* nspace, char* name, ipcfg_conte
 int ipcfg_ctx_del_data(ipcfg_context* ctx, char* nspace, char* name);
 int ipcfg_ctx_set_value(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx);
 int ipcfg_ctx_unset_value(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx);
+void ipcfg_ctx_cleanup(ipcfg_context* ctx);
 
 #endif

@@ -35,7 +35,7 @@ void ipcfg_usage(int usage_type) {
 
 int ipcfg_do_updown(int argc, char** argv, ipcfg_action which) {
 	char* ptr;
-	char s[strlen(argv[1])];
+	char s[strlen(argv[1])+1];
 	ipcfg_context* ctx = calloc(1, sizeof(ipcfg_context));
 	ipcfg_cnode* node;
 	int retval;

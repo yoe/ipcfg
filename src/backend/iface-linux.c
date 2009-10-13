@@ -122,9 +122,11 @@ static int be_test_isup(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx)
 		rtnl_link_put(link);
 		return 1;
 	}
-	if(rtnl_link_get_flags(link) && IFF_UP) {
+	if(rtnl_link_get_flags(link) & IFF_UP) {
+		DEBUG("%s is up\n", name);
 		return 0;
 	}
+	DEBUG("%s is down\n", name);
 	return 1;
 }
 

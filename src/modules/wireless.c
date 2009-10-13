@@ -52,10 +52,12 @@ static int ipcfg_wireless_test_essidlist(ipcfg_cnode* node, ipcfg_action act, ip
 
 	item = iwctx.result;
 	while(item) {
+		wireless_scan* prev = item;
 		if(item->b.essid_on) {
-			foundtree = ipcfg_btree_add_data(foundtree, item->b.essid, (compare_fn)strcmp);
+			foundtree = ipcfg_btree_add_data(foundtree, strdup(item->b.essid), (compare_fn)strcmp);
 		}
 		item = item->next;
+		free(prev);
 	}
 
 	if(!foundtree) {

@@ -25,6 +25,8 @@
 #include <netlink/netlink.h>
 #include <netlink/route/link.h>
 #include <netlink/route/addr.h>
+#include <netlink/route/rtnl.h>
+#include <netlink/route/route.h>
 
 #include <linux/if.h>
 
@@ -201,7 +203,36 @@ static int be_set_dhcp6(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx)
 }
 
 static int be_add_route(int af, char* network, char* router) {
-	IPCFG_TODO;
+	struct nl_addr* dst_addr;
+	struct nl_addr* gw_addr;
+	struct rtnl_route *route;
+	int retval;
+
+	if(!(dst_addr=nl_addr_parse(network, af))) {
+		DEBUG("Invalid network address given: %s\n", network);
+		return 1;
+	}
+	if(!(gw_addr=nl_addr_parse(router, af))) {
+		DEBUG("Invalid router address given: %s\n", router);
+		nl_addr_put(dst_addr);
+		return 1;
+	}
+	route = rtnl_route_alloc();
+	rtnl_route_set_family(route, af);
+	rtnl_route_set_scope(route, RT_SCOPE_UNIVERSE);
+	rtnl_route_set_dst(route, dst_addr);
+	rtnl_route_set_gateway(route, gw_addr);
+	retval = rtnl_route_add(rtsock, route, 0) * -1;
+
+	rtnl_route_put(route);
+	nl_addr_put(dst_addr);
+	nl_addr_put(gw_addr);
+
+	if(retval) {
+		DEBUG("Could not add route %s via %s: %s\n", network, router, strerror(retval));
+	}
+
+	return retval;
 }
 
 static int be_set_defroute4(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
@@ -229,6 +260,10 @@ static int be_set_manroute4(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* 
 	}
 	DLList* l = (DLList*)node->data;
 	route = l->data;
+	if(!l->next) {
+		DEBUG("E: No router was specified\n");
+		return 1;
+	}
 	router = l->next->data;
 	return be_add_route(AF_INET, route, router);
 }

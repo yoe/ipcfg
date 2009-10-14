@@ -202,7 +202,7 @@ static int be_set_dhcp6(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx)
 	IPCFG_TODO;
 }
 
-static int be_add_route(int af, char* network, char* router) {
+static int be_set_route(ipcfg_action act, ipcfg_context* ctx, int af, char* network, char* router) {
 	struct nl_addr* dst_addr;
 	struct nl_addr* gw_addr;
 	struct rtnl_route *route;
@@ -222,7 +222,11 @@ static int be_add_route(int af, char* network, char* router) {
 	rtnl_route_set_scope(route, RT_SCOPE_UNIVERSE);
 	rtnl_route_set_dst(route, dst_addr);
 	rtnl_route_set_gateway(route, gw_addr);
-	retval = rtnl_route_add(rtsock, route, 0) * -1;
+	if(act == IPCFG_ACT_UP) {
+		retval = rtnl_route_add(rtsock, route, 0) * -1;
+	} else {
+		retval = rtnl_route_del(rtsock, route, 0) * -1;
+	}
 
 	rtnl_route_put(route);
 	nl_addr_put(dst_addr);
@@ -248,7 +252,7 @@ static int be_set_defroute4(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* 
 		DLList* l = (DLList*)node->data;
 		router = l->data;
 	}
-	return be_add_route(AF_INET, "0.0.0.0", router);
+	return be_set_route(act, ctx, AF_INET, "0.0.0.0", router);
 }
 
 static int be_set_manroute4(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
@@ -265,7 +269,7 @@ static int be_set_manroute4(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* 
 		return 1;
 	}
 	router = l->next->data;
-	return be_add_route(AF_INET, route, router);
+	return be_set_route(act, ctx, AF_INET, route, router);
 }
 
 void ipcfg_backend_do_defaults(void) {

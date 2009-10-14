@@ -50,7 +50,7 @@ int ipcfg_do_updown(int argc, char** argv, ipcfg_action which) {
 	}
 	if(!(node = ipcfg_find_confignode_for(s))) {
 		if(be_ifname_exists(s)) {
-			DEBUG("Node %s not fout, using defaults...\n", s);
+			DEBUG("Node %s not found, using defaults...\n", s);
 			node = ipcfg_find_confignode_for("default");
 		} else {
 			fprintf(stderr, "E: Unknown configuration %s\n", s);

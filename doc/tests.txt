@@ -17,7 +17,7 @@ List of available tests:
 	TODO: undo side-effect if no link was found, undo side-effect on
 	down.
 - core:isup
-	Arguments: optionally, inteface name
+	Arguments: optionally, interface name
 	Test/up: checks whether the current or specified interface is
 	physically up. Does not check for IP address
 	Test/down: none

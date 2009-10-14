@@ -52,7 +52,7 @@ List of available actions:
 	  does a lookup for wireless:essid in the context; if nothing is
 	  found there either, returns failure. If an argument is given,
 	  or the context contains a wireless:essid, uses that as the
-	  ESSID to set. Sets the ESSID on teh given interface, which
+	  ESSID to set. Sets the ESSID on the given interface, which
 	  must be a wireless interface.
 	* Effects/down: Brings the interface down.
 	* Implemented by: module "wireless".

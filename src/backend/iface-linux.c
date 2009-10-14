@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 
 #include <netlink/netlink.h>
 #include <netlink/route/link.h>
@@ -174,8 +175,16 @@ static int be_set_static_type(ipcfg_cnode* node, ipcfg_action act, ipcfg_context
 	rtnl_addr_set_local(rtaddr, addr);
 	if(act == IPCFG_ACT_UP) {
 		retval = rtnl_addr_add(rtsock, rtaddr, 0) * -1;
+		if (retval == EEXIST) {
+			// No error when the address is already set
+			retval = 0;
+		}
 	} else {
 		retval = rtnl_addr_delete(rtsock, rtaddr, 0) * -1;
+		if (retval == EADDRNOTAVAIL) {
+			// No error when the address is already gone
+			retval = 0;
+		}
 	}
 	rtnl_addr_put(rtaddr);
 	nl_addr_put(addr);
@@ -224,8 +233,16 @@ static int be_set_route(ipcfg_action act, ipcfg_context* ctx, int af, char* netw
 	rtnl_route_set_gateway(route, gw_addr);
 	if(act == IPCFG_ACT_UP) {
 		retval = rtnl_route_add(rtsock, route, 0) * -1;
+		if (retval == EEXIST) {
+			// No error when the route is already there
+			retval = 0;
+		}
 	} else {
 		retval = rtnl_route_del(rtsock, route, 0) * -1;
+		if (retval == ESRCH) {
+			// No error when the route is already gone
+			retval = 0;
+		}
 	}
 
 	rtnl_route_put(route);

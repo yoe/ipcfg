@@ -165,6 +165,7 @@ static int be_set_static_type(ipcfg_cnode* node, ipcfg_action act, ipcfg_context
 	}
 	if(!(addr=nl_addr_parse(addr_s, af))) {
 		DEBUG("Invalid address given: %s\n", addr_s);
+		free(addr_s);
 		return 1;
 	}
 	rtnl_addr_set_ifindex(rtaddr, rtnl_link_name2i(rtlcache, name));

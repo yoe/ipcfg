@@ -99,7 +99,11 @@ void ipcfg_ctx_cleanup(ipcfg_context* ctx) {
 		struct hashtable_itr* it = hashtable_iterator(ctx->data);
 		while(it) {
 			free(hashtable_iterator_value(it));
-			hashtable_iterator_remove(it);
+			if (hashtable_iterator_remove(it) == 0) {
+				// at the end
+				free(it);
+				it = NULL;
+			}
 		}
 	}
 }

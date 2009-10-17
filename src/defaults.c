@@ -48,7 +48,7 @@ static int do_all_down(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) 
 		int v;
 
 		ctx_->ifname = names[i];
-		ctx_->ifname_src = IPCFG_SRC_ASSUME;
+		ctx_->ifname_src = IPCFG_SRC_DISCOVER;
 		if(!node) {
 			node = defaultnode;
 		}
@@ -57,6 +57,7 @@ static int do_all_down(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) 
 			retval+=v;
 		}
 		free(ctx_);
+		i++;
 	}
 	p_ipcfg_events_resume();
 	return retval;

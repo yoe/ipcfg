@@ -91,6 +91,10 @@ static int be_test_mii(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) 
 		return 1;
 	}
 	rtnl_link_put(link);
+	if(act != IPCFG_ACT_UP) {
+		DEBUG("Interface is not being brought up, ignoring...\n");
+		return 0;
+	}
 	/* We need to bring the interface up to see whether there is a link. */
 	if((err=be_do_link_state(node, IPCFG_ACT_UP, ctx))) {
 		return err;

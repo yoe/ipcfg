@@ -47,6 +47,7 @@ static void print_token_value(FILE*, int, YYSTYPE);
 %token 		ALL
 %token		CONFIG
 %token		DAEMON
+%token		ELSE
 %token		GROUP
 %token		FAIL
 %token		IF
@@ -72,6 +73,7 @@ static void print_token_value(FILE*, int, YYSTYPE);
 %type  <node>	test
 %type  <node>	requiretest
 %type  <node>	failtest
+%type  <node>	elseconditional
 %type  <node>	conditional
 %type  <node>	configstmt
 %type  <node>	setvar
@@ -212,7 +214,14 @@ failtest: FAIL TEST QUOTEDSTRING optlist
 		}
 	;
 
-conditional: IF test blockstart blockconfig blockstop
+elseconditional: /* empty */	{ $$ = NULL; }
+	| ELSE blockstart blockconfig blockstop
+		{ 
+			$$ = $3;
+		}
+	;
+
+conditional: IF test blockstart blockconfig blockstop elseconditional
 		{ 
 			ipcfg_test_block_data* data = malloc(sizeof(ipcfg_test_block_data));
 			$$ = ipcfg_get_anonymous_confignode();
@@ -220,6 +229,7 @@ conditional: IF test blockstart blockconfig blockstop
 			$$->data = data;
 			data->test = $2;
 			data->block = $4;
+			data->elseblock = $6;
 		}
 	;
 

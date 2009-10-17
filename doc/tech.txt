@@ -478,8 +478,7 @@ iface "eth0" {
   rather than if it fails.
 - if: same as the previous two, except that it takes a block as an extra
   argument; if the test fails, the block is skipped. This allows for
-  conditional statements. Note that 'else' is not supported at this
-  time. 'if' may however be nested.
+  conditional statements. And 'if' may be nested.
   With 'if', many things are possible. For example, we can reimplement
   'want one':
 

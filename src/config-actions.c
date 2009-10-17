@@ -164,6 +164,8 @@ int ipcfg_test_block(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 	ipcfg_test_block_data* data = node->data;
 	if(ipcfg_perform_confignode(data->test, act, ctx)==0) {
 		return ipcfg_perform_confignode(data->block, act, ctx);
+	} else {
+		return ipcfg_perform_confignode(data->elseblock, act, ctx);
 	}
 	return 0;
 }

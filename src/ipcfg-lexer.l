@@ -23,6 +23,7 @@ action		return ACTION;
 all		return ALL;
 config		return CONFIG;
 daemon		return DAEMON;
+else		return ELSE;
 group		return GROUP;
 fail		return FAIL;
 if		return IF;

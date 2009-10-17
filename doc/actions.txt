@@ -18,10 +18,16 @@ List of available actions:
 	* Effects: not yet implemented
 - core:defroute4
 	* Arguments: default router
-	* Effects: not yet fully implemented
+	* Effects/up: sets the IPv4 default route via router
+	* Effects/down: removes the IPv4 default route via router
+	* Implemented by: backend
+	* TODO: add more routing config options (tos/metric)
 - core:route4
 	* Arguments: network in dotted quad/CIDR notation, router
-	* Effects: not yet fully implemented
+	* Effects/up: sets the IPv4 route via router
+	* Effects/down: removes the IPv4 route via router
+	* Implemented by: backend
+	* TODO: add more routing config options (tos/metric/scope)
 - core:link_state
 	* Arguments: none
 	* Effects/up: brings the network interface up.

@@ -310,8 +310,18 @@ void ipcfg_backend_do_defaults(void) {
 	}
 }
 
+static void be_add_ifname(struct nl_object *obj, void *data) {
+	struct rtnl_link *link = (struct rtnl_link *)obj;
+	char **ptr = *(char ***)data;
+	*ptr = rtnl_link_get_name(link);
+	(*(void ***)data)++;
+}
+
 char** be_get_ifnames(void) {
-	IPCFG_TODO;
+	char **names = calloc(nl_cache_nitems(rtlcache) + 1, sizeof(char*));
+	char **ptr = names;
+	nl_cache_foreach(rtlcache, &be_add_ifname, &ptr);
+	return names;
 }
 
 void ipcfg_backend_init(void) {

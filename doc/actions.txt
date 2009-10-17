@@ -3,9 +3,8 @@ List of available actions:
 - core:static4
 	* Arguments: IPv4 address in dotted quad/CIDR notation
 	* Effects/up: Brings the network interface up; sets the IPv4 address
-	* Effects/down: Brings the network interface up; removes the IPv4 address
+	* Effects/down: Removes the IPv4 address; brings the network interface down
 	* Implemented by: backend
-	* TODO: sanitize effects/down
 - core:static6
 	As above, with IPv6 address
 - core:dhcp4

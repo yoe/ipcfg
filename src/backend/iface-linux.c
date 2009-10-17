@@ -148,20 +148,6 @@ static int be_set_static_type(ipcfg_cnode* node, ipcfg_action act, ipcfg_context
 	char* name = default_ifacename(node, ctx);
 	int retval;
 
-	/* If the link isn't up, bring it up first. Otherwise this has nasty
-	 * side-effects with lo and IPv6 */
-	link = rtnl_link_get_by_name(rtlcache, name);
-	if(IPCFG_EXPECT_FALSE(!link)) {
-		/* Interface does not exist -- something is broken */
-		DEBUG("Tried to set address for non-existing interface %s\n", name);
-		rtnl_link_put(link);
-		return 1;
-	}
-	if(!(rtnl_link_get_flags(link) & IFF_UP)) {
-		be_do_link_state(node, IPCFG_ACT_UP, ctx);
-	}
-	rtnl_link_put(link);
-
 	/* Figure out what address we need to set, first */
 	if(node->data) {
 		DLList* l = node->data;
@@ -181,6 +167,20 @@ static int be_set_static_type(ipcfg_cnode* node, ipcfg_action act, ipcfg_context
 	rtnl_addr_set_ifindex(rtaddr, rtnl_link_name2i(rtlcache, name));
 	rtnl_addr_set_local(rtaddr, addr);
 	if(act == IPCFG_ACT_UP) {
+		/* If the link isn't up, bring it up first. Otherwise this has nasty
+		 * side-effects with lo and IPv6 */
+		link = rtnl_link_get_by_name(rtlcache, name);
+		if(IPCFG_EXPECT_FALSE(!link)) {
+			/* Interface does not exist -- something is broken */
+			DEBUG("Tried to set address for non-existing interface %s\n", name);
+			rtnl_link_put(link);
+			return 1;
+		}
+		if(!(rtnl_link_get_flags(link) & IFF_UP)) {
+			be_do_link_state(node, IPCFG_ACT_UP, ctx);
+		}
+		rtnl_link_put(link);
+
 		retval = rtnl_addr_add(rtsock, rtaddr, 0) * -1;
 		if (retval == EEXIST) {
 			// No error when the address is already set
@@ -192,6 +192,7 @@ static int be_set_static_type(ipcfg_cnode* node, ipcfg_action act, ipcfg_context
 			// No error when the address is already gone
 			retval = 0;
 		}
+		be_do_link_state(node, IPCFG_ACT_DOWN, ctx);
 	}
 	rtnl_addr_put(rtaddr);
 	nl_addr_put(addr);

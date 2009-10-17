@@ -90,6 +90,7 @@ static int be_test_mii(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) 
 		rtnl_link_put(link);
 		return 1;
 	}
+	rtnl_link_put(link);
 	/* We need to bring the interface up to see whether there is a link. */
 	if((err=be_do_link_state(node, IPCFG_ACT_UP, ctx))) {
 		return err;
@@ -127,8 +128,10 @@ static int be_test_isup(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx)
 	}
 	if(rtnl_link_get_flags(link) & IFF_UP) {
 		DEBUG("%s is up\n", name);
+		rtnl_link_put(link);
 		return 0;
 	}
+	rtnl_link_put(link);
 	DEBUG("%s is down\n", name);
 	return 1;
 }

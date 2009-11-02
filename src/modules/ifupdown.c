@@ -52,7 +52,7 @@ static int ipcfg_ifupdown_run(ipcfg_cnode* node, ipcfg_action act, ipcfg_context
 	/* Now, reset the pointer to the first element, allocate space for our
 	 * environment, and start setting variables. */
 	l = node->data;
-	env = malloc(env_size * sizeof(char*));
+	env = malloc((env_size+1) * sizeof(char*));
 	env[0] = "PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin";
 	env[1] = phase[0];
 	env[2] = phase[1];

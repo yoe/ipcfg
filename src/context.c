@@ -73,7 +73,6 @@ int ipcfg_ctx_add_data(ipcfg_context* ctx, char* nspace, char* name, ipcfg_conte
 		remove_data(ctx->data, key);
 	}
 	insert_data(ctx->data, key, data);
-	free(key);
 	return 0;
 }
 

@@ -31,3 +31,6 @@ libtool
 ltmain.sh
 src/modules/*.la
 src/modules/*.lo
+debian/*debhelper*
+debian/files
+debian/ipcfg.substvars

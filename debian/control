@@ -2,11 +2,12 @@ Source: ipcfg
 Section: admin
 Priority: optional
 Maintainer: Wouter Verhelst <wouter@debian.org>
-Build-Depends: libnl-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386], flex, bison, libiw-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386]
+Build-Depends: libnl-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386], flex, bison, libiw-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386], debhelper (>= 7)
+Standards-Version: 3.8.3
 
 Package: ipcfg
 Architecture: any
-Depends: ${shlibs:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Conflicts: ifupdown
 Replaces: ifupdown
 Provides: ifupdown

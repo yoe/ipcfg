@@ -11,6 +11,7 @@
  */
 #include <ipcfg/context.h>
 #include <ipcfg/hashtable.h>
+#include <ipcfg/hashtable_itr.h>
 #include <ipcfg/util.h>
 #include <stdlib.h>
 #include <string.h>
@@ -66,13 +67,12 @@ int ipcfg_ctx_add_data(ipcfg_context* ctx, char* nspace, char* name, ipcfg_conte
 	char* key = normalize_namespace_string(nspace, name);
 
 	if(!ctx->data) {
-		return 1;
+		ctx->data = create_hashtable(10, str_hash_djb2, str_eq);
 	}
 	if(search_data(ctx->data, key)) {
 		remove_data(ctx->data, key);
 	}
 	insert_data(ctx->data, key, data);
-	free(key);
 	return 0;
 }
 
@@ -88,4 +88,21 @@ int ipcfg_ctx_del_data(ipcfg_context* ctx, char* nspace, char* name) {
 	remove_data(ctx->data, key);
 	free(key);
 	return 0;
+}
+
+void ipcfg_ctx_cleanup(ipcfg_context* ctx) {
+	if(!ctx) {
+		return;
+	}
+	if(ctx->data) {
+		struct hashtable_itr* it = hashtable_iterator(ctx->data);
+		while(it) {
+			free(hashtable_iterator_value(it));
+			if (hashtable_iterator_remove(it) == 0) {
+				// at the end
+				free(it);
+				it = NULL;
+			}
+		}
+	}
 }

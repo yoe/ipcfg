@@ -52,10 +52,12 @@ static int ipcfg_wireless_test_essidlist(ipcfg_cnode* node, ipcfg_action act, ip
 
 	item = iwctx.result;
 	while(item) {
+		wireless_scan* prev = item;
 		if(item->b.essid_on) {
-			foundtree = ipcfg_btree_add_data(foundtree, item->b.essid, (compare_fn)strcmp);
+			foundtree = ipcfg_btree_add_data(foundtree, strdup(item->b.essid), (compare_fn)strcmp);
 		}
 		item = item->next;
+		free(prev);
 	}
 
 	if(!foundtree) {
@@ -96,7 +98,8 @@ static int ipcfg_wireless_set_essid(ipcfg_cnode* node, ipcfg_action act, ipcfg_c
 	char* essid;
 	char* name = default_ifacename(node, ctx);
 	ipcfg_cnode_fptr_t up_action;
-	wireless_config info;
+	wireless_config info[2];
+	memset(&(info[0]), 0, sizeof(wireless_config)*2);
 
 	if(node->data) {
 		DLList* l = node->data;
@@ -111,11 +114,8 @@ static int ipcfg_wireless_set_essid(ipcfg_cnode* node, ipcfg_action act, ipcfg_c
 	}
 	up_action = ipcfg_find_action("core", "link_state");
 	up_action(node, act, ctx);
-	strcpy(info.essid, essid);
-	if(iw_set_basic_config(iwsock, name, &info)) {
-		return 0;
-	}
-	return 1;
+	strcpy(info[0].essid, essid);
+	return iw_set_basic_config(iwsock, name, info);
 }
 
 int ipcfg_plugin_init(void) {

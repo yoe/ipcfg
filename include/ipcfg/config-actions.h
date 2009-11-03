@@ -17,6 +17,7 @@
 typedef struct {
 	ipcfg_cnode* test;
 	ipcfg_cnode* block;
+	ipcfg_cnode* elseblock;
 } ipcfg_test_block_data;
 
 void ipcfg_create_must_config(int which, void* names);

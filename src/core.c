@@ -11,6 +11,7 @@
  */
 
 #include <string.h>
+#include <malloc.h>
 #include <ipcfg/cnode.h>
 #include <ipcfg/context.h>
 #include <ipcfg/test.h>
@@ -32,7 +33,7 @@ static int test_network(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx)
 	return 1;
 }
 
-static int test_value(ipcfg_cnode* node, icpfg_action act, ipcfg_context* ctx) {
+static int test_value(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 	DLList* l = node->data;
 	char* name;
 	char* val;
@@ -64,7 +65,7 @@ static int test_indirect(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx
 	return strcmp(d1->data, d2->data);
 }
 
-static int test_indirect(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
+static int copy_value(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
 	DLList* l = node->data;
 	char* name1;
 	char* name2;
@@ -84,8 +85,10 @@ static int test_indirect(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx
 	if(d1 && d1->src <= d2->src) {
 		free(d1->data);
 		d1->data = strdup(d2->data);
+	} else {
+		ipcfg_ctx_add_data(ctx, "core", name1, d2);
 	}
-	return strcmp(d1->data, d2->data);
+	return 0;
 }
 
 static int load_config(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {

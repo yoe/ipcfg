@@ -35,7 +35,7 @@ void ipcfg_usage(int usage_type) {
 
 int ipcfg_do_updown(int argc, char** argv, ipcfg_action which) {
 	char* ptr;
-	char s[strlen(argv[1])];
+	char s[strlen(argv[1])+1];
 	ipcfg_context* ctx = calloc(1, sizeof(ipcfg_context));
 	ipcfg_cnode* node;
 	int retval;
@@ -50,7 +50,7 @@ int ipcfg_do_updown(int argc, char** argv, ipcfg_action which) {
 	}
 	if(!(node = ipcfg_find_confignode_for(s))) {
 		if(be_ifname_exists(s)) {
-			DEBUG("Node %s not fout, using defaults...\n", s);
+			DEBUG("Node %s not found, using defaults...\n", s);
 			node = ipcfg_find_confignode_for("default");
 		} else {
 			fprintf(stderr, "E: Unknown configuration %s\n", s);
@@ -64,6 +64,7 @@ int ipcfg_do_updown(int argc, char** argv, ipcfg_action which) {
 	if((retval=ipcfg_perform_confignode(node, which, ctx))) {
 		DEBUG("FAIL\n");
 	}
+	ipcfg_ctx_cleanup(ctx);
 	return retval;
 }
 

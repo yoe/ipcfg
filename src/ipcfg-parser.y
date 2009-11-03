@@ -23,11 +23,16 @@
 #include <ipcfg/util.h>
 #include <ipcfg/config.h>
 #include <ipcfg/action.h>
+#include <ipcfg-parser.h>
 int yylex(void);
 int yyerror(char*);
 DLList* namespace_stack;
 extern int yylineno;
 #define YYDEBUG 1
+
+static void print_token_value(FILE*, int, YYSTYPE);
+#define YYPRINT(file, type, value) print_token_value(file, type, value)
+
 %}
 
 %error-verbose
@@ -42,6 +47,7 @@ extern int yylineno;
 %token 		ALL
 %token		CONFIG
 %token		DAEMON
+%token		ELSE
 %token		GROUP
 %token		FAIL
 %token		IF
@@ -67,6 +73,7 @@ extern int yylineno;
 %type  <node>	test
 %type  <node>	requiretest
 %type  <node>	failtest
+%type  <node>	elseconditional
 %type  <node>	conditional
 %type  <node>	configstmt
 %type  <node>	setvar
@@ -148,7 +155,7 @@ blockstop: '}'
 	;
 
 blockconfig: blockconfigstmt		{ $$ = $1; }
-	| blockconfig blockconfigstmt	{ $1->success = $2; }
+	| blockconfigstmt blockconfig	{ $1->success = $2; }
 	| blockconfig namespacestmt
 
 blockconfigstmt: test			{ $$ = $1; }
@@ -207,7 +214,14 @@ failtest: FAIL TEST QUOTEDSTRING optlist
 		}
 	;
 
-conditional: IF test blockstart blockconfig blockstop
+elseconditional: /* empty */	{ $$ = NULL; }
+	| ELSE blockstart blockconfig blockstop
+		{ 
+			$$ = $3;
+		}
+	;
+
+conditional: IF test blockstart blockconfig blockstop elseconditional
 		{ 
 			ipcfg_test_block_data* data = malloc(sizeof(ipcfg_test_block_data));
 			$$ = ipcfg_get_anonymous_confignode();
@@ -215,6 +229,7 @@ conditional: IF test blockstart blockconfig blockstop
 			$$->data = data;
 			data->test = $2;
 			data->block = $4;
+			data->elseblock = $6;
 		}
 	;
 
@@ -287,7 +302,14 @@ actionstmt: ACTION QUOTEDSTRING optlist
 	;
 %%
 
+static void print_token_value(FILE* f, int tokentype, YYSTYPE val) {
+	if(tokentype == QUOTEDSTRING) {
+		fprintf(f, "%s", val.string);
+	}
+}
+
 int p_ipcfg_parse(void) {
+	//yydebug=1;
 	namespace_stack = dl_list_append(NULL, "core");
 	return yyparse();
 }

@@ -19,6 +19,7 @@
 #define _GNU_SOURCE
 
 #include <ipcfg/action.h>
+#include <ipcfg/macros.h>
 #include <ipcfg/ll.h>
 
 #include <ctype.h>
@@ -28,6 +29,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -94,7 +96,17 @@ static int ipcfg_ifupdown_run(ipcfg_cnode* node, ipcfg_action act, ipcfg_context
 	}
 	errno=0;
 	while((de = readdir(dir))) {
+		char* fname;
+		struct stat sbuf;
+		asprintf(&fname, "%s/%s", pathname, de->d_name);
+		stat(fname, &sbuf);
+		if(S_ISDIR(sbuf.st_mode) || !(sbuf.st_mode & S_IXUSR)) {
+			/* File is a directory, or is not executable for the owner -- skip */
+			DEBUG("Skipping: %s\n", fname);
+			continue;
+		}
 		if((pid=fork())) {
+			free(fname);
 			if(pid<0) {
 				retval = errno;
 				goto out;
@@ -105,9 +117,8 @@ static int ipcfg_ifupdown_run(ipcfg_cnode* node, ipcfg_action act, ipcfg_context
 				}
 			}
 		} else {
-			char* fname;
 			char* argv = NULL;
-			asprintf(&fname, "%s/%s", pathname, de->d_name);
+			DEBUG("Running: %s\n", fname);
 			execve(fname, &argv, env);
 		}
 	}
@@ -117,6 +128,7 @@ static int ipcfg_ifupdown_run(ipcfg_cnode* node, ipcfg_action act, ipcfg_context
 		free(env[i]);
 	}
 	free(env);
+	DEBUG("Finished with %s\n", pathname);
 	return retval;
 }
 

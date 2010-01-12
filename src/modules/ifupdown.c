@@ -21,6 +21,7 @@
 #include <ipcfg/action.h>
 #include <ipcfg/macros.h>
 #include <ipcfg/ll.h>
+#include <ipcfg/util.h>
 
 #include <ctype.h>
 #include <dirent.h>
@@ -36,7 +37,7 @@
 static int ipcfg_ifupdown_run(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx, char* pathname, char** phase) {
 	DIR* dir = NULL;
 	char** env;
-	int env_size = 4;
+	int env_size = 5;
 	DLList* l = node->data;
 	pid_t pid;
 	struct dirent* de;
@@ -58,8 +59,9 @@ static int ipcfg_ifupdown_run(ipcfg_cnode* node, ipcfg_action act, ipcfg_context
 	env[0] = "PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin";
 	env[1] = phase[0];
 	env[2] = phase[1];
+	asprintf(&(env[3]), "IFACE=%s", default_ifacename(node, ctx));
 	if(l) {
-		for(i=3;i<env_size;i++) {
+		for(i=4;i<env_size;i++) {
 			char* name;
 			char* ptr;
 			char* val;
@@ -82,7 +84,7 @@ static int ipcfg_ifupdown_run(ipcfg_cnode* node, ipcfg_action act, ipcfg_context
 			} else {
 				val = "";
 			}
-			asprintf(&ptr, "%s=%s", name, val);
+			asprintf(&ptr, "IF_%s=%s", name, val);
 			free(name);
 			env[i] = ptr;
 			l = dl_list_get_next(l);

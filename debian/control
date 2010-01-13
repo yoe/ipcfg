@@ -4,6 +4,8 @@ Priority: optional
 Maintainer: Wouter Verhelst <wouter@debian.org>
 Build-Depends: libnl-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386], flex, bison, libiw-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386], debhelper (>= 7)
 Standards-Version: 3.8.3
+Vcs-Git: git://git.debian.org/~wouter/ipcfg.git
+Vcs-Browser: http://git.debian.org/?p=users/wouter/ipcfg.git;a=summary
 
 Package: ipcfg
 Architecture: any

@@ -1,8 +1,9 @@
 ipcfg (0.3) experimental; urgency=low
 
   * Add initscript. Hrm.
+  * Add pointer to git repository to debian/control
 
- -- Wouter Verhelst <wouter@debian.org>  Wed, 13 Jan 2010 11:28:46 +0100
+ -- Wouter Verhelst <wouter@debian.org>  Wed, 13 Jan 2010 11:31:08 +0100
 
 ipcfg (0.2) experimental; urgency=low
 

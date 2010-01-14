@@ -70,11 +70,12 @@ List of available actions:
 	  name of a context variable (the namespace 'ifupdown' is
 	  applied if none was given). This name, without its namespace,
 	  is converted to uppercase, and any dashes ('-') are converted
-	  to underscores ('_'). The result is then used as the name of
-	  an environment variable to which the value of the
-	  corresponding context variable is applied. If the specified
-	  context variable does not exist, an environment variable with
-	  the empty string as its value is created instead.
+	  to underscores ('_'). The result has 'IF_' prepended, and is
+	  then used as the name of an environment variable to which the
+	  value of the corresponding context variable is applied. If the
+	  specified context variable does not exist, an environment
+	  variable with the empty string as its value is created
+	  instead.
 	* Effects/down: runs all the scripts in the directory
 	  /etc/network/if-down.d similarly to how ifupdown would run
 	  them. The environment is created as on up.

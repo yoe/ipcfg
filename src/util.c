@@ -26,12 +26,19 @@ char* default_ifacename(ipcfg_cnode* node, ipcfg_context* ctx) {
 			case IPCFG_SRC_UNDEF:
 				break;
 		}
-
 	}
 	if(node->ifname) {
+		if(ctx->ifname_src < IPCFG_SRC_CONFIG) {
+			ctx->ifname = node->ifname;
+			ctx->ifname_src = IPCFG_SRC_CONFIG;
+		}
 		return node->ifname;
 	}
 	if(node->name) {
+		if(ctx->ifname_src < IPCFG_SRC_ASSUME) {
+			ctx->ifname = node->ifname;
+			ctx->ifname_src = IPCFG_SRC_ASSUME;
+		}
 		return node->name;
 	}
 	if(ctx->ifname) {

@@ -215,10 +215,6 @@ static int be_set_static6(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ct
 	return be_set_static_type(node, act, ctx, AF_INET6, ctx_addr);
 }
 
-static int be_set_dhcp6(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) {
-	IPCFG_TODO;
-}
-
 static int be_set_route(ipcfg_action act, ipcfg_context* ctx, int af, char* network, char* router) {
 	struct nl_addr* dst_addr;
 	struct nl_addr* gw_addr;

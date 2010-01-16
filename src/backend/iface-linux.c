@@ -107,6 +107,8 @@ static int be_test_mii(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) 
 		rtnl_link_put(link);
 		return 0;
 	}
+	/* Bring the interface down again, if there is no link */
+	be_do_link_state(node, IPCFG_ACT_DOWN, ctx);
 	rtnl_link_put(link);
 	DEBUG("MII test for %s failed\n", name);
 	return 1;

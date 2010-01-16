@@ -3,6 +3,7 @@ ipcfg (0.3) experimental; urgency=low
   * Add initscript. Hrm.
   * Add pointer to git repository to debian/control
   * Add pkg-config to build-deps
+  * Improve documentation, build system, and remove some dead code
 
  -- Wouter Verhelst <wouter@debian.org>  Sat, 16 Jan 2010 02:34:27 +0100
 

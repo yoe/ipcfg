@@ -4,8 +4,9 @@ ipcfg (0.3) experimental; urgency=low
   * Add pointer to git repository to debian/control
   * Add pkg-config to build-deps
   * Improve documentation, build system, and remove some dead code
+  * Some fixes to make 'ifup auto' work more reliably in common cases.
 
- -- Wouter Verhelst <wouter@debian.org>  Sat, 16 Jan 2010 02:34:27 +0100
+ -- Wouter Verhelst <wouter@debian.org>  Sat, 16 Jan 2010 14:36:35 +0100
 
 ipcfg (0.2) experimental; urgency=low
 

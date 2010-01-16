@@ -34,6 +34,7 @@ static int perform_must_all(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* 
 				return 1;
 			}
 			items = dl_list_get_next(items);
+			ctx->ifname_src = IPCFG_SRC_UNDEF;
 		}
 	}
 	return 0;
@@ -44,6 +45,9 @@ static int perform_must_one(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* 
 	ipcfg_cnode* othernode;
 
 	if(act == IPCFG_ACT_UP) {
+		if(ctx) {
+			ctx->ifname_src = IPCFG_SRC_UNDEF;
+		}
 		do {
 			do {
 				othernode = ipcfg_find_confignode_for(items->data);

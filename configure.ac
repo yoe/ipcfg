@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.63])
 AC_INIT([ipcfg], [0.1], [wouter@debian.org])
-AM_INIT_AUTOMAKE([dist-bzip2 foreign])
+AM_INIT_AUTOMAKE([dist-bzip2 foreign silent-rules])
 AM_MAINTAINER_MODE
 AC_CONFIG_SRCDIR([src/cnode.c])
 AC_CONFIG_HEADERS([include/ipcfg/private/config.h])

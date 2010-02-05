@@ -1,3 +1,9 @@
+ipcfg (0.4) experimental; urgency=low
+
+  * Fix typo in description. Closes: #568096.
+
+ -- Wouter Verhelst <wouter@debian.org>  Fri, 05 Feb 2010 13:57:05 +0100
+
 ipcfg (0.3) experimental; urgency=low
 
   * Add initscript. Hrm.

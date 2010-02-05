@@ -28,5 +28,5 @@ Description: Network configuration system
  Even though it is incomplete, it already has a few features not found
  in ifupdown: e.g., it can decide which interface to bring up at boot
  time based on whether a link is available on a list of interfaces, and
- it can change inteface names halfway through an 'ifup' run (allowing
+ it can change interface names halfway through an 'ifup' run (allowing
  things like 'ifup any-network').

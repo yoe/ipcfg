@@ -309,7 +309,7 @@ static void print_token_value(FILE* f, int tokentype, YYSTYPE val) {
 }
 
 int p_ipcfg_parse(void) {
-	//yydebug=1;
+	if(ipcfg_do_verbose) yydebug=1;
 	namespace_stack = dl_list_append(NULL, "core");
 	return yyparse();
 }

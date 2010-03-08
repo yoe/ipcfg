@@ -15,12 +15,6 @@
 
 # define IPCFG_TODO fprintf(stderr, "E: %s implementation incomplete!\n", __func__); exit(EXIT_FAILURE);
 
-# ifdef DODBG
-#  define DEBUG(msg, args...)	fprintf(stderr, msg , ##args)
-# else // ! DODBG
-#  define DEBUG(msg, args...)
-# endif // DODBG
-
 #ifdef __GNUC__
 
 # define IPCFG_NO_EXPORT	__attribute__((visibility("hidden")))
@@ -34,5 +28,12 @@
 # define IPCFG_EXPECT_FALSE(cond) (cond)
 
 #endif // __GNUC__
+
+#include <ipcfg/commands.h>
+# ifdef DODBG
+#  define DEBUG(msg, args...)	fprintf(stderr, msg , ##args)
+# else // ! DODBG
+#  define DEBUG(msg, args...) if(IPCFG_EXPECT_FALSE(ipcfg_do_verbose)) { fprintf(stderr, msg, ##args); }
+# endif // DODBG
 
 #endif // IPCFG_MACROS_H

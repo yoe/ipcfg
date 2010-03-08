@@ -1,7 +1,7 @@
 pkglib_LTLIBRARIES = wireless.la ifupdown.la
 ifupdown_la_SOURCES = ifupdown.c
-ifupdown_la_LDFLAGS = -module -version-info 0:0:1
+ifupdown_la_LDFLAGS = -module -version-info 0:1:0
 wireless_la_SOURCES = wireless.c
-wireless_la_LDFLAGS = -module -version-info 0:0:1
+wireless_la_LDFLAGS = -module -version-info 0:1:0
 wireless_la_LIBADD = $(WL_LIBS)
 AM_CPPFLAGS = -I$(top_srcdir)/include

@@ -11,9 +11,12 @@
 #ifndef IPCFG_COMMANDS_H
 #define IPCFG_COMMANDS_H
 
+#include <stdbool.h>
+
 int ipcfg_do_ifup(int argc, char**argv);
 int ipcfg_do_ifdown(int argc, char**argv);
 int ipcfg_go_daemon(void);
 void ipcfg_usage(int usage_type);
+extern bool ipcfg_do_verbose;
 
 #endif

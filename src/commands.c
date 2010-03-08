@@ -21,9 +21,12 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <stdbool.h>
 
 #define USAGE_HELP 0
 #define USAGE_ERROR 1
+
+bool ipcfg_do_verbose;
 
 void ipcfg_usage(int usage_type) {
 	printf("TODO: Define a command line interface. Implement it.\n");
@@ -39,14 +42,41 @@ int ipcfg_do_updown(int argc, char** argv, ipcfg_action which) {
 	ipcfg_context* ctx = calloc(1, sizeof(ipcfg_context));
 	ipcfg_cnode* node;
 	int retval;
+	static struct option long_options[] = {
+		{ "auto", 0, 0, 'a' },
+		{ "help", 0, 0, 'h' },
+		{ "verbose", 0, 0, 'v' },
+		{ 0, 0, 0, 0 }};
+	int opt;
+	bool have_action = false;
 
-	if(argc<2) {
-		ipcfg_usage(USAGE_ERROR);
+	while((opt=getopt_long(argc, argv, "ahv", long_options, NULL)) > 0) {
+		switch(opt) {
+			case 'a':
+				if(which==IPCFG_ACT_UP) {
+					strcpy(s, "auto");
+				} else {
+					strcpy(s, "all");
+				}
+				have_action = true;
+				break;
+			case 'h':
+				ipcfg_usage(USAGE_HELP);
+				break;
+			case 'v':
+				ipcfg_do_verbose=true;
+				break;
+		}
 	}
-	if((ptr=strchr(argv[1], '='))) {
-		strncpy(s, argv[1], ptr-argv[1]);
-	} else {
-		strcpy(s, argv[1]);
+	if(!have_action) {
+		if(optind>=argc) {
+			ipcfg_usage(USAGE_ERROR);
+		}
+		if((ptr=strchr(argv[1], '='))) {
+			strncpy(s, argv[optind], ptr-argv[optind]);
+		} else {
+			strcpy(s, argv[optind]);
+		}
 	}
 	if(!(node = ipcfg_find_confignode_for(s))) {
 		if(be_ifname_exists(s)) {

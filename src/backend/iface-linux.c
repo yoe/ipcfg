@@ -84,6 +84,7 @@ static int be_test_mii(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) 
 	char* name = default_ifacename(node, ctx);
 	struct rtnl_link* link = rtnl_link_get_by_name(rtlcache, name);
 	int err;
+	int timeout = 3;
 
 	if(IPCFG_EXPECT_FALSE(!link)) {
 		/* Interface does not exist -- something is broken */
@@ -100,6 +101,13 @@ static int be_test_mii(ipcfg_cnode* node, ipcfg_action act, ipcfg_context* ctx) 
 	if((err=be_do_link_state(node, IPCFG_ACT_UP, ctx))) {
 		return err;
 	}
+	if(node->data) {
+		DLList* l = node->data;
+		if(strtol(l->data, NULL, 0)) {
+			timeout = strtol(l->data, NULL, 0);
+		}
+	}
+	sleep(timeout);
 	/* Now fetch the link data again, and see whether there is a
 	 * connection */
 	link = rtnl_link_get_by_name(rtlcache, name);

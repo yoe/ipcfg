@@ -2,8 +2,9 @@ ipcfg (0.4) experimental; urgency=low
 
   * Fix typo in description. Closes: #568096.
   * Implement -a, -h, and -v options.
+  * Make MII test sleep for three seconds (by default; configurable).
 
- -- Wouter Verhelst <wouter@debian.org>  Mon, 08 Mar 2010 02:39:24 +0100
+ -- Wouter Verhelst <wouter@debian.org>  Fri, 30 Jul 2010 17:24:57 -0400
 
 ipcfg (0.3) experimental; urgency=low
 

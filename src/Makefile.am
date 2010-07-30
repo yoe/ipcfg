@@ -26,6 +26,7 @@ AM_YFLAGS = -d
 AM_CPPFLAGS = -I$(top_srcdir)/include
 SUBDIRS = backend modules
 BUILT_SOURCES = ipcfg-parser.h
+DISTCLEANFILES = ipcfg-parser.c ipcfg-lexer.c
 install-exec-hook:
 	cd $(DESTDIR)$(bindir) && \
 		$(LN_S) -f ipcfg ifup && \

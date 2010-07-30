@@ -1,3 +1,9 @@
+ipcfg (0.5) experimental; urgency=low
+
+  * Remove ipcfg init.d script, in favour of the one from netbase.
+
+ -- Wouter Verhelst <wouter@debian.org>  Fri, 30 Jul 2010 17:47:28 -0400
+
 ipcfg (0.4) experimental; urgency=low
 
   * Fix typo in description. Closes: #568096.

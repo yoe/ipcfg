@@ -4,15 +4,14 @@
 
 if [ "$1" = install ] || [ "$1" = upgrade ]
 then
-		if [ -e "/etc/init.d/ipcfg" ]
+	if [ -e "/etc/init.d/ipcfg" ]
+	then
+		if [ "`md5sum \"/etc/init.d/ipcfg\" | sed -e \"s/ .*//\"`" = \
+		"`dpkg-query -W -f='${Conffiles}' ipcfg | sed -n -e \"\\\\' /etc/init.d/ipcfg's/.* //p\"`" ]
 		then
-			if [ "`md5sum \"/etc/init.d/ipcfg\" | sed -e \"s/ .*//\"`" = \
-			"`dpkg-query -W -f='${Conffiles}' ipcfg | sed -n -e \"\\\\' /etc/init.d/ipcfg's/.* //p\"`" ]
-			then
-				rm -f /etc/init.d/ipcfg
-			fi
+			rm -f /etc/init.d/ipcfg
 		fi
-	;;
+	fi
 fi
 
 #DEBHELPER#

@@ -15,10 +15,15 @@ typedef struct _iface {
 } ipcfg_iface;
 
 static struct hashtable* iface_index;
+static struct hashtable* state_index;
 
 DEFINE_HASHTABLE_INSERT(insert_iface, char, ipcfg_iface);
 DEFINE_HASHTABLE_SEARCH(search_iface, char, ipcfg_iface);
 DEFINE_HASHTABLE_REMOVE(remove_iface, char, ipcfg_iface);
+
+DEFINE_HASHTABLE_INSERT(insert_state, char, ipcfg_state);
+DEFINE_HASHTABLE_SEARCH(search_state, char, ipcfg_state);
+DEFINE_HASHTABLE_REMOVE(remove_state, char, ipcfg_state);
 
 DEFINE_HASHTABLE_INSERT(insert_state_iface, char, ipcfg_state_iface);
 DEFINE_HASHTABLE_SEARCH(search_state_iface, char, ipcfg_state_iface);
@@ -39,4 +44,17 @@ bool ipcfg_can_reach_state(char* interface, char* statename) {
 		}
 	}
 	return true;
+}
+
+bool ipcfg_create_state(ipcfg_state* state) {
+	if(search_state(state_index, state->name) != NULL) {
+		return false;
+	}
+
+	insert_state(state_index, state->name, state);
+	return true;
+}
+
+int ipcfg_state_init() {
+	create_hashtable(1, str_hash_djb2, str_eq);
 }

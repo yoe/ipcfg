@@ -49,7 +49,10 @@ struct _state {
  **/
 bool ipcfg_can_reach_state(char* iface, char* statename);
 /**
- * Create a new state. 
+ * Create a new state.
+ * @param state a state struct that defines the new state
+ * @return true on success, false on failure (e.g., the state name was not
+ * unique)
  **/
 bool ipcfg_create_state(ipcfg_state* state);
 
@@ -57,7 +60,11 @@ bool ipcfg_create_state(ipcfg_state* state);
  * Add a state to an interface as a possibility (with additional
  * prerequirements). Interface name may be NULL, in which case the state is
  * added to all interfaces.
+ * @param iface the interface to which to add the state
+ * @param statename the statename to add to the interface. Must have been
+ * created first.
+ * @param prereqs a NULL-terminated array of state names to add.
  **/
-bool ipcfg_add_state(char* iface, char* statename, char* prereqs);
+bool ipcfg_add_state(char* iface, char* statename, char** prereqs);
 
 #endif // IPCFG_STATE_H

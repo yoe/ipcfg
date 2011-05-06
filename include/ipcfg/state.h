@@ -12,15 +12,23 @@
 #define IPCFG_STATE_H
 
 #include <stdbool.h>
+#include <ipcfg/ll.h>
 
 typedef struct _state ipcfg_state;
+typedef struct _state_data ipcfg_state_data;
 
-typedef int(*ipcfg_state_change_t)(ipcfg_state*, char* iface);
-typedef bool(*ipcfg_state_query_t)(ipcfg_state*, char* iface);
+struct _state_data {
+	ipcfg_state* state;
+	char* interface;
+	void* data;
+};
+
+typedef int(*ipcfg_state_change_t)(ipcfg_state*, ipcfg_state_data*);
+typedef bool(*ipcfg_state_query_t)(ipcfg_state*, ipcfg_state_data*);
 
 struct _state {
 	char* name;		      /**< this state's name. Must be unique. */
-	char** prereqs;		      /**< prerequirements for this state. May
+	DLList* prereqs;	      /**< prerequirements for this state. May
 					   be augmented on a per-interface
 					   basis (NULL-terminated array) */
 	ipcfg_state_change_t enter;   /**< enter this state. Must not be called
@@ -63,8 +71,34 @@ bool ipcfg_create_state(ipcfg_state* state);
  * @param iface the interface to which to add the state
  * @param statename the statename to add to the interface. Must have been
  * created first.
- * @param prereqs a NULL-terminated array of state names to add.
+ * @param prereqs a NULL-terminated array of state names to add as
+ * prerequisites of the given state on this particular interface.
  **/
-bool ipcfg_add_state(char* iface, char* statename, char** prereqs);
+bool ipcfg_add_state(char* interface, char* statename, DLList* prereqs);
+
+bool ipcfg_state_add_prereqs(char* interface, char* statename, DLList* prereqs);
+
+/**
+ * Check whether a particular interface has a particular state
+ **/
+bool ipcfg_has_state(char* interface, char* statename);
+
+/**
+ * Try reaching a given state by recursively trying to reach its prerequisites
+ * followed by itself.
+ **/
+bool ipcfg_enter_state_recursive(char* interface, char* statename);
+
+/**
+ * The opposite of enter_state_recursive: try leaving any states that
+ * declare this state as a prerequisite, followed by leaving this state.
+ **/
+bool ipcfg_leave_state_recursive(char* interface, char* statename);
+
+/**
+ * Check whether a particular state can theoretically be reached on a
+ * given interface.
+ **/
+bool ipcfg_can_state(char* interface, char* statename);
 
 #endif // IPCFG_STATE_H

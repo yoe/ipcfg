@@ -16,11 +16,21 @@
 
 typedef struct _state ipcfg_state;
 typedef struct _state_data ipcfg_state_data;
+typedef struct _iface_prereq iface_prereq;
 
 struct _state_data {
 	ipcfg_state* state;
 	char* interface;
 	void* data;
+};
+
+struct _iface_prereq {
+	char* iface;		     /**< The interface on which the
+					  below state must exist for
+					  this prerequirement to be
+					  valid. If NULL, the current
+					  interface is assumed. */
+	char* state;		     /**< The state on which we depend */
 };
 
 typedef int(*ipcfg_state_change_t)(ipcfg_state*, ipcfg_state_data*);
@@ -30,7 +40,7 @@ struct _state {
 	char* name;		      /**< this state's name. Must be unique. */
 	DLList* prereqs;	      /**< prerequirements for this state. May
 					   be augmented on a per-interface
-					   basis (NULL-terminated array) */
+					   basis. */
 	ipcfg_state_change_t enter;   /**< enter this state. Must not be called
 				           until all prereqs are satisfied */
 	ipcfg_state_change_t leave;   /**< leave this state. Must not be called
@@ -76,7 +86,25 @@ bool ipcfg_create_state(ipcfg_state* state);
  **/
 bool ipcfg_add_state(char* interface, char* statename, DLList* prereqs);
 
+/**
+ * Add more prerequirements to a given state on a given interface.
+ * @param interface the interface where the prereqs must be added. May
+ * be NULL, in which case this is added to all currently-known
+ * interfaces, including the "default" interface.
+ * @param statename the state to which to add prerequirements
+ * @param prereqs a list of iface_prereq structures.
+ **/
 bool ipcfg_state_add_prereqs(char* interface, char* statename, DLList* prereqs);
+
+/**
+ * Add a single prerequirement to a given state on a given interface.
+ * @param interface the interface where the prereq must be added. May be
+ * NULL, in which case this is added to all currently-known interfaces,
+ * including the "default" interface.
+ * @param statename the state to which to add the prerequirement.
+ * @param prereq the interface/requirement to add.
+ */
+bool ipcfg_state_add_prereq(char* interface, iface_prereq* prereq);
 
 /**
  * Check whether a particular interface has a particular state

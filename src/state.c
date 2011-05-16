@@ -103,4 +103,6 @@ bool ipcfg_add_state(char* interface, char* statename, DLList* prereqs) {
 int ipcfg_state_init() {
 	state_index = create_hashtable(1, str_hash_djb2, str_eq);
 	iface_index = create_hashtable(1, str_hash_djb2, str_eq);
+
+	return 0;
 }

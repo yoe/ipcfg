@@ -2,6 +2,7 @@
 #define IPCFG_PRIVATE_STATE_H
 
 #include <ipcfg/macros.h>
+#include <ipcfg/state.h>
 
 int ipcfg_state_init() IPCFG_NO_EXPORT;
 

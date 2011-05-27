@@ -124,8 +124,8 @@ bool ipcfg_enter_state_recursive(char* interface, char* statename);
 bool ipcfg_leave_state_recursive(char* interface, char* statename);
 
 /**
- * Check whether a particular state can theoretically be reached on a
- * given interface.
+ * Check whether a particular state could immediately be reached on a
+ * given interface, given the current states.
  **/
 bool ipcfg_can_state(char* interface, char* statename);
 

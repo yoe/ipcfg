@@ -1,6 +1,7 @@
 #include <stdlib.h>
 
 #include <ipcfg/ll.h>
+#include <ipcfg/macros.h>
 #include <ipcfg/state.h>
 #include <ipcfg/hashtable.h>
 
@@ -98,6 +99,30 @@ bool ipcfg_add_state(char* interface, char* statename, DLList* prereqs) {
 	insert_state_iface(iface->states, interface, state_iface);
 
 	return true;
+}
+
+bool ipcfg_state_add_prereqs(char* interface, char* statename, DLList* prereqs) {
+	IPCFG_TODO;
+}
+
+bool ipcfg_state_add_prereq(char* interface, iface_prereq* prereq) {
+	IPCFG_TODO;
+}
+
+bool ipcfg_has_state(char* interface, char* statename) {
+	IPCFG_TODO;
+}
+
+bool ipcfg_enter_state_recursive(char* interface, char* statename) {
+	IPCFG_TODO;
+}
+
+bool ipcfg_leave_state_recursive(char* interface, char* statename) {
+	IPCFG_TODO;
+}
+
+bool ipcfg_can_state(char* interface, char* statename) {
+	IPCFG_TODO;
 }
 
 int ipcfg_state_init() {

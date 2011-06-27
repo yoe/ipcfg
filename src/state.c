@@ -45,16 +45,16 @@ bool ipcfg_can_reach_state(char* interface, char* statename) {
 		return false;
 	}
 
+	if((state = search_state(state_index, statename)) == NULL) {
+		return false;
+	}
+
 	preq = stif->prereqs;
 	while(preq) {
 		if(!ipcfg_can_reach_state(interface, preq->data)) {
 			return false;
 		}
 		preq = preq->next;
-	}
-
-	if((state = search_state(state_index, statename)) == NULL) {
-		return false;
 	}
 
 	preq = state->prereqs;

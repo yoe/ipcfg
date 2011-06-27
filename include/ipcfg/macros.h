@@ -29,7 +29,6 @@
 
 #endif // __GNUC__
 
-#include <ipcfg/commands.h>
 # ifdef DODBG
 #  define DEBUG(msg, args...)	fprintf(stderr, msg , ##args)
 # else // ! DODBG

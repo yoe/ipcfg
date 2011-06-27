@@ -15,3 +15,4 @@ libtool
 Makefile
 stamp-h1
 src/ipcfg
+configure.lineno

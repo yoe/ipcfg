@@ -29,7 +29,7 @@ AC_ARG_WITH(backend,
 	[case $host_os in
 	linux*)
 		BACKEND=libbackend-linux.a
-		MODULES="$MODULES libnl-2.0"
+		MODULES="$MODULES libnl-3.0"
 		;;
 	*)
 		BACKEND=libbackend-test.a

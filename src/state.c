@@ -92,7 +92,7 @@ bool ipcfg_add_state(char* interface, char* statename, DLList* prereqs) {
 	state_iface = calloc(sizeof(state_iface), 1);
 	state_iface->state = statename;
 	while(prereqs) {
-		tmp = dl_list_append(tmp, prereqs);
+		tmp = dl_list_append(tmp, prereqs->data);
 		prereqs = prereqs->next;
 	}
 	state_iface->prereqs = tmp;
@@ -102,11 +102,24 @@ bool ipcfg_add_state(char* interface, char* statename, DLList* prereqs) {
 }
 
 bool ipcfg_state_add_prereqs(char* interface, char* statename, DLList* prereqs) {
-	IPCFG_TODO;
+	while(prereqs) {
+		if(!ipcfg_state_add_prereq(interface, prereqs->data)) {
+			return false;
+		}
+		prereqs = prereqs->next;
+	}
+
+	return true;
 }
 
 bool ipcfg_state_add_prereq(char* interface, iface_prereq* prereq) {
-	IPCFG_TODO;
+	ipcfg_iface* iface = search_iface(iface_index, interface);
+	ipcfg_state_iface* state_iface;
+
+	if(G_GNUC_UNLIKELY(!iface)) {
+		return false;
+	}
+
 }
 
 bool ipcfg_has_state(char* interface, char* statename) {

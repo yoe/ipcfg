@@ -1,1 +1,1 @@
-noinst_HEADERS = hashtable.h
+noinst_HEADERS = hashtable.h state.h

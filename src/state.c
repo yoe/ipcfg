@@ -112,18 +112,70 @@ bool ipcfg_state_add_prereqs(char* interface, char* statename, DLList* prereqs) 
 	return true;
 }
 
-bool ipcfg_state_add_prereq(char* interface, iface_prereq* prereq) {
+bool ipcfg_state_add_prereq(char* interface, char* statename, iface_prereq* prereq) {
 	ipcfg_iface* iface = search_iface(iface_index, interface);
 	ipcfg_state_iface* state_iface;
+	iface_prereq* my_prereq;
 
-	if(G_GNUC_UNLIKELY(!iface)) {
+	if(IPCFG_EXPECT_FALSE(!iface)) {
 		return false;
 	}
 
+	state_iface = search_state_iface(iface->states, statename);
+
+	if(IPCFG_EXPECT_FALSE(!state)) {
+		return false;
+	}
+
+	my_prereq = malloc(sizeof(iface_prereq));
+	my_prereq->iface = prereq->iface;
+	my_prereq->state = prereq->state;
+
+	dl_list_append(state_iface->prereqs, my_prereq);
 }
 
 bool ipcfg_has_state(char* interface, char* statename) {
-	IPCFG_TODO;
+	ipcfg_iface* iface;
+	ipcfg_state_iface* stif;
+	ipcfg_state* state;
+	DLList* ptr;
+
+	iface = search_iface(iface_index, interface);
+	if(IPCFG_EXPECT_FALSE(!iface)) {
+		return false;
+	}
+
+	state = search_state(state_index, statename);
+	if(IPCFG_EXPECT_FALSE(!state)) {
+		return false;
+	}
+
+	stif = search_state_iface(iface->states, statename);
+	if(IPCFG_EXPECT_FALSE(!state)) {
+		return false;
+	}
+
+	if(state->is_state) {
+		return state->is_state();
+	}
+
+	ptr = state->prereqs;
+	while(ptr) {
+		if(!(ipcfg_has_state(interface, ptr->data))) {
+			return false;
+		}
+		ptr = dl_list_get_next(ptr);
+	}
+
+	ptr = stif->prereqs;
+	while(ptr) {
+		iface_prereq* preq;
+		preq = ptr->data;
+		if(!(ipcfg_has_state(preq->iface, preq->state))) {
+			return false;
+		}
+	}
+	return true;
 }
 
 bool ipcfg_enter_state_recursive(char* interface, char* statename) {

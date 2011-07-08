@@ -7,6 +7,7 @@
 
 typedef struct _state_iface {
 	char* state;
+	void* data;
 	DLList* prereqs;
 } ipcfg_state_iface;
 
@@ -103,7 +104,7 @@ bool ipcfg_add_state(char* interface, char* statename, DLList* prereqs) {
 
 bool ipcfg_state_add_prereqs(char* interface, char* statename, DLList* prereqs) {
 	while(prereqs) {
-		if(!ipcfg_state_add_prereq(interface, prereqs->data)) {
+		if(!ipcfg_state_add_prereq(interface, statename, prereqs->data)) {
 			return false;
 		}
 		prereqs = prereqs->next;
@@ -123,7 +124,7 @@ bool ipcfg_state_add_prereq(char* interface, char* statename, iface_prereq* prer
 
 	state_iface = search_state_iface(iface->states, statename);
 
-	if(IPCFG_EXPECT_FALSE(!state)) {
+	if(IPCFG_EXPECT_FALSE(!state_iface)) {
 		return false;
 	}
 
@@ -156,7 +157,7 @@ bool ipcfg_has_state(char* interface, char* statename) {
 	}
 
 	if(state->is_state) {
-		return state->is_state();
+		return state->is_state(state, interface, &(stif->data));
 	}
 
 	ptr = state->prereqs;

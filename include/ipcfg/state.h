@@ -18,12 +18,6 @@ typedef struct _state ipcfg_state;
 typedef struct _state_data ipcfg_state_data;
 typedef struct _iface_prereq iface_prereq;
 
-struct _state_data {
-	ipcfg_state* state;
-	char* interface;
-	void* data;
-};
-
 struct _iface_prereq {
 	char* iface;		     /**< The interface on which the
 					  below state must exist for
@@ -33,8 +27,8 @@ struct _iface_prereq {
 	char* state;		     /**< The state on which we depend */
 };
 
-typedef int(*ipcfg_state_change_t)(ipcfg_state*, ipcfg_state_data*);
-typedef bool(*ipcfg_state_query_t)(ipcfg_state*, ipcfg_state_data*);
+typedef int(*ipcfg_state_change_t)(ipcfg_state*, char*, void**);
+typedef bool(*ipcfg_state_query_t)(ipcfg_state*, char*, void**);
 
 struct _state {
 	char* name;		      /**< this state's name. Must be unique. */
@@ -104,7 +98,7 @@ bool ipcfg_state_add_prereqs(char* interface, char* statename, DLList* prereqs);
  * @param statename the state to which to add the prerequirement.
  * @param prereq the interface/requirement to add.
  */
-bool ipcfg_state_add_prereq(char* interface, iface_prereq* prereq);
+bool ipcfg_state_add_prereq(char* interface, char* statename, iface_prereq* prereq);
 
 /**
  * Check whether a particular interface has a particular state

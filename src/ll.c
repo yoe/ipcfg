@@ -135,7 +135,10 @@ DLList* dl_list_push(DLList* head, void* data) {
 
 DLList* dl_list_pop(DLList* head, void** data) {
 	DLList* retval;
-	*data = head->data;
+
+	if(data) {
+		*data = head->data;
+	}
 	retval = head->next;
 	retval->prev = NULL;
 	free(head);

@@ -221,8 +221,13 @@ bool ipcfg_has_state(char* interface, char* statename) {
 bool ipcfg_enter_state_recursive(char* interface, char* statename) {
 	DLList* states = get_all_prereqs(interface, statename);
 	ipcfg_iface* iface;
+	ipcfg_state* state;
 	ipcfg_state_iface* stif;
 
+	state = search_state(state_index, statename);
+	if(IPCFG_EXPECT_FALSE(!state)) {
+		return false;
+	}
 	if(ipcfg_has_state(interface, statename)) {
 		return true;
 	}
@@ -230,10 +235,10 @@ bool ipcfg_enter_state_recursive(char* interface, char* statename) {
 		if(!(ipcfg_has_state(interface, (char*)states->data))) {
 			ipcfg_enter_state_recursive(interface, (char*)states->data);
 		}
-		states = dl_list_pop(states);
+		states = dl_list_pop(states, NULL);
 	}
 	if(state->enter) {
-		state = search_iface(state_index, statename);
+		iface = search_iface(state_index, statename);
 		if(IPCFG_EXPECT_FALSE(!state)) {
 			return false;
 		}

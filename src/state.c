@@ -32,6 +32,45 @@ DEFINE_HASHTABLE_INSERT(insert_state_iface, char, ipcfg_state_iface);
 DEFINE_HASHTABLE_SEARCH(search_state_iface, char, ipcfg_state_iface);
 DEFINE_HASHTABLE_REMOVE(remove_state_iface, char, ipcfg_state_iface);
 
+static DLList* get_all_prereqs(char* interface, char* statename) {
+	ipcfg_iface* iface;
+	ipcfg_state_iface* stif;
+	ipcfg_state* state;
+	DLList* retval = NULL;
+	DLList* ptr;
+
+	iface = search_iface(iface_index, interface);
+	if(IPCFG_EXPECT_FALSE(!iface)) {
+		return NULL;
+	}
+
+	state = search_state(state_index, statename);
+	if(IPCFG_EXPECT_FALSE(!state)) {
+		return NULL;
+	}
+
+	stif = search_state_iface(iface->states, statename);
+
+	if(IPCFG_EXPECT_FALSE(!stif)) {
+		return NULL;
+	}
+
+	ptr = stif->prereqs;
+	while(ptr) {
+		iface_prereq* preq = ptr->data;
+		retval = dl_list_append(retval, preq->state);
+		ptr = dl_list_get_next(ptr);
+	}
+
+	ptr = state->prereqs;
+	while(ptr) {
+		retval = dl_list_append(retval, ptr->data);
+		ptr = dl_list_get_next(ptr);
+	}
+
+	return retval;
+}
+
 bool ipcfg_can_reach_state(char* interface, char* statename) {
 	ipcfg_iface* iface = search_iface(iface_index, interface);
 	ipcfg_state_iface* stif;
@@ -180,7 +219,34 @@ bool ipcfg_has_state(char* interface, char* statename) {
 }
 
 bool ipcfg_enter_state_recursive(char* interface, char* statename) {
-	IPCFG_TODO;
+	DLList* states = get_all_prereqs(interface, statename);
+	ipcfg_iface* iface;
+	ipcfg_state_iface* stif;
+
+	if(ipcfg_has_state(interface, statename)) {
+		return true;
+	}
+	while(states) {
+		if(!(ipcfg_has_state(interface, (char*)states->data))) {
+			ipcfg_enter_state_recursive(interface, (char*)states->data);
+		}
+		states = dl_list_pop(states);
+	}
+	if(state->enter) {
+		state = search_iface(state_index, statename);
+		if(IPCFG_EXPECT_FALSE(!state)) {
+			return false;
+		}
+
+		stif = search_state_iface(iface->states, statename);
+		if(IPCFG_EXPECT_FALSE(!stif)) {
+			return false;
+		}
+		if(!(state->enter(state, interface, &(stif->data)))) {
+			return false;
+		}
+	}
+	return true;
 }
 
 bool ipcfg_leave_state_recursive(char* interface, char* statename) {

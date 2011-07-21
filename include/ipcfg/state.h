@@ -116,12 +116,18 @@ bool ipcfg_enter_state_recursive(char* interface, char* statename);
  * The opposite of enter_state_recursive: try leaving any states that
  * declare this state as a prerequisite, followed by leaving this state.
  **/
-bool ipcfg_leave_state_recursive(char* interface, char* statename);
+int ipcfg_leave_state_recursive(char* interface, char* statename);
 
 /**
  * Check whether a particular state could immediately be reached on a
  * given interface, given the current states.
  **/
 bool ipcfg_can_state(char* interface, char* statename);
+
+/** Check whether a particular state is an immediate prerequisite of a given
+ *  state, either through per-interface dependencies or through per-state
+ *  dependencies
+ **/
+bool ipcfg_state_has_prereq_immediate(char* interface, char* parentstate, char* requisitestate);
 
 #endif // IPCFG_STATE_H

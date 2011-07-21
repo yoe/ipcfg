@@ -4,6 +4,7 @@
 #include <ipcfg/macros.h>
 #include <ipcfg/state.h>
 #include <ipcfg/hashtable.h>
+#include <ipcfg/hashtable_itr.h>
 
 typedef struct _state_iface {
 	char* state;
@@ -256,7 +257,34 @@ bool ipcfg_enter_state_recursive(char* interface, char* statename) {
 	return true;
 }
 
-bool ipcfg_leave_state_recursive(char* interface, char* statename) {
+int ipcfg_leave_state_recursive(char* interface, char* statename) {
+	ipcfg_iface* iface;
+	struct hashtable_itr* itr;
+	ipcfg_state_iface* stif;
+	ipcfg_state* state;
+
+	iface = search_iface(iface_index, interface);
+
+	itr = hashtable_iterator(iface->states);
+	do {
+		stif = hashtable_iterator_value(itr);
+		if(ipcfg_state_has_prereq_immediate(interface, stif->state, statename)) {
+			if(!ipcfg_leave_state_recursive(interface, stif->state)) {
+				return 0;
+			}
+		}
+	} while(hashtable_iterator_advance(itr));
+
+	state = search_state(state_index, statename);
+
+	if(state->leave) {
+		return state->leave(state, interface, &(stif->data));
+	}
+
+	return 1;
+}
+
+bool ipcfg_state_has_prereq_immediate(char* interface, char* parentstate, char* requisitestate) {
 	IPCFG_TODO;
 }
 

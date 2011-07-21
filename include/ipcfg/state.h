@@ -51,6 +51,7 @@ struct _state {
 					   not a cached state. */
 	ipcfg_state_query_t can_state;/**< Returns true if we can reach this
 					   state given the current state */
+	void* data;		      /**< Arbitrary per-state data */
 };
 
 /**

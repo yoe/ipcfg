@@ -172,6 +172,8 @@ bool ipcfg_state_add_prereq(char* interface, char* statename, iface_prereq* prer
 	my_prereq->state = prereq->state;
 
 	dl_list_append(state_iface->prereqs, my_prereq);
+
+	return true;
 }
 
 bool ipcfg_has_state(char* interface, char* statename) {
@@ -259,7 +261,37 @@ bool ipcfg_leave_state_recursive(char* interface, char* statename) {
 }
 
 bool ipcfg_can_state(char* interface, char* statename) {
-	IPCFG_TODO;
+	ipcfg_iface* iface;
+	ipcfg_state* state;
+	ipcfg_state_iface* stif;
+	DLList* ptr;
+
+	state = search_state(state_index, statename);
+	iface = search_iface(iface_index, interface);
+
+	ptr = state->prereqs;
+	while(ptr) {
+		if(!ipcfg_has_state(interface, (char*)(ptr->data))) {
+			return false;
+		}
+		ptr = dl_list_get_next(ptr);
+	}
+
+	stif = search_state_iface(iface->states, statename);
+	ptr = stif->prereqs;
+	while(ptr) {
+		iface_prereq* iprq = ptr->data;
+		if(!ipcfg_has_state(iprq->iface, iprq->state)) {
+			return false;
+		}
+		ptr = dl_list_get_next(ptr);
+	}
+
+	if(state->can_state) {
+		return state->can_state(state, interface, &(stif->data));
+	}
+
+	return true;
 }
 
 int ipcfg_state_init() {

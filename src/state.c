@@ -328,3 +328,13 @@ int ipcfg_state_init() {
 
 	return 0;
 }
+
+ipcfg_state* find_or_create_state(char* statename) {
+	ipcfg_state* state = search_state(state_index, statename);
+	if(!state) {
+		state = calloc(sizeof(ipcfg_state), 1);
+		state->name = strdup(statename);
+		insert_state(state_index, statename, state);
+	}
+	return state;
+}

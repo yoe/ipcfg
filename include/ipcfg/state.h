@@ -130,4 +130,6 @@ bool ipcfg_can_state(char* interface, char* statename);
  **/
 bool ipcfg_state_has_prereq_immediate(char* interface, char* parentstate, char* requisitestate);
 
+ipcfg_state* find_or_create_state(char* statename);
+
 #endif // IPCFG_STATE_H

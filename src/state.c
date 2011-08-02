@@ -5,6 +5,7 @@
 #include <ipcfg/state.h>
 #include <ipcfg/hashtable.h>
 #include <ipcfg/hashtable_itr.h>
+#include <string.h>
 
 typedef struct _state_iface {
 	char* state;

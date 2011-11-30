@@ -21,14 +21,14 @@ int main(int argc, char** argv) {
 		usage();
 		exit(EXIT_FAILURE);
 	}
-	if(strcmp(argv[0], "ifup")) {
+	if(!strcmp(argv[0], "ifup")) {
 		if(argc) {
 			return (int)!ipcfg_enter_state_recursive(argv[1], "up");
 		} else {
 			return (int)!ipcfg_enter_state_recursive("system", "up");
 		}
 	}
-	if(strcmp(argv[0], "ifdown")) {
+	if(!strcmp(argv[0], "ifdown")) {
 		if(argc) {
 			return (int)!ipcfg_leave_state_recursive(argv[1], "pre-link");
 			return (int)!ipcfg_leave_state_recursive("system", "pre-link");

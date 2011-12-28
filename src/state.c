@@ -3,6 +3,7 @@
 #include <ipcfg/ll.h>
 #include <ipcfg/macros.h>
 #include <ipcfg/state.h>
+#include <ipcfg/iface.h>
 #include <ipcfg/hashtable.h>
 #include <ipcfg/hashtable_itr.h>
 #include <string.h>
@@ -12,12 +13,6 @@ typedef struct _state_iface {
 	void* data;
 	DLList* prereqs;
 } ipcfg_state_iface;
-
-typedef struct _iface {
-	char* name;	/**< the name of the interface */
-	bool kern;	/**< whether this interface is known to the kernel */
-	struct hashtable* states; /**< the states this interface can have */
-} ipcfg_iface;
 
 static struct hashtable* iface_index;
 static struct hashtable* state_index;

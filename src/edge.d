@@ -75,3 +75,11 @@ class DefaultDownEdge : DefaultEdge {
 		}
 	  }
 }
+
+class Loop : DefaultEdge {
+	this(ipcfg.node.Node n) {
+		to_node = n;
+		from_node = n;
+		cost = 0;
+	}
+}

@@ -134,8 +134,7 @@ class Mapper {
 			_graph = candidate;
 		}
 	}
-				
-			
+
 	/++
 	 + This method will find the shortest paths to each and every node in
 	 + the graph from what according to this class is the start graph.

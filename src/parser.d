@@ -42,14 +42,14 @@ class Tokenizer {
 				try {
 					t.add_token(token[1..$], token_val);
 				} catch (DuplicateTokenException d) {
-					e.prepend(token[0..1]);
+					d.prepend(token[0..1]);
 				}
 			} else {
 				children[token[0]] = new Tokenizer(token[1..$], token_val);
 			}
 		} else {
 			if(tval) {
-				throw new DuplicateTokenException(s);
+				throw new DuplicateTokenException(token);
 			}
 			tval = token_val;
 		}
@@ -66,13 +66,13 @@ class Tokenizer {
 			t.prepend(stream[0..1]);
 			throw t;
 		}
-		throw new UnknownTokenException(stream[0..1], __FILE__, __LINE__);
+		throw new UnknownTokenException(stream[0..1]);
 	}
 	Tokenizer get_child_token(char n) {
 		if(children[n]) {
 			return children[n];
 		}
-		throw new UnknownTokenException(n);
+		throw new UnknownTokenException(new string(n));
 	}
 	@property bool is_final() {
 		if(tval) {
@@ -88,7 +88,7 @@ class Parser {
 		f.open(filename);
 	}
 	void parse() {
-		Tokenizer t = new Tokenizer("", 0)
+		Tokenizer t = new Tokenizer("", 0);
 		t.add_token("auto", 1024);
 		t.add_token("iface", 1025);
 		t.add_token("	", 1026);
@@ -100,17 +100,13 @@ class Parser {
 				try {
 					ct = ct.get_child_token(b);
 					if(ct.is_final) {
-						std.writeln(ct.get_tokenval());
+						writeln(ct.get_tokenval());
 						ct = t;
 					}
 				} catch (TokenException e) {
-					std.writeln("E: " ~ e.toString());
+					writeln("E: " ~ e.toString());
 				}
 			}
 		}
 	}
-}
-
-unittest {
-	Parser p("");
 }

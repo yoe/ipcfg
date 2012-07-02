@@ -13,6 +13,7 @@ interface Node {
 	@property Edge[] out_edges();
 	@property bool wanted();
 	@property void wanted(bool);
+	string toString();
 }
 
 class DefaultNode : Node {
@@ -62,5 +63,9 @@ class DefaultNode : Node {
 
 	void add_out_edge(Edge e) {
 		_out_edges[_out_edges.length] = e;
+	}
+
+	string toString() {
+		return "DefaultNode";
 	}
 }

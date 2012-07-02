@@ -3,23 +3,24 @@ module ipcfg.path;
 import ipcfg.node;
 import ipcfg.edge;
 
+class UnknownStateException : Exception {
+	this(string msg, string file = __FILE__, int line = __LINE__) {
+		super(msg, file, line);
+	}
+}
+
 class Path {
 	private Path* prevpath;
 	private ipcfg.edge.Edge _edge;
 	private int _score;
 	private Path[] out_paths;
-	private bool _complete;		/// Complete means we've started at a node which is active.
 	private bool _final;		/// Final means this path ends at a wanted node.
 
 	@property int score() {
 		return _score;
 	}
 
-	@property bool complete() {
-		return _complete;
-	}
-
-	@property bool final() {
+	@property bool Final() {
 		return _final;
 	}
 
@@ -28,9 +29,6 @@ class Path {
 			prevpath = prev;
 			prev.add_out_path(this);
 			_score = prevpath.score;
-			_complete = prevpath.complete;
-		} else {
-			_complete = e.from_node.is_active();
 		}
 		_edge = e;
 		_score += e.estimate();
@@ -54,7 +52,6 @@ class Path {
 	}
 
 	void abort() {
-		_edge.abort();
 		if(prevpath !is null) {
 			prevpath.abort();
 		}
@@ -65,9 +62,8 @@ class Path {
 	}
 
 	void repos(Path p) {
-		prevpath = p;
+		prevpath = &p;
 		_score = p.score + _edge.estimate();
-		_complete = p.complete;
 		foreach(Path po; out_paths) {
 			po.repos(this);
 		}
@@ -76,7 +72,6 @@ class Path {
 
 class Mapper {
 	private ipcfg.node.Node _graph;
-	private ipcfg.node.Node[] _wanted_nodes;
 	private Path[ipcfg.node.Node] _paths;
 	private bool _have_current;
 
@@ -129,7 +124,7 @@ class Mapper {
 				}
 			}
 			if(candidate == _graph) {
-				throw new UnknownStateException;
+				throw new UnknownStateException(candidate.toString());
 			}
 			_graph = candidate;
 		}
@@ -142,12 +137,12 @@ class Mapper {
 	 + This method assumes that _graph is the currently active node.
 	 +/
 	void map_paths() {
-		bool[ipcfg.node.Node visited;
+		bool[ipcfg.node.Node] visited;
 		ipcfg.node.Node[] nodes_to_go;
 
 		assert(_have_current);
 		nodes_to_go[0] = _graph;
-		paths[_graph] = new ipcfg.edge.Loop(_graph);
+		_paths[_graph] = new Path(null, new ipcfg.edge.Loop(_graph));
 		foreach(ipcfg.node.Node n; nodes_to_go) {
 			visited[n] = true;
 
@@ -160,21 +155,21 @@ class Mapper {
 			foreach(ipcfg.edge.Edge e; n.in_edges) {
 				ipcfg.node.Node from = e.from_node;
 				if(visited[from]) {
-					int s = paths[from].score;
+					int s = _paths[from].score;
 					if(s < bestscore) {
 						bestscore = s;
-						bestpath = paths[from];
+						bestpath = &_paths[from];
 						bestedge = e;
 					}
 				}
 			}
 			assert(bestpath !is null && bestedge !is null);
 
-			paths[n] = new Path(bestpath, bestedge);
+			_paths[n] = new Path(bestpath, bestedge);
 			foreach(ipcfg.edge.Edge e; n.out_edges) {
-				if((e.to_node in paths) !is null) {
-					if(paths[e.to_node].score > paths[n].score + e.to_node.estimate()) {
-						paths[e.to_node].repos(paths[n]);
+				if((e.to_node in _paths) !is null) {
+					if(_paths[e.to_node].score > _paths[n].score + e.estimate()) {
+						_paths[e.to_node].repos(_paths[n]);
 					}
 				}
 			}

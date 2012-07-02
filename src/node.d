@@ -13,7 +13,6 @@ interface Node {
 	@property Edge[] out_edges();
 	@property bool wanted();
 	@property void wanted(bool);
-	string toString();
 }
 
 class DefaultNode : Node {
@@ -73,18 +72,10 @@ class DefaultNode : Node {
 		_out_edges ~= e;
 	}
 
-	override string toString() {
-		return "DefaultNode";
-	}
-
 	override bool opEquals(Object o) {
 		Node n = cast(Node)(o);
-		return opEquals(n);
-	}
-	bool opEquals(Node n) {
 		return (_in_edges == n.in_edges) && (_out_edges == n.out_edges) && (_wanted == n.wanted);
 	}
-		
 }
 
 version(unittest) {

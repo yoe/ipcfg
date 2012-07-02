@@ -3,17 +3,17 @@ module ipcfg.edge;
 import ipcfg.node;
 
 interface Edge {
-	int estimate()
+	/*int estimate()
 	  out(result) { assert((result >= 0) && (result <= 1000)); }
 	int traverse()
-	  out(result) { assert((result >= 0) && (result <= 1000)); }
+	  out(result) { assert((result >= 0) && (result <= 1000)); }*/
+	int estimate();
+	int traverse();
 	bool parse_params(string);
 	@property string stringof();
 	@property uint cost();
 	@property void cost(uint);
-	@property void to_node(Node n);
 	@property Node to_node();
-	@property void from_node(Node n);
 	@property Node from_node();
 }
 
@@ -35,6 +35,12 @@ class DefaultEdge : Edge {
 	  body{
 		return estimate();
 	  }
+	this(Node from, Node to) {
+		from.add_out_edge(this);
+		to.add_in_edge(this);
+		_to = to;
+		_from = from;
+	}
 	@property string stringof() {
 		return "DefaultEdge(" ~ _from.stringof() ~ " -> " ~ _to.stringof() ~ ")";
 	}
@@ -44,14 +50,8 @@ class DefaultEdge : Edge {
 	@property void cost(uint c) {
 		_cost = c;
 	}
-	@property void to_node(Node n) {
-		_to = n;
-	}
 	@property Node to_node() {
 		return _to;
-	}
-	@property void from_node(Node n) {
-		_from = n;
 	}
 	@property Node from_node() {
 		return _from;
@@ -65,7 +65,10 @@ class DefaultEdge : Edge {
 }
 
 class DefaultDownEdge : DefaultEdge {
-	int estimate() 
+	this(Node from, Node to) {
+		super(from, to);
+	}
+	override int estimate() 
 	  out(result) { assert((result >= 0) && (result <= 1000)); }
 	  body{
 		if(_to.is_active()) {
@@ -78,8 +81,10 @@ class DefaultDownEdge : DefaultEdge {
 
 class Loop : DefaultEdge {
 	this(ipcfg.node.Node n) {
-		to_node = n;
-		from_node = n;
-		cost = 0;
+		super(n, n);
+	}
+
+	override int estimate() {
+		return 0;
 	}
 }

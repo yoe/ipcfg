@@ -58,7 +58,7 @@ class Path {
 	}
 
 	void add_out_path(Path p) {
-		out_paths[out_paths.length] = p;
+		out_paths ~= p;
 	}
 
 	void repos(Path p) {
@@ -82,7 +82,7 @@ class Mapper {
 	void add_new_nodes(ref ipcfg.node.Node[] nodes, ipcfg.edge.Edge[] newedges, bool[ipcfg.node.Node] visited) {
 		foreach(ipcfg.edge.Edge e; newedges) {
 			if(!visited[e.to_node]) {
-				nodes[nodes.length] = e.to_node;
+				nodes ~= e.to_node;
 			}
 		}
 	}
@@ -106,6 +106,9 @@ class Mapper {
 						_have_current = true;
 						return;
 					} else {
+						if(!(e.to_node in visited)) {
+							visited[e.to_node] = false;
+						}
 						if(!visited[e.to_node]) {
 							candidate = e.to_node;
 						}
@@ -141,6 +144,7 @@ class Mapper {
 		ipcfg.node.Node[] nodes_to_go;
 
 		assert(_have_current);
+		nodes_to_go.length = 1;
 		nodes_to_go[0] = _graph;
 		_paths[_graph] = new Path(null, new ipcfg.edge.Loop(_graph));
 		foreach(ipcfg.node.Node n; nodes_to_go) {
@@ -154,6 +158,9 @@ class Mapper {
 
 			foreach(ipcfg.edge.Edge e; n.in_edges) {
 				ipcfg.node.Node from = e.from_node;
+				if(!(from in visited)) {
+					visited[from] = false;
+				}
 				if(visited[from]) {
 					int s = _paths[from].score;
 					if(s < bestscore) {

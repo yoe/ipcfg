@@ -1,7 +1,12 @@
 RELEASE := -release
 ifeq ($(RELEASE),)
-DEBUG := -gc
+DEBUG := -gc -w
 endif
 
-ipcfg: edge.d node.d parser.d main.d path.d
-	dmd $(RELEASE) $(DEBUG) -of$@ $^
+DC := gdmd
+
+ipcfg: main.d edge.d node.d parser.d path.d
+	$(DC) $(RELEASE) $(DEBUG) -of$@ $^
+
+clean:
+	rm ipcfg *.o

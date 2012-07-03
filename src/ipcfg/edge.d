@@ -15,12 +15,14 @@ interface Edge {
 	@property void cost(uint);
 	@property Node to_node();
 	@property Node from_node();
+	@property bool is_down_edge();
 }
 
 class DefaultEdge : Edge {
 	private Node _to;
 	private Node _from;
 	private uint _cost = 1000;
+	bool _is_down_edge = false;
 	int estimate()
 	  out(result) { assert((result >= 0) && (result <= 1000)); }
 	  body{
@@ -56,6 +58,9 @@ class DefaultEdge : Edge {
 	@property Node from_node() {
 		return _from;
 	}
+	@property bool is_down_edge() {
+		return _is_down_edge;
+	}
 	// this class doesn't support parameters
 	bool parse_params(string s) {
 		assert(s == "");
@@ -67,6 +72,7 @@ class DefaultEdge : Edge {
 class DefaultDownEdge : DefaultEdge {
 	this(Node from, Node to) {
 		super(from, to);
+		_is_down_edge = true;
 	}
 	override int estimate() 
 	  out(result) { assert((result >= 0) && (result <= 1000)); }

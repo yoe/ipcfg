@@ -3,6 +3,8 @@ module ipcfg.path;
 import ipcfg.node;
 import ipcfg.edge;
 
+import std.stdio;
+
 class UnknownStateException : Exception {
 	this(string msg, string file = __FILE__, int line = __LINE__) {
 		super(msg, file, line);
@@ -51,12 +53,6 @@ class Path {
 		return true;
 	}
 
-	void abort() {
-		if(prevpath !is null) {
-			prevpath.abort();
-		}
-	}
-
 	void add_out_path(Path p) {
 		out_paths ~= p;
 	}
@@ -81,8 +77,9 @@ class Mapper {
 
 	void add_new_nodes(ref ipcfg.node.Node[] nodes, ipcfg.edge.Edge[] newedges, bool[ipcfg.node.Node] visited) {
 		foreach(ipcfg.edge.Edge e; newedges) {
-			if(!visited[e.to_node]) {
-				nodes ~= e.to_node;
+			Node n = e.to_node;
+			if(!visited[n]) {
+				nodes ~= n;
 			}
 		}
 	}
@@ -96,38 +93,36 @@ class Mapper {
 		bool[ipcfg.node.Node] visited;
 		ipcfg.node.Node candidate = _graph;
 
-		while(true) {
-			bool have_out;
+		while(!_have_current) {
+			bool have_out_active;
 			visited[_graph] = true;
 			if(_graph.is_active()) {
 				foreach(ipcfg.edge.Edge e; _graph.out_edges) {
-					have_out = true;
-					if(!e.to_node.is_active()) {
-						_have_current = true;
-						return;
-					} else {
-						if(!(e.to_node in visited)) {
-							visited[e.to_node] = false;
-						}
-						if(!visited[e.to_node]) {
-							candidate = e.to_node;
+					if(!e.is_down_edge) {
+						Node n = e.to_node;
+						if(n.is_active()) {
+							have_out_active = true;
+							if(!(n in visited)) {
+								candidate = e.to_node;
+							}
 						}
 					}
 				}
-				if(!have_out) {
+				if(!have_out_active) {
 					_have_current = true;
 					return;
 				}
 			}
 			if(candidate == _graph) {
 				foreach(ipcfg.edge.Edge e; _graph.in_edges) {
-					if(!visited[e.from_node]) {
+					if(!(e.from_node in visited)) {
+						DefaultEdge de = cast(ipcfg.edge.DefaultEdge)(e);
 						candidate = e.from_node;
 					}
 				}
 			}
 			if(candidate == _graph) {
-				throw new UnknownStateException(candidate.toString());
+				throw new UnknownStateException(candidate.stringof);
 			}
 			_graph = candidate;
 		}

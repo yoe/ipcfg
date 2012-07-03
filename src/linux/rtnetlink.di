@@ -1,5 +1,13 @@
 module linux.rtnetlink;
 
+struct ifinfomsg {
+	ubyte	ifi_family;
+	ushort	ifi_type;
+	int	ifi_index;
+	uint	ifi_flags;
+	uint	ifi_change;
+};
+
 enum {
         RTM_BASE        = 16,
 

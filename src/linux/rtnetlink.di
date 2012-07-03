@@ -68,10 +68,10 @@ enum {
         RTM_SETDCB,
 
         __RTM_MAX,
-	RTM_MAX       =  (((__RTM_MAX + 3) & ~3) - 1)
+	RTM_MAX       =  (((__RTM_MAX + 3) & ~3) - 1),
 
-	RTM_NR_MSGTYPES = (RTM_MAX + 1 - RTM_BASE)
-	RTM_NR_FAMILIES = (RTM_NR_MSGTYPES >> 2)
+	RTM_NR_MSGTYPES = (RTM_MAX + 1 - RTM_BASE),
+	RTM_NR_FAMILIES = (RTM_NR_MSGTYPES >> 2),
 //	RTM_FAM(cmd)    = (((cmd) - RTM_BASE) >> 2)
 
 };

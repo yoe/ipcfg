@@ -3,6 +3,7 @@ module ipcfg.linux.mii;
 import ipcfg.edge;
 import ipcfg.node;
 import linux.libnl;
+import linux.rtnetlink;
 
 class MiiEdge : ipcfg.edge.DefaultEdge {
 	protected MiiNode _to;

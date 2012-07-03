@@ -5,8 +5,8 @@ endif
 
 DC := gdmd
 
-mii.o: mii.d libnl.di
-	$(DC) $(RELEASE) $(DEBUG) -I.. -c -of$@ $^
+mii.o: mii.d
+	$(DC) $(RELEASE) $(DEBUG) -I../.. -c -of$@ $^
 
 clean:
 	rm -f *.o

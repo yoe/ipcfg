@@ -19,9 +19,9 @@ interface Edge {
 }
 
 class DefaultEdge : Edge {
-	private Node _to;
-	private Node _from;
-	private uint _cost = 1000;
+	protected Node _to;
+	protected Node _from;
+	protected uint _cost = 1000;
 	bool _is_down_edge = false;
 	int estimate()
 	  out(result) { assert((result >= 0) && (result <= 1000)); }

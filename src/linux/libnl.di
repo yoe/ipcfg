@@ -1,4 +1,4 @@
-module libnl;
+module linux.libnl;
 
 /**
  * This di file declares the functions we'll need for ipcfg (and nothing

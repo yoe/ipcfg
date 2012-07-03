@@ -2,14 +2,16 @@ module ipcfg.linux.mii;
 
 import ipcfg.edge;
 import ipcfg.node;
-import libnl;
+import linux.libnl;
 
 class MiiEdge : ipcfg.edge.DefaultEdge {
-	private MiiNode _to;
-	this(Node from, Node to) {
-		assert(typeof(to) == MiiNode);
-		_to = cast(MiiNode)to;
-		_from = from;
+	protected MiiNode _to;
+	this(Node from, MiiNode to) {
+		super(from, cast(Node)to);
+	}
+
+	override @property string stringof() {
+		return "MiiEdge";
 	}
 }
 
@@ -22,5 +24,10 @@ class MiiNode : ipcfg.node.DefaultNode {
 	override bool is_active() {
 		nl_msg* msg;
 		msg = nlmsg_alloc();
+
+		return false;
+	}
+	override @property string stringof() {
+		return "MiiNode(" ~ _name ~ ": " ~ _iface ~ ")";
 	}
 }

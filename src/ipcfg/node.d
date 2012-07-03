@@ -20,7 +20,7 @@ class DefaultNode : Node {
 	private int _score;
 	private bool _wanted;
 	private bool _loop;
-	private string _name;
+	protected string _name;
 
 	bool is_active() {
 		if(_loop) {

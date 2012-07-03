@@ -2,6 +2,7 @@ module ipcfg.path;
 
 import ipcfg.node;
 import ipcfg.edge;
+import ipcfg.debugout;
 
 import std.stdio;
 
@@ -95,6 +96,7 @@ class Mapper {
 
 		while(!_have_current) {
 			bool have_out_active;
+			wdebugln(1, "Considering ", _graph.stringof);
 			visited[_graph] = true;
 			if(_graph.is_active()) {
 				foreach(ipcfg.edge.Edge e; _graph.out_edges) {

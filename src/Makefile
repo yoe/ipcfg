@@ -5,9 +5,11 @@ endif
 
 DC := gdmd
 
-output/ipcfg: main.o ipcfg/debugout.o ipcfg/edge.o ipcfg/node.o ipcfg/parser.o ipcfg/path.o ipcfg/linux/mii.o
-	-mkdir output
-	$(DC) -of$@ -L`pkg-config --libs libnl-3.0` $^
+LIBS=$(shell pkg-config --libs libnl-3.0 libnl-route-3.0)
+
+output/ipcfg: main.o ipcfg/debugout.o ipcfg/edge.o ipcfg/node.o ipcfg/parser.o ipcfg/path.o ipcfg/linux/mii.o ipcfg/rtnetlink_common.o
+	[ -d output ] || mkdir output
+	$(DC) -of$@ $(addprefix -L,$(LIBS)) $^
 
 ipcfg/linux/%.o: ipcfg/linux/Makefile ipcfg/linux/%.d
 	$(MAKE) -C ipcfg/linux $(notdir $@)

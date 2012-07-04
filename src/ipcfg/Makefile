@@ -5,7 +5,7 @@ endif
 
 DC := gdmd
 
-all: debugout.o edge.o node.o parser.o path.o
+all: debugout.o edge.o node.o parser.o path.o rtnetlink_common.o
 
 %.o: %.d
 	$(DC) $(RELEASE) $(DEBUG) -I.. -c -of$@ $^

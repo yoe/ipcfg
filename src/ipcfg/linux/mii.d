@@ -4,6 +4,9 @@ import ipcfg.edge;
 import ipcfg.node;
 import linux.libnl;
 import linux.rtnetlink;
+import ipcfg.rtnetlink_common;
+
+import std.string;
 
 class MiiEdge : ipcfg.edge.DefaultEdge {
 	protected MiiNode _to;
@@ -23,8 +26,14 @@ class MiiNode : ipcfg.node.DefaultNode {
 		super(name);
 	}
 	override bool is_active() {
-		nl_msg* msg;
-		msg = nlmsg_alloc();
+		nl_sock* socket = ipcfg.rtnetlink_common.get_socket();
+		rtnl_link* link = rtnl_link_alloc();
+
+		rtnl_link_get_kernel(socket, 0, std.string.toStringz(_iface), &link);
+
+		if(rtnl_link_get_flags(link) & IFF_LOWER_UP) {
+			return true;
+		}
 
 		return false;
 	}

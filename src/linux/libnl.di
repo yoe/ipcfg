@@ -18,7 +18,7 @@ struct nlmsghdr;
 nl_cache* nl_cache_alloc(nl_cache_ops*);
 nl_cache_ops* nl_cache_ops_lookup(const char*);
 nl_cache_ops* nl_cache_ops_associate(int, int);
-nl_sock* nl_sock_alloc();
+nl_sock* nl_socket_alloc();
 void nl_sock_free(nl_sock*);
 int nl_socket_add_memberships(nl_sock* sk, int group, ...);
 int nl_socket_drop_memberships(nl_sock* sk, int group, ...);

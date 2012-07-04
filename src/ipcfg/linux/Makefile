@@ -5,8 +5,9 @@ endif
 
 DC := gdmd
 
-mii.o: mii.d
+%.o: %.d
 	$(DC) $(RELEASE) $(DEBUG) -I../.. -c -of$@ $^
+
 
 clean:
 	rm -f *.o

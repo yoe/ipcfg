@@ -79,7 +79,7 @@ class Mapper {
 	void add_new_nodes(ref ipcfg.node.Node[] nodes, ipcfg.edge.Edge[] newedges, bool[ipcfg.node.Node] visited) {
 		foreach(ipcfg.edge.Edge e; newedges) {
 			Node n = e.to_node;
-			if(!visited[n]) {
+			if(!(n in visited)) {
 				nodes ~= n;
 			}
 		}

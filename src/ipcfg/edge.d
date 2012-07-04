@@ -24,7 +24,7 @@ class DefaultEdge : Edge {
 	protected uint _cost = 1000;
 	bool _is_down_edge = false;
 	int estimate()
-	  out(result) { assert((result >= 0) && (result <= 1000)); }
+	  //out(result) { assert((result >= 0) && (result <= 1000)); }
 	  body{
 		if(_to.is_active()) {
 			return 0;
@@ -33,7 +33,7 @@ class DefaultEdge : Edge {
 		}
 	}
 	int traverse()
-	  out(result) { assert((result >= 0) && (result <= 1000)); }
+	  //out(result) { assert((result >= 0) && (result <= 1000)); }
 	  body{
 		return estimate();
 	  }
@@ -75,7 +75,7 @@ class DefaultDownEdge : DefaultEdge {
 		_is_down_edge = true;
 	}
 	override int estimate() 
-	  out(result) { assert((result >= 0) && (result <= 1000)); }
+	  //out(result) { assert((result >= 0) && (result <= 1000)); }
 	  body{
 		if(_to.is_active()) {
 			return _cost > 1000 ? 1000 : _cost;

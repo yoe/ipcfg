@@ -88,6 +88,48 @@ class MiiEdge : ipcfg.edge.DefaultEdge {
 	}
 }
 
+class MiiDownEdge: ipcfg.edge.DefaultDownEdge {
+	protected MiiNode _from;
+
+	this(MiiNode from, Node to) {
+		super(cast(Node)from, to);
+		_from = from;
+	}
+
+	override @property string stringof() {
+		return "MiiDownEdge";
+	}
+
+	override @property MiiNode from_node() {
+		return _from;
+	}
+
+	override int estimate() {
+		if(_from.is_active()) {
+			return 1;
+		}
+		return 0;
+	}
+
+	override int traverse() {
+		int rv = 0;
+		nl_sock* socket = ipcfg.linux.rtnetlink_common.get_socket();
+		rtnl_link* link = rtnl_link_alloc();
+
+		rtnl_link_get_kernel(socket, 0, std.string.toStringz(_from.iface), &link);
+
+		uint flags = rtnl_link_get_flags(link);
+		rtnl_link* chgs = rtnl_link_alloc();
+		rtnl_link_unset_flags(chgs, IFF_UP);
+		if(rtnl_link_change(socket, link, chgs, 0) != 0) {
+			rv = 1000;
+		}
+		rtnl_link_put(chgs);
+		rtnl_link_put(link);
+		return rv;
+	}
+}
+
 class MiiNode : ipcfg.node.DefaultNode {
 	private string _iface;
 	this(string name, string iface) {

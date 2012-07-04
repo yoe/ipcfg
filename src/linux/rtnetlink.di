@@ -14,6 +14,9 @@ void rtnl_link_unset_flags(rtnl_link*, uint);
 void rtnl_link_put(rtnl_link*);
 int rtnl_link_change(nl_sock*, rtnl_link*, rtnl_link*, int);
 
+void rtnl_link_set_operstate(rtnl_link*, ubyte);
+ubyte rtnl_link_get_operstate(rtnl_link*);
+
 immutable auto IFF_UP          = 0x1;             /* interface is up              */
 immutable auto IFF_BROADCAST   = 0x2;             /* broadcast address valid      */
 immutable auto IFF_DEBUG       = 0x4;             /* turn on debugging            */

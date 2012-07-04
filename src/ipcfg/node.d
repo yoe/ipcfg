@@ -82,6 +82,19 @@ class DefaultNode : Node {
 	}
 }
 
+class RootNode : DefaultNode {
+	this(string name) {
+		super(name);
+	}
+	override bool is_active() {
+		return true;
+	}
+
+	override @property string stringof() {
+		return "RootNode(" ~ _name ~ ")";
+	}
+}
+
 version(unittest) {
 	class AlwaysUpNode : DefaultNode {
 		this() {

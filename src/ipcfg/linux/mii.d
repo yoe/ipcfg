@@ -19,6 +19,7 @@ class MiiEdge : ipcfg.edge.DefaultEdge {
 	this(Node from, MiiNode to, int timeout = 1) {
 		super(from, cast(Node)to);
 		_to = to;
+		_timeout = timeout;
 	}
 
 	override @property string stringof() {
@@ -53,6 +54,7 @@ class MiiEdge : ipcfg.edge.DefaultEdge {
 
 	override int traverse() {
 		int rv;
+		wdebugln(3, "bringing up iface " ~ _to.iface ~ ".");
 		nl_sock* socket = ipcfg.linux.rtnetlink_common.get_socket();
 		rtnl_link* link = rtnl_link_alloc();
 
@@ -73,13 +75,17 @@ class MiiEdge : ipcfg.edge.DefaultEdge {
 			rv=1000;
 			goto pre_end;
 		}
+		rtnl_link_put(chgs);
+		rtnl_link_put(link);
 		Thread.sleep(dur!("seconds")(_timeout));
 		rtnl_link_get_kernel(socket, 0, std.string.toStringz(_to.iface), &link);
+		flags = rtnl_link_get_flags(link);
 		if(flags & IFF_LOWER_UP) {
 			rv=0;
 		} else {
 			rv=1000;
 		}
+		goto end;
 		pre_end:
 		rtnl_link_put(chgs);
 		end:
@@ -140,10 +146,10 @@ class MiiNode : ipcfg.node.DefaultNode {
 		nl_sock* socket = ipcfg.linux.rtnetlink_common.get_socket();
 		rtnl_link* link = rtnl_link_alloc();
 
-		wdebugln(1, rtnl_link_get_kernel(socket, 0, std.string.toStringz(_iface), &link));
+		wdebugln(10, rtnl_link_get_kernel(socket, 0, std.string.toStringz(_iface), &link));
 
 		uint flags = rtnl_link_get_flags(link);
-		wdebugln(1, flags);
+		wdebugln(10, flags);
 		if(flags & IFF_LOWER_UP) {
 			return true;
 		}

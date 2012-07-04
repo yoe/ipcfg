@@ -1,6 +1,7 @@
 module ipcfg.edge;
 
 import ipcfg.node;
+import ipcfg.debugout;
 
 interface Edge {
 	/*int estimate()
@@ -26,7 +27,7 @@ class DefaultEdge : Edge {
 	int estimate()
 	  //out(result) { assert((result >= 0) && (result <= 1000)); }
 	  body{
-		if(_to.is_active()) {
+		if(_from.is_active()) {
 			return 0;
 		} else {
 			return _cost > 1000 ? 1000 : _cost;
@@ -35,6 +36,7 @@ class DefaultEdge : Edge {
 	int traverse()
 	  //out(result) { assert((result >= 0) && (result <= 1000)); }
 	  body{
+	  	wdebugln(2, "traversing " ~ this.stringof);
 		return estimate();
 	  }
 	this(Node from, Node to) {
@@ -77,7 +79,7 @@ class DefaultDownEdge : DefaultEdge {
 	override int estimate() 
 	  //out(result) { assert((result >= 0) && (result <= 1000)); }
 	  body{
-		if(_to.is_active()) {
+		if(_from.is_active()) {
 			return _cost > 1000 ? 1000 : _cost;
 		} else {
 			return 0;
@@ -92,5 +94,9 @@ class Loop : DefaultEdge {
 
 	override int estimate() {
 		return 0;
+	}
+
+	override @property string stringof() {
+		return "Loop(" ~ _from.stringof ~ ")";
 	}
 }

@@ -13,12 +13,17 @@ void main(string[] args) {
 		}
 	}
 	ipcfg.debugout.setDebugLevel(level);
-	Node r = new DefaultNode("root");
+	Node r = new RootNode("root");
+	Node i = new DefaultNode("eth0_root");
 	Node c = new MiiNode("child", "eth0");
-	Edge e = new MiiEdge(r, cast(MiiNode)c);
-	Edge d = new DefaultDownEdge(c, r);
+	Edge ri = new DefaultEdge(r, i);
+	Edge ic = new MiiEdge(i, cast(MiiNode)c, 5);
+	Edge ci = new MiiDownEdge(cast(MiiNode)c, i);
+	Edge ir = new DefaultDownEdge(i, r);
 
 	Mapper m = new Mapper(r);
 	m.find_current();
 	m.map_paths();
+	m.get_path_for(c).walk();
+	m.get_path_for(r).walk();
 }

@@ -5,6 +5,7 @@ import ipcfg.edge;
 import ipcfg.debugout;
 
 import std.stdio;
+import std.array;
 
 class UnknownStateException : Exception {
 	this(string msg, string file = __FILE__, int line = __LINE__) {
@@ -13,11 +14,11 @@ class UnknownStateException : Exception {
 }
 
 class Path {
-	private Path* prevpath;
-	private ipcfg.edge.Edge _edge;
-	private int _score;
-	private Path[] out_paths;
-	private bool _final;		/// Final means this path ends at a wanted node.
+	protected Path* prevpath;
+	protected ipcfg.edge.Edge _edge;
+	protected int _score;
+	protected Path[] out_paths;
+	protected bool _final;		/// Final means this path ends at a wanted node.
 
 	@property int score() {
 		return _score;
@@ -40,17 +41,23 @@ class Path {
 		} else {
 			_final = false;
 		}
+		wdebugln(1, this.stringof ~ " created");
 	}
 
 	bool walk() {
 		if(prevpath !is null) {
+			wdebugln(1, "Attempting to walk " ~ this.stringof);
 			if(!prevpath.walk()) {
+				wdebugln(1, this.stringof ~ " not walked");
 				return false;
 			}
 		}
-		if(_edge.traverse() > 0) {
+		int rv;
+		if((rv = _edge.traverse()) > 0) {
+			wdebugln(1, "failed to traverse " ~ _edge.stringof ~ ": return value = ", rv);
 			return false;
 		}
+		wdebugln(1, _edge.stringof ~ " traversed");
 		return true;
 	}
 
@@ -65,6 +72,42 @@ class Path {
 			po.repos(this);
 		}
 	}
+
+	@property string stringof() {
+		return "Path(" ~ _edge.to_node.stringof ~ ")";
+	}
+}
+
+class InitialPath : Path {
+	ipcfg.node.Node _node;
+	override @property int score() {
+		return 0;
+	}
+
+	override @property bool Final()  {
+		return _final;
+	}
+
+	this(ipcfg.node.Node n) {
+		_node = n;
+		if(_node.wanted) {
+			_final = true;
+		} else {
+			_final = false;
+		}
+		super(null, new ipcfg.edge.Loop(n));
+	}
+
+	override bool walk() {
+		wdebugln(1,"Not walking the InitialPath, you're already there");
+		return true;
+	}
+	override void repos(Path p) {
+		throw new Exception("Invalid repositioning");
+	}
+	override @property string stringof() {
+		return "InitialPath(" ~ _node.stringof ~ ")";
+	}
 }
 
 class Mapper {
@@ -76,15 +119,6 @@ class Mapper {
 		_graph = graph;
 	}
 
-	void add_new_nodes(ref ipcfg.node.Node[] nodes, ipcfg.edge.Edge[] newedges, bool[ipcfg.node.Node] visited) {
-		foreach(ipcfg.edge.Edge e; newedges) {
-			Node n = e.to_node;
-			if(!(n in visited)) {
-				nodes ~= n;
-			}
-		}
-	}
-
 	/++
 	 + Find the currently active state, by searching for a node which is
 	 + active, but which has no out edges, or of which at least one node on
@@ -93,6 +127,7 @@ class Mapper {
 	void find_current() {
 		bool[ipcfg.node.Node] visited;
 		ipcfg.node.Node candidate = _graph;
+		wdebugln(1, "Searching for the currently-active node");
 
 		while(!_have_current) {
 			bool have_out_active;
@@ -111,9 +146,14 @@ class Mapper {
 					}
 				}
 				if(!have_out_active) {
+					wdebugln(1, "Currently active node: " ~ _graph.stringof);
 					_have_current = true;
 					return;
+				} else {
+					wdebugln(1, "No, has active up edges");
 				}
+			} else {
+				wdebugln(1, "No, is not active");
 			}
 			if(candidate == _graph) {
 				foreach(ipcfg.edge.Edge e; _graph.in_edges) {
@@ -130,6 +170,18 @@ class Mapper {
 		}
 	}
 
+	void add_new_nodes(ref ipcfg.node.Node[] nodes, ipcfg.edge.Edge[] newedges, bool[ipcfg.node.Node] visited) {
+		foreach(ipcfg.edge.Edge e; newedges) {
+			Node n = e.to_node;
+			if(!(n in visited)) {
+				wdebugln(1, "Adding " ~ n.stringof ~ " to list of unprocessed nodes");
+				nodes ~= n;
+			} else {
+				wdebugln(1, "Skipping " ~ n.stringof ~ ", already queued or processed");
+			}
+		}
+	}
+
 	/++
 	 + This method will find the shortest paths to each and every node in
 	 + the graph from what according to this class is the start graph.
@@ -140,11 +192,20 @@ class Mapper {
 		bool[ipcfg.node.Node] visited;
 		ipcfg.node.Node[] nodes_to_go;
 
+		wdebugln(1, "Mapping paths from " ~ _graph.stringof);
+
 		assert(_have_current);
-		nodes_to_go.length = 1;
-		nodes_to_go[0] = _graph;
-		_paths[_graph] = new Path(null, new ipcfg.edge.Loop(_graph));
-		foreach(ipcfg.node.Node n; nodes_to_go) {
+		_paths[_graph] = new InitialPath(_graph);
+		visited[_graph] = true;
+		add_new_nodes(nodes_to_go, _graph.out_edges, visited);
+
+		int i;
+		/* Can't use foreach here, since we modify nodes_to_go as part of the loop */
+		for(i=0;i<nodes_to_go.length; i++) {
+			ipcfg.node.Node n = nodes_to_go[i];
+			if(n is null) {
+				continue;
+			}
 			visited[n] = true;
 
 			add_new_nodes(nodes_to_go, n.out_edges, visited);
@@ -170,6 +231,7 @@ class Mapper {
 			assert(bestpath !is null && bestedge !is null);
 
 			_paths[n] = new Path(bestpath, bestedge);
+			wdebugln(2, "Best path to ", n.stringof, ", score: ", _paths[n].score);
 			foreach(ipcfg.edge.Edge e; n.out_edges) {
 				if((e.to_node in _paths) !is null) {
 					if(_paths[e.to_node].score > _paths[n].score + e.estimate()) {
@@ -178,5 +240,12 @@ class Mapper {
 				}
 			}
 		}
+	}
+
+	Path get_path_for(Node n) {
+		if(n in _paths) {
+			return _paths[n];
+		}
+		throw new UnknownStateException("path to node " ~ n.stringof ~ " unknown");
 	}
 }

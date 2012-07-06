@@ -42,7 +42,7 @@ Attribute		<- Identifier '=' (Identifier / QuotedString')
 mixin(grammar(graph_grammar));
 +/
 
-void buildGraph(Output o) {
+void buildGraph(O)(O o) {
 	void parseToGraph(ParseTree p) {
 		writeln(p.ruleName);
 	}
@@ -51,6 +51,5 @@ void buildGraph(Output o) {
 }
 
 void parseconfigs() {
-	Output o = ENI.parse(readText("/tmp/ifaces_data"));
-	buildGraph(o);
+	buildGraph(ENI.parse(readText("/tmp/ifaces_data")));
 }

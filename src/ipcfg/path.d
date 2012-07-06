@@ -13,6 +13,12 @@ class UnknownStateException : Exception {
 	}
 }
 
+class UnknownPathException : Exception {
+	this(string msg, string file = __FILE__, int line = __LINE__) {
+		super("Path description unknown:"~ msg, file, line);
+	}
+}
+
 class Path {
 	protected Path* prevpath;
 	protected ipcfg.edge.Edge _edge;
@@ -113,6 +119,7 @@ class InitialPath : Path {
 class Mapper {
 	private ipcfg.node.Node _graph;
 	private Path[ipcfg.node.Node] _paths;
+	private Path[string] _paths_by_string;
 	private bool _have_current;
 
 	this(ipcfg.node.Node graph) {
@@ -247,5 +254,13 @@ class Mapper {
 			return _paths[n];
 		}
 		throw new UnknownStateException("path to node " ~ n.stringof ~ " unknown");
+	}
+
+	Path get_path_by_descr(string descr) {
+		if(descr in _paths_by_string) {
+			return _paths_by_string[descr];
+		} else {
+			throw new UnknownPathException(descr);
+		}
 	}
 }

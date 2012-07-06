@@ -1,7 +1,6 @@
 module ipcfg.node;
 
 import ipcfg.edge;
-import ipcfg.parser;
 
 interface Node {
 	bool is_active();

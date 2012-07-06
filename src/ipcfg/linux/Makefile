@@ -6,7 +6,7 @@ endif
 DC := gdmd
 
 %.o: %.d
-	$(DC) $(RELEASE) $(DEBUG) -I../.. -c -of$@ $^
+	$(DC) $(RELEASE) $(DEBUG) -I../.. -I../../../../Pegged -c -of$@ $^
 
 
 clean:

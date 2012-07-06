@@ -11,6 +11,8 @@ interface Node {
 	@property Edge[] out_edges();
 	@property bool wanted();
 	@property void wanted(bool);
+	@property string iface();
+	@property void iface(string);
 }
 
 class DefaultNode : Node {
@@ -20,6 +22,7 @@ class DefaultNode : Node {
 	private bool _wanted;
 	private bool _loop;
 	protected string _name;
+	protected string _iface;
 
 	bool is_active() {
 		if(_loop) {
@@ -40,7 +43,12 @@ class DefaultNode : Node {
 	}
 
 	@property string stringof() {
-		return "DefaultNode(" ~ _name ~ ")";
+		string rv = typeof(this).stringof ~ "(" ~ _name;
+		if(_iface.length > 0) {
+			rv ~= ":" ~ _iface;
+		}
+		rv ~= ")";
+		return rv;
 	}
 
 	@property Edge[] in_edges() {
@@ -67,6 +75,14 @@ class DefaultNode : Node {
 		_score = score;
 	}
 
+	@property string iface() {
+		return _iface;
+	}
+
+	@property void iface(string iface) {
+		_iface = iface;
+	}
+
 	void add_in_edge(Edge e) {
 		_in_edges ~= e;
 	}
@@ -89,9 +105,9 @@ class RootNode : DefaultNode {
 		return true;
 	}
 
-	override @property string stringof() {
+	/*override @property string stringof() {
 		return "RootNode(" ~ _name ~ ")";
-	}
+	}*/
 }
 
 version(unittest) {

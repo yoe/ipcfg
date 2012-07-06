@@ -137,7 +137,6 @@ class MiiDownEdge: ipcfg.edge.DefaultDownEdge {
 }
 
 class MiiNode : ipcfg.node.DefaultNode {
-	private string _iface;
 	this(string name, string iface) {
 		_iface = iface;
 		super(name);
@@ -158,8 +157,5 @@ class MiiNode : ipcfg.node.DefaultNode {
 	}
 	override @property string stringof() {
 		return "MiiNode(" ~ _name ~ ": " ~ _iface ~ ")";
-	}
-	@property string iface() {
-		return _iface;
 	}
 }

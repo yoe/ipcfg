@@ -10,6 +10,8 @@ interface Edge {
 	  out(result) { assert((result >= 0) && (result <= 1000)); }*/
 	int estimate();
 	int traverse();
+	void retarget(Node to);
+	void resource(Node from);
 	bool parse_params(string);
 	@property string stringof();
 	@property uint cost();
@@ -68,6 +70,16 @@ class DefaultEdge : Edge {
 		assert(s == "");
 
 		return true;
+	}
+	void retarget(Node to) {
+		_to.drop_in_edge(this);
+		_to = to;
+		_to.add_in_edge(this);
+	}
+	void resource(Node from) {
+		_from.drop_out_edge(this);
+		_from = from;
+		_from.add_out_edge(this);
 	}
 }
 

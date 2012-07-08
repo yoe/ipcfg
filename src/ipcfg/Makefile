@@ -5,7 +5,7 @@ endif
 
 DC := gdmd
 
-all: debugout.o edge.o node.o parser.o path.o event.d
+all: debugout.o edge.o node.o parser.o path.o event.o
 
 %.o: %.d
 	$(DC) $(RELEASE) $(DEBUG) -I.. -I../../../Pegged -c -of$@ $^

@@ -1,18 +1,24 @@
 module ipcfg.node;
 
 import ipcfg.edge;
+import ipcfg.comparator;
 
 interface Node {
 	bool is_active();
 	@property string stringof();
 	void add_in_edge(Edge e);
+	void drop_in_edge(Edge e);
 	void add_out_edge(Edge e);
+	void drop_out_edge(Edge e);
 	@property Edge[] in_edges();
 	@property Edge[] out_edges();
 	@property bool wanted();
 	@property void wanted(bool);
+	@property bool topcandidate();
+	@property bool kernel();
 	@property string iface();
 	@property void iface(string);
+	bool matches(Comparator c) const;
 }
 
 class DefaultNode : Node {
@@ -43,7 +49,7 @@ class DefaultNode : Node {
 	}
 
 	@property string stringof() {
-		string rv = typeof(this).stringof ~ "(" ~ _name;
+		string rv = typeid(this).stringof ~ "(" ~ _name;
 		if(_iface.length > 0) {
 			rv ~= ":" ~ _iface;
 		}
@@ -57,6 +63,14 @@ class DefaultNode : Node {
 
 	@property Edge[] out_edges() {
 		return _out_edges;
+	}
+
+	@property bool topcandidate() {
+		return false;
+	}
+
+	@property bool kernel() {
+		return false;
 	}
 
 	@property bool wanted() {
@@ -87,13 +101,46 @@ class DefaultNode : Node {
 		_in_edges ~= e;
 	}
 
+	void drop_in_edge(Edge e) {
+		foreach(int i, Edge ie; _in_edges) {
+			if(e == ie) {
+				_in_edges = _in_edges[0..i-1] ~ _in_edges[i+1..$];
+			}
+		}
+	}
+
 	void add_out_edge(Edge e) {
 		_out_edges ~= e;
+	}
+
+	void drop_out_edge(Edge e) {
+		foreach(int i, Edge oe; _out_edges) {
+			if(e == oe) {
+				_out_edges = _out_edges[0..i-1] ~ _out_edges[i+1..$];
+			}
+		}
 	}
 
 	override bool opEquals(Object o) {
 		Node n = cast(Node)(o);
 		return (_in_edges == n.in_edges) && (_out_edges == n.out_edges) && (_wanted == n.wanted) && (this.stringof == n.stringof);
+	}
+
+	bool matches(Comparator c) const {
+		if(typeid(this) != c.type) {
+			return false;
+		}
+		if(c.hasProp("name")) {
+			if(c.getProp("name") != _name) {
+				return false;
+			}
+		}
+		if(c.hasProp("iface")) {
+			if(c.getProp("iface") != _iface) {
+				return false;
+			}
+		}
+		return true;
 	}
 }
 
@@ -105,9 +152,17 @@ class RootNode : DefaultNode {
 		return true;
 	}
 
-	/*override @property string stringof() {
-		return "RootNode(" ~ _name ~ ")";
-	}*/
+	override bool matches(Comparator c) const {
+		if(typeid(this) != c.type) {
+			return false;
+		}
+		if(c.hasProp("name")) {
+			if(c.getProp("name") != _name) {
+				return false;
+			}
+		}
+		return true;
+	}
 }
 
 version(unittest) {

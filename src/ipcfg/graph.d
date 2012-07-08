@@ -1,8 +1,10 @@
-module ipcfg.path;
+module ipcfg.graph;
 
 import ipcfg.node;
 import ipcfg.edge;
 import ipcfg.debugout;
+import ipcfg.iface;
+import ipcfg.comparator;
 
 import std.stdio;
 import std.array;
@@ -25,6 +27,7 @@ class Path {
 	protected int _score;
 	protected Path[] out_paths;
 	protected bool _final;		/// Final means this path ends at a wanted node.
+	protected Node[] nodes;
 
 	@property int score() {
 		return _score;
@@ -116,14 +119,32 @@ class InitialPath : Path {
 	}
 }
 
-class Mapper {
-	private ipcfg.node.Node _graph;
+class Graph {
+	private ipcfg.node.Node _currnode;
+	private ipcfg.node.Node _root;
 	private Path[ipcfg.node.Node] _paths;
 	private Path[string] _paths_by_string;
 	private bool _have_current;
+	private ipcfg.iface.Iface[string] _ifaces;
 
-	this(ipcfg.node.Node graph) {
-		_graph = graph;
+	this(ipcfg.node.Node currnode) {
+		_currnode = currnode;
+		_root = currnode;
+	}
+
+	ipcfg.iface.Iface iface(string name) {
+		if(!(name in _ifaces)) {
+			_ifaces[name] = new ipcfg.iface.Iface(name);
+		}
+		return _ifaces[name];
+	}
+
+	@property ipcfg.node.Node rootNode() {
+		return _root;
+	}
+
+	@property void rootNode(ipcfg.node.Node n) {
+		_root = n;
 	}
 
 	/++
@@ -133,15 +154,15 @@ class Mapper {
 	 +/
 	void find_current() {
 		bool[ipcfg.node.Node] visited;
-		ipcfg.node.Node candidate = _graph;
+		ipcfg.node.Node candidate = _currnode;
 		wdebugln(1, "Searching for the currently-active node");
 
 		while(!_have_current) {
 			bool have_out_active;
-			wdebugln(1, "Considering ", _graph.stringof);
-			visited[_graph] = true;
-			if(_graph.is_active()) {
-				foreach(ipcfg.edge.Edge e; _graph.out_edges) {
+			wdebugln(1, "Considering ", _currnode.stringof);
+			visited[_currnode] = true;
+			if(_currnode.is_active()) {
+				foreach(ipcfg.edge.Edge e; _currnode.out_edges) {
 					if(!e.is_down_edge) {
 						Node n = e.to_node;
 						if(n.is_active()) {
@@ -153,7 +174,7 @@ class Mapper {
 					}
 				}
 				if(!have_out_active) {
-					wdebugln(1, "Currently active node: " ~ _graph.stringof);
+					wdebugln(1, "Currently active node: " ~ _currnode.stringof);
 					_have_current = true;
 					return;
 				} else {
@@ -162,22 +183,22 @@ class Mapper {
 			} else {
 				wdebugln(1, "No, is not active");
 			}
-			if(candidate == _graph) {
-				foreach(ipcfg.edge.Edge e; _graph.in_edges) {
+			if(candidate == _currnode) {
+				foreach(ipcfg.edge.Edge e; _currnode.in_edges) {
 					if(!(e.from_node in visited)) {
 						DefaultEdge de = cast(ipcfg.edge.DefaultEdge)(e);
 						candidate = e.from_node;
 					}
 				}
 			}
-			if(candidate == _graph) {
+			if(candidate == _currnode) {
 				throw new UnknownStateException(candidate.stringof);
 			}
-			_graph = candidate;
+			_currnode = candidate;
 		}
 	}
 
-	void add_new_nodes(ref ipcfg.node.Node[] nodes, ipcfg.edge.Edge[] newedges, bool[ipcfg.node.Node] visited) {
+	private void add_new_nodes(ref ipcfg.node.Node[] nodes, ipcfg.edge.Edge[] newedges, bool[ipcfg.node.Node] visited) {
 		foreach(ipcfg.edge.Edge e; newedges) {
 			Node n = e.to_node;
 			if(!(n in visited)) {
@@ -193,18 +214,18 @@ class Mapper {
 	 + This method will find the shortest paths to each and every node in
 	 + the graph from what according to this class is the start graph.
 	 +
-	 + This method assumes that _graph is the currently active node.
+	 + This method assumes that _currnode is the currently active node.
 	 +/
 	void map_paths() {
 		bool[ipcfg.node.Node] visited;
 		ipcfg.node.Node[] nodes_to_go;
 
-		wdebugln(1, "Mapping paths from " ~ _graph.stringof);
+		wdebugln(1, "Mapping paths from " ~ _currnode.stringof);
 
 		assert(_have_current);
-		_paths[_graph] = new InitialPath(_graph);
-		visited[_graph] = true;
-		add_new_nodes(nodes_to_go, _graph.out_edges, visited);
+		_paths[_currnode] = new InitialPath(_currnode);
+		visited[_currnode] = true;
+		add_new_nodes(nodes_to_go, _currnode.out_edges, visited);
 
 		int i;
 		/* Can't use foreach here, since we modify nodes_to_go as part of the loop */
@@ -262,5 +283,24 @@ class Mapper {
 		} else {
 			throw new UnknownPathException(descr);
 		}
+	}
+
+	Node getNodeWithContext(Iface i, Comparator c) 
+	out(result) { 
+		assert(result.matches(c));
+	}
+	body {
+		foreach(node; _nodes) {
+			if(node.matches(c)) {
+				return node;
+			}
+		}
+		Iface newi;
+		if(!c.hasProp("iface")) {
+			newi = i;
+		} else {
+			newi = iface(ifname);
+		}
+		return c.instantiate(newi, c);
 	}
 }

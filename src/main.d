@@ -2,11 +2,11 @@ import std.stdio;
 import std.getopt;
 import std.path;
 
-//import ipcfg.parser;
+import ipcfg.parser;
 import ipcfg.node;
 import ipcfg.edge;
 import ipcfg.linux.mii;
-import ipcfg.path;
+import ipcfg.graph;
 
 enum Mode { ifup, ifdown, daemon };
 
@@ -18,9 +18,14 @@ int main(string[] args) {
 	string arg;
 	Mode mode;
 
-	switch(args[0]) {
+	switch(baseName(args[0])) {
 		case "ipcfg":
-			return main(args[1..$]);
+			if(args.length > 1) {
+				return main(args[1..$]);
+			} else {
+				stderr.writeln("E: need an argument.");
+			}
+			return(1);
 		case "ifup":
 			mode = Mode.ifup;
 			break;
@@ -29,6 +34,10 @@ int main(string[] args) {
 			break;
 		case "ipcfgd":
 			mode = Mode.daemon;
+			break;
+		case "-h":
+			break;
+		case "--help":
 			break;
 		default:
 			stderr.writeln("E: Unknown operation mode ", args[0]);
@@ -65,21 +74,19 @@ int main(string[] args) {
 	if(quit) {
 		return 0;
 	}
-	ipcfg.debugout.setDebugLevel(verbosity);
-	//ipcfg.parser.parseconfigs();
-	Node r = new RootNode("root");
-	Node i = new DefaultNode("eth0_root");
-	Node c = new MiiNode("child", "eth0");
-	Edge ri = new DefaultEdge(r, i);
-	Edge ic = new MiiEdge(i, cast(MiiNode)c, 5);
-	Edge ci = new MiiDownEdge(cast(MiiNode)c, i);
-	Edge ir = new DefaultDownEdge(i, r);
 
-	Mapper m = new Mapper(r);
-	m.find_current();
-	m.map_paths();
-	m.get_path_for(c).walk();
-	m.get_path_for(r).walk();
+	ipcfg.debugout.setDebugLevel(verbosity);
+
+	Node r = new RootNode("root");
+	Graph g = new Graph(r);
+
+	writeln(r);
+
+	ipcfg.parser.parseconfigs(g);
+
+	/*g.find_current();
+
+	g.map_paths();*/
 
 	return 0;
 }

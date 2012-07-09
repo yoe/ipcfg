@@ -52,6 +52,7 @@ class LegacyIpNode : ipcfg.node.DefaultNode {
 	override @property string iface() {
 		return _ifacename;
 	}
+
 	@property string address() {
 		return _address;
 	}

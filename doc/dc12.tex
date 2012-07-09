@@ -18,10 +18,15 @@
 \subject{ipcfg}
 
 \mode<presentation>{
-\pgfdeclareimage[height=0.5cm]{logo}{logo-debian}
+\pgfdeclareimage[height=0.5cm]{logo}{openlogo}
 \logo{\pgfuseimage{logo}}
 }
-
+\AtBeginSection{
+\begin{frame}
+  \frametitle{Outline}
+  \tableofcontents[subsectionstyle=show/show/hide]
+\end{frame}
+}
 \begin{document}
 \mode<presentation>{
   \begin{frame}

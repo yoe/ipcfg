@@ -1,0 +1,150 @@
+\documentclass[ignorenonframetext]{beamer}
+%\beamerdefaultoverlayspecification{<+->}
+\usepackage{pgf}
+\mode<presentation>
+{
+  \usetheme{Warsaw}
+}
+
+\usepackage[american]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{textcomp}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\title{My DebCamp \& DebConf project: ipcfg}
+\subtitle{network configuration sucks}
+\author{Wouter Verhelst}
+\date{14 July 2012 \\ Debconf 12 \\ Nicaragua}
+\subject{ipcfg}
+
+\mode<presentation>{
+\pgfdeclareimage[height=0.5cm]{logo}{logo-debian}
+\logo{\pgfuseimage{logo}}
+}
+
+\begin{document}
+\mode<presentation>{
+  \begin{frame}
+  \titlepage
+  \end{frame}
+}
+
+\section{A little bit of history...}
+\subsection{aka: "why"}
+\begin{frame}
+  \frametitle{History}
+  \begin{itemize}
+    \item about 2005: first idea of doing something like this
+    \item 2007 (FOSDEM): +netconf
+    \item 2008: -netconf
+    \item 2009: ipcfg: linked list of function pointers turing machine
+    \item 2010: ipcfg 0.5 (1st rewrite)
+    \item 2012: ipcfg 0.6 (2nd rewrite)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{What is involved in network configuration?}
+  \begin{itemize}
+    \item boot-time configuration (servers, desktops, \ldots)
+    \item roaming configuration (laptops, tablets, \ldots)
+    \item single or multiple network links?
+    \item user environment (proxy, SMTP smarthost, IM "online" state, \ldots)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Is there a perfect network management tool?}
+  \begin{itemize}
+    \item ifupdown? % static config only, manual
+    \item network-manager? % roaming config only, single link, automatic
+    \item wicd? % mostly config only, but does enable before login, single link, automatic
+    \item guessnet? % semi-dynamic extension for ifupdown, manual
+    \item whereami? % semi-dynamic, somewhat conflicting with ifupdown, no longer developed since 2007
+  \end{itemize}
+  \uncover<+->{=> not really.}
+\end{frame}
+
+\section{Theory}
+\subsection{aka: "how"}
+\begin{frame}
+  \frametitle{How do you configure a network?}
+  \begin{itemize}
+    \item Probe
+    \item Decide
+    \item Change
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{How do tools decide?}
+  \begin{itemize}
+    \item Just do what the config files say (aka, Not At All)? (ifupdown)
+    \item Hardcoded rules based on detection and direct user input? (n-m, wicd)
+    \item Programmable config files? (guessnet, whereami)
+  \end{itemize}
+  How about "all of the above"?
+\end{frame}
+
+\begin{frame}
+  \frametitle{Behind the scenes}
+  \begin{itemize}
+    \item build a graph
+    \item nodes: network states
+    \begin{itemize}
+      \item eth0 is up, we don't know about wlan0
+      \item eth0 is up, we don't \emph{care} about wlan0
+      \item there is an Internet connection coming from \emph{somewhere}
+      \item eth0 \emph{and} eth1 are fully configured and have a route
+      \item eth0 has a static IP address configured, everything else is down
+    \end{itemize}
+    \item edges: transitions
+    \item mark current state
+    \item mark candidate wanted states
+    \item find shortest paths (Dijkstra's algorithm)
+    \item change!
+  \end{itemize}
+\end{frame}
+
+\section{Status}
+\subsection{aka: "when"}
+\begin{frame}
+  \frametitle{What's ready?}
+  \begin{itemize}
+    \item Graph (default nodes, edges)
+    \item Path mapping
+    \item Some non-default nodes on Linux (e.g., MII detection)
+    \item \texttt{/etc/network/interfaces} parsing (phew)
+    \item DSL for defining defaults
+    \item Basic command-line interface
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{What's \emph{not} ready? (more ore less ordered)}
+  \begin{itemize}
+    \item Many many (\emph{many}) node/edge implementations
+    \item Native config file format (design + implementation)
+    \item Daemon mode
+    \item User tool to talk to daemon
+  \end{itemize}
+\end{frame}
+
+\section{Risks}
+\subsection{aka: "EEEeeep!"}
+\begin{frame}
+  \frametitle{What could jeopardize this?}
+  \begin{itemize}
+    \item Implemented in D
+    \begin{itemize}
+      \item Currently only works on x86 architectures (fixes in progress)
+      \item No D abi for shared libraries (fixes in progress)
+    \end{itemize}
+
+    these ssues might not be fixed by wheezy+1
+
+    \item I could run out of time --- help is welcome :-)
+    \item Unexpected obstacles?
+  \end{itemize}
+\end{frame}
+\end{document}

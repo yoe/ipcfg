@@ -1,4 +1,4 @@
-module ipcfg.comparator;
+module ipcfg.templates;
 
 import ipcfg.iface;
 import ipcfg.node;
@@ -11,14 +11,37 @@ class InvalidPropertyException : Exception {
 	}
 }
 
-class Comparator {
+private Template[string] templates;
+
+Template getTemplateFor(string name) {
+	if(!(name in templates)) {
+		templates[name] = new Template();
+	}
+	return templates[name];
+}
+
+Node getDefaultNode(string s1, string s2) {
+	Node n = new DefaultNode(s1);
+	n.iface = s2;
+	return n;
+}
+
+Edge getDefaultUpEdge(Node n1, Node n2) {
+	return new DefaultEdge(n1, n2);
+}
+
+Edge getDefaultDownEdge(Node n1, Node n2) {
+	return new DefaultDownEdge(n1, n2);
+}
+
+class Template {
 	private TypeInfo _ti;
 	private string _props[string];
-	private Comparator[] _deps;
+	private Template[] _deps;
 
-	private Node function(string, string) _creator;
-	private Edge function(Node, Node) _upedge;
-	private Edge function(Node, Node) _downedge;
+	private Node function(string, string) _creator = &getDefaultNode;
+	private Edge function(Node, Node) _upedge = &getDefaultUpEdge;
+	private Edge function(Node, Node) _downedge = &getDefaultDownEdge;
 
 	@property bool hasProp(string name) {
 		return ((name in _props) !is null);
@@ -40,18 +63,24 @@ class Comparator {
 		return _ti;
 	}
 
-	@property Comparator[] deps() {
+	@property Template[] deps() {
 		return _deps;
 	}
 
-	void addDep(Comparator dep) {
+	void addDep(Template dep) {
 		_deps ~= dep;
 	}
 
-	void setType(TypeInfo ti, Node function(string, string) creator, Edge function(Node, Node) upedge, Edge function(Node, Node) downedge) {
+	void setType(TypeInfo ti, Node function(string, string) creator) {
 		_ti = ti;
 		_creator = creator;
+	}
+
+	void setUpEdge(Edge function(Node, Node) upedge) {
 		_upedge = upedge;
+	}
+	
+	void setDownEdge(Edge function(Node, Node) downedge) {
 		_downedge = downedge;
 	}
 

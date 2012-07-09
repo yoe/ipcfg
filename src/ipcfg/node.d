@@ -1,7 +1,7 @@
 module ipcfg.node;
 
 import ipcfg.edge;
-import ipcfg.comparator;
+import ipcfg.templates;
 
 interface Node {
 	bool is_active();
@@ -18,7 +18,7 @@ interface Node {
 	@property bool kernel();
 	@property string iface();
 	@property void iface(string);
-	bool matches(Comparator c) const;
+	bool matches(Template c) const;
 }
 
 class DefaultNode : Node {
@@ -126,7 +126,7 @@ class DefaultNode : Node {
 		return (_in_edges == n.in_edges) && (_out_edges == n.out_edges) && (_wanted == n.wanted) && (this.stringof == n.stringof);
 	}
 
-	bool matches(Comparator c) const {
+	bool matches(Template c) const {
 		if(typeid(this) != c.type) {
 			return false;
 		}
@@ -152,7 +152,7 @@ class RootNode : DefaultNode {
 		return true;
 	}
 
-	override bool matches(Comparator c) const {
+	override bool matches(Template c) const {
 		if(typeid(this) != c.type) {
 			return false;
 		}

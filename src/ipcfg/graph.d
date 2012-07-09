@@ -4,7 +4,7 @@ import ipcfg.node;
 import ipcfg.edge;
 import ipcfg.debugout;
 import ipcfg.iface;
-import ipcfg.comparator;
+import ipcfg.templates;
 
 import std.stdio;
 import std.array;
@@ -27,7 +27,7 @@ class Path {
 	protected int _score;
 	protected Path[] out_paths;
 	protected bool _final;		/// Final means this path ends at a wanted node.
-	protected Node[] nodes;
+	protected Node[] _nodes;
 
 	@property int score() {
 		return _score;
@@ -126,6 +126,7 @@ class Graph {
 	private Path[string] _paths_by_string;
 	private bool _have_current;
 	private ipcfg.iface.Iface[string] _ifaces;
+	private Node _nodes[]; // This is wrong on so many levels, but I'm not going to shave yet another yak.
 
 	this(ipcfg.node.Node currnode) {
 		_currnode = currnode;
@@ -285,11 +286,12 @@ class Graph {
 		}
 	}
 
-	Node getNodeWithContext(Iface i, Comparator c) 
+	Node getNodeWithContext(Iface i, Template c) 
 	out(result) { 
 		assert(result.matches(c));
 	}
 	body {
+		Node n;
 		foreach(node; _nodes) {
 			if(node.matches(c)) {
 				return node;
@@ -299,8 +301,10 @@ class Graph {
 		if(!c.hasProp("iface")) {
 			newi = i;
 		} else {
-			newi = iface(ifname);
+			newi = iface(c.getProp("name"));
 		}
-		return c.instantiate(newi, c);
+		n = c.instantiate(newi, this);
+		_nodes ~= n;
+		return n;
 	}
 }

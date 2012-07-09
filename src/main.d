@@ -3,6 +3,7 @@ import std.getopt;
 import std.path;
 
 import ipcfg.parser;
+import ipcfg.defaults;
 import ipcfg.node;
 import ipcfg.edge;
 import ipcfg.linux.mii;
@@ -81,6 +82,8 @@ int main(string[] args) {
 	Graph g = new Graph(r);
 
 	writeln(r);
+
+	ipcfg.defaults.init();
 
 	ipcfg.parser.parseconfigs(g);
 

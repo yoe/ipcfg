@@ -7,7 +7,7 @@ DC := gdmd
 
 LIBS=$(shell pkg-config --libs libnl-3.0 libnl-route-3.0)
 
-output/ipcfg: main.o ipcfg/debugout.o ipcfg/defaults.o ipcfg/edge.o ipcfg/event.o ipcfg/iface.o ipcfg/node.o ipcfg/graph.o ipcfg/parser.o ipcfg/templates.o ipcfg/linux/mii.o ipcfg/linux/rtnetlink_common.o
+output/ipcfg: main.o ipcfg/debugout.o ipcfg/defaults.o ipcfg/edge.o ipcfg/event.o ipcfg/iface.o ipcfg/node.o ipcfg/graph.o ipcfg/parser.o ipcfg/templates.o ipcfg/linux/mii.o ipcfg/linux/rtnetlink_common.o ipcfg/linux/staticip.o
 	[ -d output ] || mkdir output
 	$(DC) -of$@ $(addprefix -L,$(LIBS)) -L-L../../Pegged -L-lpegged $^
 
@@ -25,13 +25,13 @@ clean:
 	$(MAKE) -C ipcfg clean
 	rm -f output/ipcfg *.o
 
-test: testparser.d
-	dmd -gc -w -oftest -I../../Pegged -L-L../../Pegged -L-lpegged test.d testparser.d
+test: testdefaults.d test.d
+	dmd -gc -w -oftest -I../../Pegged -L-L../../Pegged -L-lpegged test.d testdefaults.d
 
-testparser.d: parser adddebug.pl
+testdefaults.d: parser adddebug.pl
 	./parser
-	./adddebug.pl < testparser.d > f
-	mv f testparser.d
+	./adddebug.pl < testdefaults.d > f
+	mv f testdefaults.d
 
-parser: ipcfg/parser.d
-	dmd -ofparser -I../../Pegged -L-L../../Pegged -L-lpegged -I. ipcfg/parser.d
+parser: ipcfg/defaults.d
+	dmd -ofparser -I../../Pegged -L-L../../Pegged -L-lpegged -I. ipcfg/defaults.d

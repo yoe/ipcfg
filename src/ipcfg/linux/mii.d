@@ -16,9 +16,9 @@ class MiiEdge : ipcfg.edge.DefaultEdge {
 	protected MiiNode _to;
 	protected int _timeout;
 
-	this(Node from, MiiNode to, int timeout = 1) {
-		super(from, cast(Node)to);
-		_to = to;
+	this(Node from, Node to, int timeout = 1) {
+		super(from, to);
+		_to = cast(MiiNode)to;
 		_timeout = timeout;
 	}
 
@@ -97,9 +97,9 @@ class MiiEdge : ipcfg.edge.DefaultEdge {
 class MiiDownEdge: ipcfg.edge.DefaultDownEdge {
 	protected MiiNode _from;
 
-	this(MiiNode from, Node to) {
-		super(cast(Node)from, to);
-		_from = from;
+	this(Node from, Node to) {
+		super(from, to);
+		_from = cast(MiiNode)from;
 	}
 
 	override @property string stringof() {

@@ -30,7 +30,7 @@ class LegacyIpEdge : ipcfg.edge.DefaultEdge {
 		rtnl_link* link = rtnl_link_alloc();
 
 		rtnl_link_get_kernel(socket, 0, _to.iface, &link);
-		rtnl_link_inet_get_conf(link, 
+		//rtnl_link_inet_get_conf(link, 
 	}
 }
 
@@ -45,12 +45,11 @@ class LegacyIpNode : ipcfg.node.DefaultNode {
 	private string _address;
 	private string _ifacename;
 
-	this(string address, string ifacename) {
-		_address = address;
-		_ifacename = ifacename;
+	this(string name, string iface) {
+		super(name, iface);
 	}
 
-	@property string iface() {
+	override @property string iface() {
 		return _ifacename;
 	}
 	@property string address() {

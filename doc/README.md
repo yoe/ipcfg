@@ -4,10 +4,11 @@ rewrite, and it is done in [D](http://dlang.org).
 
 # Compiling
 
-D has seen a fairly significant change recently; the original language
-is now referred to as "D1", whereas the new version is "D2". The old
-dialect will not be supported after December of this year anymore by D
-upstream, so I didn't think it appropriate to write ipcfg in D1 anymore.
+D has seen a fairly significant change somewhat recently; the original
+language is now referred to as "D1", whereas the new version is "D2".
+The old dialect will not be supported after December of this year
+anymore by D upstream, so I didn't think it appropriate to write ipcfg
+in D1 anymore.
 
 I'm currently using the proprietary 'dmd' compiler, which was written
 and is maintained by Walter Bright, inventor of the D language. However,
@@ -96,7 +97,7 @@ highest priority.
 ## Details
 
 The decision system as described above is implemented in edge.d, node.d,
-and path.d. The plan is that future versions of ipcfg (when D supports
+and graph.d. The plan is that future versions of ipcfg (when D supports
 shared objects properly) will allow extending the edge and node
 interfaces; what's in path.d is really internal cookery.
 
@@ -109,7 +110,7 @@ edge will be absolutely positively impossible"; or it can be anything in
 between, with 500 meaning "we have no clue one way or another whether
 this will work, but we'll try", 1 meaning something like "it's extremely
 likely this will be possible, but it could still fail" and 999 meaning
-"it's highly unlikely, but you could be lucky".
+"it's highly unlikely, but hey, you could be lucky".
 
 Edges have a `cost` property, which is meant to influence the return
 value of the `estimate` function. The scale of this `cost` property is
@@ -134,9 +135,9 @@ The return value of the `traverse` function has the same meaning as the
 return value of the `estimate` function, except that `traverse`
 functions which return a value not 0 or 1000 are weird.
 
-If a `traverse` function returns 1000, the system will recalculate the
-paths, and try again. Edges which returned 1000 on a `traverse` should
-therefore return 1000 (or at the very least, not 0) at the next
+If a `traverse` function returns nonzero, the system will recalculate
+the paths, and try again. Edges which returned 1000 on a `traverse`
+should therefore return 1000 (or at the very least, not 0) at the next
 `estimate`, otherwise ipcfg will probably start looping over trying to
 traverse the same path all the time.
 
@@ -163,11 +164,11 @@ return the edges that point to or from this particular node.
 No function or method related to a node must ever change the system
 state.
 
-In any ipcfg graph, the "currently active" node is defined as whichever
-node is active and has the highest number of (direct or indirect) active
-nodes on the other ends of its in edges (i.e., the active node that is
-on the high point of the food chain). For the purpose of this check,
-"down" edges are ignored.
+In the graph, the "currently active" node is defined as the node which
+is itself active, has at least one in edge which also is active, but
+which has no out edges which are also active (i.e., the highest active
+node in the food chain). This definition might change in the future as I
+learn more about graph theory...
 
 ### Path
 
@@ -178,8 +179,8 @@ for instance, a node representing "wlan0 has no link" and one
 representing "wlan0 has link" may have several edges, one for each
 configured ESSID, and then finally one more for "any random ESSID".
 
-Path has a "prev" member, a pointer to another Path object, which refers
-to the previous node in this path, and an "out_paths" dynamic array,
+Path has a `prev` member, a pointer to another Path object which refers
+to the previous step in this path; and an `out_paths` dynamic array,
 referring to other paths that build upon this path.
 
 The Path object keeps track of the cumulative return values of the
@@ -193,9 +194,13 @@ There will be no two Path objects which end up at the same node. In
 fact, Path objects are referred to by the node to which they describe a
 path.
 
-The actual decision code is in the Mapper class. It is possible (and
-legal) to instanciate multiple Mapper objects; each would refer to a
+The actual decision code is in the Graph class. It is possible (and
+legal) to instanciate multiple Graph objects[1]; each would refer to a
 different decision. This has two main methods: a `find_current` method
 which will search for the "currently active" node as described above,
 and a `map_paths` method which will find the shortest path to any node
 in the system (starting from the currently active node).
+
+[1] except that currently, Graph maintains a _little_ bit too much
+    state, making it impossible to instantiate it twice. I'll shave that
+    yak when I have a little bit more stuff working.

@@ -5,10 +5,6 @@ import linux.libnl;
 extern(C):
 
 struct rtnl_link;
-struct nl_cache;
-
-/* cache -- yuck */
-int rtnl_link_alloc_cache(rtnl_link*, int, nl_cache**);
 
 /* Link object functions */
 rtnl_link* rtnl_link_alloc();
@@ -25,9 +21,11 @@ int rtnl_link_change(nl_sock*, rtnl_link*, rtnl_link*, int);
 void rtnl_link_set_operstate(rtnl_link*, ubyte);
 ubyte rtnl_link_get_operstate(rtnl_link*);
 
-/* IPv4 addresses */
-int rtnl_link_inet_get_conf(rtnl_link*, const uint, uint*);
-int rtnl_link_inet_set_conf(rtnl_link*, const uint, uint*);
+/* Lower-level stuff */
+int nl_rtgen_request(nl_sock*, int, int, int);
+int nl_msg_parse(nl_msg*, void function(nl_object*, void*), void*);
+int nl_socket_modify_cb(nl_sock*, nl_cb_type, nl_cb_kind, int function(nl_msg*, void*), void*);
+int nl_recvmsgs_default(nl_sock*);
 
 immutable auto IFF_UP          = 0x1;             /* interface is up              */
 immutable auto IFF_BROADCAST   = 0x2;             /* broadcast address valid      */

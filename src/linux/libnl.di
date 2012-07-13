@@ -22,6 +22,46 @@ nl_msg* nlmsg_alloc();
 void nlmsg_free(nl_msg* msg);
 void nl_socket_set_local_port(nl_sock*, uint);
 
+enum nl_cb_type {
+        /** Message is valid */
+        NL_CB_VALID,
+        /** Last message in a series of multi part messages received */
+        NL_CB_FINISH,
+        /** Report received that data was lost */
+        NL_CB_OVERRUN,
+        /** Message wants to be skipped */
+        NL_CB_SKIPPED,
+        /** Message is an acknowledge */
+        NL_CB_ACK,
+        /** Called for every message received */
+        NL_CB_MSG_IN,
+        /** Called for every message sent out except for nl_sendto() */
+        NL_CB_MSG_OUT,
+        /** Message is malformed and invalid */
+        NL_CB_INVALID,
+        /** Called instead of internal sequence number checking */
+        NL_CB_SEQ_CHECK,
+        /** Sending of an acknowledge message has been requested */
+        NL_CB_SEND_ACK,
+        /** Flag NLM_F_DUMP_INTR is set in message */
+        NL_CB_DUMP_INTR,
+        __NL_CB_TYPE_MAX,
+};
+
+enum nl_cb_kind {
+        /** Default handlers (quiet) */
+        NL_CB_DEFAULT,
+        /** Verbose default handlers (error messages printed) */
+        NL_CB_VERBOSE,
+        /** Debug handlers for debugging */
+        NL_CB_DEBUG,
+        /** Customized handler specified by the user */
+        NL_CB_CUSTOM,
+        __NL_CB_KIND_MAX,
+};
+
+
+
 /* Constants */
 immutable auto NLM_F_REQUEST = 1;
 immutable auto NLM_F_MULTI = 2;

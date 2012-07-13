@@ -8,6 +8,8 @@ import ipcfg.linux.rtnetlink_common;
 import linux.libnl;
 import linux.rtnetlink;
 
+import std.string;
+
 class LegacyIpEdge : ipcfg.edge.DefaultEdge {
 	protected LegacyIpNode _to;
 	
@@ -29,28 +31,26 @@ class LegacyIpEdge : ipcfg.edge.DefaultEdge {
 		nl_sock* socket = ipcfg.linux.rtnetlink_common.get_socket();
 		rtnl_link* link = rtnl_link_alloc();
 
-		rtnl_link_get_kernel(socket, 0, _to.iface, &link);
+		rtnl_link_get_kernel(socket, 0, _to.iface.toStringz(), &link);
 		//rtnl_link_inet_get_conf(link, 
+
+		return 1000;
 	}
 }
 
-class LegacyIpDownEdge : ipcfg.node.DefaultNode {
-	this(LegacyIpNode from, Node to) {
-		super(cast(Node)from, to);
-		_to = to;
+class LegacyIpDownEdge : ipcfg.node.DefaultEdge {
+	this(Node from, Node to) {
+		super(from, to);
+		_to = cast(LegacyIpNode)to;
 	}
 }
 
 class LegacyIpNode : ipcfg.node.DefaultNode {
 	private string _address;
-	private string _ifacename;
 
 	this(string name, string iface) {
-		super(name, iface);
-	}
-
-	override @property string iface() {
-		return _ifacename;
+		super(name);
+		_iface = iface;
 	}
 
 	@property string address() {

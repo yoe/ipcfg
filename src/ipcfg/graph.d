@@ -183,7 +183,7 @@ class Graph {
 	}
 
 	void fixNetwork() {
-		ipcfg.node.Node start = currnode;
+		ipcfg.node.Node start = _currnode;
 		sort!("a.score < b.score")(_wanted_nodes);
 		addWanted(start, 0);
 		foreach(scored_wanted sw; _wanted_nodes) {

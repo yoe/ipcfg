@@ -7,7 +7,7 @@ DC := gdmd
 
 LIBS=$(shell pkg-config --libs libnl-3.0 libnl-route-3.0)
 
-output/ipcfg: main.o ipcfg/debugout.o ipcfg/defaults.o ipcfg/edge.o ipcfg/event.o ipcfg/iface.o ipcfg/node.o ipcfg/graph.o ipcfg/parser.o ipcfg/templates.o ipcfg/linux/mii.o ipcfg/linux/rtnetlink_common.o ipcfg/linux/staticip.o
+output/ipcfg: ipcfg/debugout.o ipcfg/defaults.o ipcfg/edge.o ipcfg/event.o ipcfg/iface.o ipcfg/node.o ipcfg/graph.o ipcfg/parser.o ipcfg/templates.o ipcfg/linux/mii.o ipcfg/linux/rtnetlink_common.o ipcfg/linux/staticip.o main.o
 	[ -d output ] || mkdir output
 	$(DC) -of$@ $(addprefix -L,$(LIBS)) -L-L../../Pegged -L-lpegged $^
 

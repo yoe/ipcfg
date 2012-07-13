@@ -8,6 +8,7 @@ import ipcfg.templates;
 
 import std.stdio;
 import std.array;
+import std.algorithm;
 
 class UnknownStateException : Exception {
 	this(string msg, string file = __FILE__, int line = __LINE__) {
@@ -119,18 +120,37 @@ class InitialPath : Path {
 	}
 }
 
+
 class Graph {
-	private ipcfg.node.Node _currnode;
-	private ipcfg.node.Node _root;
-	private Path[ipcfg.node.Node] _paths;
-	private Path[string] _paths_by_string;
-	private bool _have_current;
+	struct scored_wanted {
+		ipcfg.node.Node node;
+		int score;
+	}
+
+	private ipcfg.node.Node _nodes[];
 	private ipcfg.iface.Iface[string] _ifaces;
-	private Node _nodes[]; // This is wrong on so many levels, but I'm not going to shave yet another yak.
+	private Map _maps;
+	private ipcfg.node.Node _currnode;
+	private scored_wanted _wanted_nodes[];
 
 	this(ipcfg.node.Node currnode) {
 		_currnode = currnode;
-		_root = currnode;
+	}
+
+	void addWanted(ipcfg.node.Node w, int score) {
+		scored_wanted sw;
+		sw.node = w;
+		sw.score = score;
+		_wanted_nodes ~= sw;
+	}
+
+	void delWanted(ipcfg.node.Node w) {
+		foreach(int i, scored_wanted sw; _wanted_nodes) {
+			if(sw.node == w) {
+				_wanted_nodes = _wanted_nodes[0..i-1] ~ _wanted_nodes[i+1..$];
+				return;
+			}
+		}
 	}
 
 	ipcfg.iface.Iface iface(string name) {
@@ -140,12 +160,74 @@ class Graph {
 		return _ifaces[name];
 	}
 
+	Node getNodeWithContext(Iface i, Template c) 
+	out(result) { 
+		assert(result.matches(c));
+	}
+	body {
+		Node n;
+		foreach(node; _nodes) {
+			if(node.matches(c)) {
+				return node;
+			}
+		}
+		Iface newi;
+		if(!c.hasProp("iface")) {
+			newi = i;
+		} else {
+			newi = iface(c.getProp("name"));
+		}
+		n = c.instantiate(newi, this);
+		_nodes ~= n;
+		return n;
+	}
+
+	void fixNetwork() {
+		ipcfg.node.Node start = currnode;
+		sort!("a.score < b.score")(_wanted_nodes);
+		addWanted(start, 0);
+		foreach(scored_wanted sw; _wanted_nodes) {
+			if(_maps is null || _maps.currNode != _currnode) {
+				if(_maps !is null) {
+					delete _maps;
+				}
+				_maps = new Map(_currnode);
+				_maps.find_current();
+				_currnode = _maps.currNode;
+				_maps.map_paths();
+			}
+			_maps.get_path_for(sw.node).walk();
+			if(sw.node.is_active()) {
+				delWanted(start);
+				return;
+			}
+		}
+		delWanted(start);
+	}
+}
+
+class Map {
+	private ipcfg.node.Node _currnode;
+	private ipcfg.node.Node _root;
+	private Path[ipcfg.node.Node] _paths;
+	private Path[string] _paths_by_string;
+	private bool _have_current;
+
+	this(ipcfg.node.Node currnode) {
+		_currnode = currnode;
+		_root = currnode;
+	}
+
 	@property ipcfg.node.Node rootNode() {
 		return _root;
 	}
 
 	@property void rootNode(ipcfg.node.Node n) {
 		_root = n;
+	}
+
+	@property ipcfg.node.Node currNode() {
+		return _currnode;
 	}
 
 	/++
@@ -284,27 +366,5 @@ class Graph {
 		} else {
 			throw new UnknownPathException(descr);
 		}
-	}
-
-	Node getNodeWithContext(Iface i, Template c) 
-	out(result) { 
-		assert(result.matches(c));
-	}
-	body {
-		Node n;
-		foreach(node; _nodes) {
-			if(node.matches(c)) {
-				return node;
-			}
-		}
-		Iface newi;
-		if(!c.hasProp("iface")) {
-			newi = i;
-		} else {
-			newi = iface(c.getProp("name"));
-		}
-		n = c.instantiate(newi, this);
-		_nodes ~= n;
-		return n;
 	}
 }

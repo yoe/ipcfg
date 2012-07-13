@@ -14,7 +14,7 @@
 \title{My DebCamp \& DebConf project: ipcfg}
 \subtitle{network configuration sucks}
 \author{Wouter Verhelst}
-\date{14 July 2012 \\ Debconf 12 \\ Nicaragua}
+\date{14 July 2012 \\ Debconf 12 \\ Managua, Nicaragua}
 \subject{ipcfg}
 
 \mode<presentation>{
@@ -42,7 +42,7 @@
     \item about 2005: first idea of doing something like this
     \item 2007 (FOSDEM): +netconf
     \item 2008: -netconf
-    \item 2009: ipcfg: linked list of function pointers turing machine
+    \item 2009: ipcfg: turing machine of function pointers.
     \item 2010: ipcfg 0.5 (1st rewrite)
     \item 2012: ipcfg 0.6 (2nd rewrite)
   \end{itemize}
@@ -54,7 +54,8 @@
     \item boot-time configuration (servers, desktops, \ldots)
     \item roaming configuration (laptops, tablets, \ldots)
     \item single or multiple network links?
-    \item user environment (proxy, SMTP smarthost, IM "online" state, \ldots)
+    \item user environment (proxy, smarthost, ``online'' status, \ldots)
+    \item manual configuration/tests
   \end{itemize}
 \end{frame}
 
@@ -88,7 +89,7 @@
     \item Hardcoded rules based on detection and direct user input? (n-m, wicd)
     \item Programmable config files? (guessnet, whereami)
   \end{itemize}
-  How about "all of the above"?
+  \uncover<2->{How about ``all of the above''?}
 \end{frame}
 
 \begin{frame}
@@ -130,6 +131,7 @@
   \begin{itemize}
     \item Many many (\emph{many}) node/edge implementations
     \item Native config file format (design + implementation)
+    \item \texttt{ipcfg record}
     \item Daemon mode
     \item User tool to talk to daemon
   \end{itemize}
@@ -145,6 +147,8 @@
       \item Currently only works on x86 architectures (fixes in progress)
       \item No D abi for shared libraries (fixes in progress)
       \item Some current compilation problems with gdc, LDC only implements D1.
+      \item DMD eats swaths of memory with large template usage,
+      invoking the OOM killer on my laptop.
     \end{itemize}
 
     these issues might not be fixed by wheezy+1

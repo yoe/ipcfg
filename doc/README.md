@@ -194,13 +194,14 @@ There will be no two Path objects which end up at the same node. In
 fact, Path objects are referred to by the node to which they describe a
 path.
 
-The actual decision code is in the Graph class. It is possible (and
-legal) to instanciate multiple Graph objects[1]; each would refer to a
+The actual decision code is in the Graph and Map classes. It is possible
+(and legal) to instantiate multiple Map objects; each would refer to a
 different decision. This has two main methods: a `find_current` method
 which will search for the "currently active" node as described above,
 and a `map_paths` method which will find the shortest path to any node
-in the system (starting from the currently active node).
-
-[1] except that currently, Graph maintains a _little_ bit too much
-    state, making it impossible to instantiate it twice. I'll shave that
-    yak when I have a little bit more stuff working.
+in the system (starting from the currently active node). In contrast,
+one would only instantiate one Graph class; this class serves as a
+container for the Nodes in the system, and all the known network
+interfaces. While the graph itself (as represented by the Graph class)
+may change, there will never be more than one graph, thus there will
+never be more than one Graph instance.
